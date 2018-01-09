@@ -1,0 +1,14 @@
+{
+	"locale_name": "English (United-States)",
+	"map": {
+		"title": "urmusic",
+		
+		"menu.help": "Help",
+		"menu.help.about": "About",
+		
+		"view.info.name": "Info",
+		"view.properties.name": "Properties",
+		"view.preview.name": "Preview",
+		"view.timeline.name": "Timeline"
+	}
+}

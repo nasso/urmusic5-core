@@ -1,0 +1,13 @@
+bin/*
+.settings/*
+ignore/*
+appdata/
+
+*.war
+*.ear
+*.log
+.classpath
+.project
+
+hs_err_pid*
+/bin/
