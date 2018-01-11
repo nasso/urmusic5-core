@@ -51,7 +51,7 @@ public class UrmusicStrings {
 	}
 	
 	public static final String getString(String key) {
-		return langmap.getOrDefault(key, "MISSING_STRG");
+		return langmap.getOrDefault(key, "[" + key + "]");
 	}
 	
 	private UrmusicStrings() { }

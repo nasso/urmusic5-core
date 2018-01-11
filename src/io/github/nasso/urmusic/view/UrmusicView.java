@@ -21,10 +21,12 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.view.components.UrmusicSplittablePane;
 import io.github.nasso.urmusic.view.data.UrmusicIcons;
+import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicViewState;
 import io.github.nasso.urmusic.view.data.UrmusicViewStateCodec;
@@ -32,9 +34,9 @@ import io.github.nasso.urmusic.view.data.UrmusicViewStateCodec;
 public class UrmusicView {
 	private static List<JFrame> frames = new ArrayList<JFrame>();
 	
-	private static UrmusicViewState viewState = new UrmusicViewState();
+	private static UrmusicViewState viewState = null;
 	
-	private static Action menuAboutAction;
+	private static Action menuExitAction, menuAboutAction;
 	
 	public static final void init() {
 		// TODO: Load Locale from pref file
@@ -46,14 +48,52 @@ public class UrmusicView {
 		
 		loadViewState();
 		
-		UrmusicSplittablePane.popupNew();
+		if(viewState == null || viewState.getPaneStates().length == 0) {
+			UrmusicSplittablePane.popupNew();
+		} else {
+			UrmusicSplittedPaneState[] frames = viewState.getPaneStates();
+			for(int i = 0; i < viewState.getPaneStates().length; i++) {
+				UrmusicSplittablePane pane = UrmusicSplittablePane.popupNew();
+				pane.loadState(frames[i]);
+			}
+		}
 	}
 	
 	public static final void registerFrame(JFrame frame) {
 		frame.addWindowListener(new WindowAdapter() {
-			public void windowClosed(WindowEvent e) {
-				frames.remove(frame);
-				checkFramesLeft();
+			public void windowClosing(WindowEvent e) {
+				if(frames.size() > 1) {
+					int chosen = JOptionPane.showOptionDialog(
+						frame,
+						getString("view.frame.multiCloseWarning.message"),
+						getString("view.frame.multiCloseWarning.title"),
+						JOptionPane.CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						new String[]{
+							getString("view.frame.multiCloseWarning.closeOne"),
+							getString("view.frame.multiCloseWarning.closeAll"),
+							getString("view.frame.multiCloseWarning.cancel")
+						},
+						null
+					);
+					
+					switch(chosen) {
+						case 1: // close all
+							UrmusicController.requestExit();
+						case 0: // close one
+							break;
+						default: // cancel
+							return;
+					}
+				}
+				
+				// If this is the last window left, exit
+				if(frames.size() == 1) UrmusicController.requestExit();
+				else frames.remove(frame);
+				
+				// Close the window
+				e.getWindow().dispose();
 			}
 		});
 		
@@ -61,11 +101,15 @@ public class UrmusicView {
 		frames.add(frame);
 	}
 	
-	private static void checkFramesLeft() {
-		if(frames.isEmpty()) UrmusicController.requestExit();
-	}
-	
 	private static void setupActions() {
+		menuExitAction = new AbstractAction(getString("menu.file.quit")) {
+			private static final long serialVersionUID = -3394065489480828001L;
+
+			public void actionPerformed(ActionEvent e) {
+				UrmusicController.requestExit();
+			}
+		};
+		
 		menuAboutAction = new AbstractAction(getString("menu.help.about")) {
 			private static final long serialVersionUID = -48007517019376751L;
 
@@ -78,31 +122,41 @@ public class UrmusicView {
 	private static JMenuBar buildMenu() {
 		JMenuBar mb = new JMenuBar();
 		
+		JMenu fileMenu = new JMenu(getString("menu.file"));
+		fileMenu.add(new JMenuItem(menuExitAction));
+		
 		JMenu helpMenu = new JMenu(getString("menu.help"));
-		JMenuItem aboutItem = new JMenuItem();
-		aboutItem.setAction(menuAboutAction);
-		helpMenu.add(aboutItem);
+		helpMenu.add(new JMenuItem(menuAboutAction));
+		
+		mb.add(fileMenu);
 		mb.add(helpMenu);
 		
 		return mb;
 	}
 	
-	public static boolean loadViewState() {
+	public static void loadViewState() {
 		File viewStateFile = new File("appdata/view-state.dat");
 		
-		if(!viewStateFile.exists()) return false;
+		if(!viewStateFile.exists()) {
+			viewStateFile = new File("appdata/default-view-state.dat");
+			if(!viewStateFile.exists()) return;
+		}
 		
 		try(BufferedInputStream in = new BufferedInputStream(new FileInputStream(viewStateFile))) {
-			UrmusicViewStateCodec.readState(viewState, in);
+			viewState = UrmusicViewStateCodec.readState(in);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
-		
-		return false;
 	}
 	
 	public static void saveViewState() {
 		File viewStateFile = new File("appdata/view-state.dat");
+		
+		UrmusicSplittedPaneState[] paneStates = new UrmusicSplittedPaneState[frames.size()];
+		for(int i = 0; i < paneStates.length; i++) paneStates[i] = ((UrmusicSplittablePane) frames.get(i).getContentPane()).saveState();
+
+		viewState = new UrmusicViewState();
+		viewState.setPaneStates(paneStates);
 		
 		try(BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(viewStateFile))) {
 			UrmusicViewStateCodec.writeState(viewState, out);

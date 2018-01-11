@@ -6,11 +6,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -21,6 +20,7 @@ import javax.swing.border.EmptyBorder;
 
 import io.github.nasso.urmusic.view.UrmusicView;
 import io.github.nasso.urmusic.view.data.UrmusicIcons;
+import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.panels.UrmusicInfoView;
 import io.github.nasso.urmusic.view.panels.UrmusicPreviewView;
@@ -197,12 +197,51 @@ public class UrmusicSplittablePane extends JPanel {
 		this.childB = null;
 	}
 	
-	public void saveState(OutputStream out) {
-		// TODO saveState
+	public UrmusicSplittedPaneState saveState() {
+		UrmusicSplittedPaneState state = new UrmusicSplittedPaneState();
+		
+		state.setSplitted(this.split);
+		state.setVertical(this.splitPane.getOrientation() == JSplitPane.VERTICAL_SPLIT);
+		state.setViewID(this.viewCombo.getSelectedIndex());
+		state.setSplitLocation(this.splitPane.getDividerLocation());
+		
+		if(this.ownerFrame != null) {
+			Point p = this.ownerFrame.getLocationOnScreen();
+			state.setPosX(p.x);
+			state.setPosY(p.y);
+			state.setWidth(this.ownerFrame.getWidth());
+			state.setHeight(this.ownerFrame.getHeight());
+			state.setExtendedState(this.ownerFrame.getExtendedState());
+		}
+		
+		if(this.split && this.childA != null) {
+			state.setStateA(this.childA.saveState());
+		}
+		
+		if(this.split && this.childB != null) {
+			state.setStateB(this.childB.saveState());
+		}
+		
+		return state;
 	}
 	
-	public void loadState(InputStream in) {
-		// TODO loadState
+	public void loadState(UrmusicSplittedPaneState state) {
+		if(this.ownerFrame != null) {
+			this.ownerFrame.setLocation(state.getPosX(), state.getPosY());
+			this.ownerFrame.setSize(state.getWidth(), state.getHeight());
+			this.ownerFrame.setExtendedState(state.getExtendedState());
+		}
+		
+		if(state.isSplitted()) {
+			if(state.isVertical()) this.splitVertically();
+			else this.splitHorizontally();
+			
+			this.splitPane.setDividerLocation(state.getSplitLocation());
+			this.childA.loadState(state.getStateA());
+			this.childB.loadState(state.getStateB());
+		} else {
+			this.viewCombo.setSelectedIndex(state.getViewID());
+		}
 	}
 	
 	private void updateView(ItemEvent event) {
@@ -258,10 +297,10 @@ public class UrmusicSplittablePane extends JPanel {
 		JFrame popup = new JFrame(UrmusicStrings.getString("title"));
 		popup.setSize(800, 600); // TODO: Maybe custom size for popups?
 		popup.setLocationRelativeTo(null);
-		popup.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		popup.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		popup.setContentPane(newPane = new UrmusicSplittablePane(owner, popup));
 		popup.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent e) {
+			public void windowClosed(WindowEvent e) {
 				newPane.dispose();
 			}
 		});

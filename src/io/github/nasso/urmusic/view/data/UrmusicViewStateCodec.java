@@ -7,13 +7,34 @@ import java.io.OutputStream;
 import io.github.nasso.urmusic.utils.DataUtils;
 
 public class UrmusicViewStateCodec {
+	public static final int CODEC_VERSION = 0;
+	
 	private UrmusicViewStateCodec() { }
 	
 	public static void writeState(UrmusicViewState state, OutputStream out) throws IOException {
-		DataUtils.writeBigInt(out, state.getFrameCount());
+		UrmusicSplittedPaneState[] paneStates = state.getPaneStates();
+		
+		DataUtils.writeBigInt(out, CODEC_VERSION);
+		DataUtils.writeBigInt(out, paneStates.length);
+		for(int i = 0; i < paneStates.length; i++) {
+			paneStates[i].write(out);
+		}
 	}
 	
-	public static void readState(UrmusicViewState state, InputStream in) throws IOException {
-		state.setFrameCount(DataUtils.readBigInt(in));
+	public static UrmusicViewState readState(InputStream in) throws IOException {
+		int codecVersion = DataUtils.readBigInt(in);
+		if(codecVersion != CODEC_VERSION) return null;
+		
+		int frameCount = DataUtils.readBigInt(in);
+		if(frameCount < 0) return null;
+		
+		UrmusicSplittedPaneState[] paneStates = new UrmusicSplittedPaneState[frameCount];
+
+		for(int i = 0; i < paneStates.length; i++) {
+			paneStates[i] = new UrmusicSplittedPaneState();
+			paneStates[i].read(in);
+		}
+		
+		return new UrmusicViewState(paneStates);
 	}
 }

@@ -1,13 +1,21 @@
 package io.github.nasso.urmusic.view.data;
 
 public class UrmusicViewState {
-	private int frameCount;
+	private UrmusicSplittedPaneState[] paneStates;
 	
-	public int getFrameCount() {
-		return this.frameCount;
+	public UrmusicViewState() {
+		this(null);
+	}
+	
+	public UrmusicViewState(UrmusicSplittedPaneState[] paneStates) {
+		this.setPaneStates(paneStates);
+	}
+	
+	public UrmusicSplittedPaneState[] getPaneStates() {
+		return this.paneStates;
 	}
 
-	public void setFrameCount(int frameCount) {
-		this.frameCount = frameCount;
+	public void setPaneStates(UrmusicSplittedPaneState[] paneStates) {
+		this.paneStates = paneStates;
 	}
 }
