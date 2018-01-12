@@ -30,6 +30,7 @@ import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicViewState;
 import io.github.nasso.urmusic.view.data.UrmusicViewStateCodec;
+import io.github.nasso.urmusic.view.dialog.UrmusicAboutDialog;
 
 public class UrmusicView {
 	private static List<JFrame> frames = new ArrayList<JFrame>();
@@ -65,15 +66,15 @@ public class UrmusicView {
 				if(frames.size() > 1) {
 					int chosen = JOptionPane.showOptionDialog(
 						frame,
-						getString("view.frame.multiCloseWarning.message"),
-						getString("view.frame.multiCloseWarning.title"),
+						getString("frame.multiCloseWarning.message"),
+						getString("frame.multiCloseWarning.title"),
 						JOptionPane.CANCEL_OPTION,
 						JOptionPane.QUESTION_MESSAGE,
 						null,
 						new String[]{
-							getString("view.frame.multiCloseWarning.closeOne"),
-							getString("view.frame.multiCloseWarning.closeAll"),
-							getString("view.frame.multiCloseWarning.cancel")
+							getString("frame.multiCloseWarning.closeOne"),
+							getString("frame.multiCloseWarning.closeAll"),
+							getString("frame.multiCloseWarning.cancel")
 						},
 						null
 					);
@@ -112,9 +113,11 @@ public class UrmusicView {
 		
 		menuAboutAction = new AbstractAction(getString("menu.help.about")) {
 			private static final long serialVersionUID = -48007517019376751L;
-
+			
+			private final UrmusicAboutDialog aboutDialog = new UrmusicAboutDialog();
+			
 			public void actionPerformed(ActionEvent e) {
-				// TODO: Open About Dialog (with a link to https://icons8.com/)
+				this.aboutDialog.setVisible(true);
 			}
 		};
 	}

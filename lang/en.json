@@ -13,10 +13,13 @@
 		"view.preview.name": "Preview",
 		"view.timeline.name": "Timeline",
 		
-		"view.frame.multiCloseWarning.title": "Closing a window",
-		"view.frame.multiCloseWarning.message": "Would you like to close only this window or close all?",
-		"view.frame.multiCloseWarning.closeOne": "Close only this one",
-		"view.frame.multiCloseWarning.closeAll": "Close all",
-		"view.frame.multiCloseWarning.cancel": "Cancel"
+		"dialog.global.ok": "OK",
+		"dialog.about.title": "About",
+		
+		"frame.multiCloseWarning.title": "Closing a window",
+		"frame.multiCloseWarning.message": "Would you like to close only this window or close all?",
+		"frame.multiCloseWarning.closeOne": "Close only this one",
+		"frame.multiCloseWarning.closeAll": "Close all",
+		"frame.multiCloseWarning.cancel": "Cancel"
 	}
 }

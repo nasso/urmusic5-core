@@ -16,5 +16,6 @@ public class UrmusicTimelineView extends UrmusicViewPane {
 	}
 
 	public void dispose() {
+		
 	}
 }
