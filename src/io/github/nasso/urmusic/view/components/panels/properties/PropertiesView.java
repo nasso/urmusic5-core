@@ -1,15 +1,15 @@
-package io.github.nasso.urmusic.view.panels;
+package io.github.nasso.urmusic.view.components.panels.properties;
 
 import java.awt.BorderLayout;
 
 import javax.swing.JLabel;
 
-import io.github.nasso.urmusic.view.components.UrmusicViewPane;
+import io.github.nasso.urmusic.view.components.UrmViewPane;
 
-public class UrmusicPropertiesView extends UrmusicViewPane {
+public class PropertiesView extends UrmViewPane {
 	private static final long serialVersionUID = -896247777042870529L;
 
-	public UrmusicPropertiesView() {
+	public PropertiesView() {
 		this.setLayout(new BorderLayout());
 		
 		this.add(new JLabel("Properties!", JLabel.CENTER), BorderLayout.CENTER);

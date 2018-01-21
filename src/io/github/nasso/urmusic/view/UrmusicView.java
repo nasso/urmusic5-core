@@ -22,9 +22,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.controller.UrmusicController;
-import io.github.nasso.urmusic.view.components.UrmusicSplittablePane;
+import io.github.nasso.urmusic.view.components.SplittablePane;
 import io.github.nasso.urmusic.view.data.UrmusicIcons;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
@@ -39,7 +40,7 @@ public class UrmusicView {
 	
 	private static Action menuExitAction, menuAboutAction;
 	
-	public static final void init() {
+	public static void init() {
 		// TODO: Load Locale from pref file
 		UrmusicStrings.init(Locale.ENGLISH);
 		UrmusicIcons.init();
@@ -49,18 +50,20 @@ public class UrmusicView {
 		
 		loadViewState();
 		
-		if(viewState == null || viewState.getPaneStates().length == 0) {
-			UrmusicSplittablePane.popupNew();
-		} else {
-			UrmusicSplittedPaneState[] frames = viewState.getPaneStates();
-			for(int i = 0; i < viewState.getPaneStates().length; i++) {
-				UrmusicSplittablePane pane = UrmusicSplittablePane.popupNew();
-				pane.loadState(frames[i]);
-			}
-		}
+		SwingUtilities.invokeLater(() -> {
+			if(viewState == null || viewState.getPaneStates().length == 0) {
+				SplittablePane.popupNew();
+			} else {
+				UrmusicSplittedPaneState[] frames = viewState.getPaneStates();
+				for(int i = 0; i < viewState.getPaneStates().length; i++) {
+					SplittablePane pane = SplittablePane.popupNew();
+					pane.loadState(frames[i]);
+				}
+			}			
+		});
 	}
 	
-	public static final void registerFrame(JFrame frame) {
+	public static void registerFrame(JFrame frame) {
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				if(frames.size() > 1) {
@@ -156,7 +159,7 @@ public class UrmusicView {
 		File viewStateFile = new File("appdata/view-state.dat");
 		
 		UrmusicSplittedPaneState[] paneStates = new UrmusicSplittedPaneState[frames.size()];
-		for(int i = 0; i < paneStates.length; i++) paneStates[i] = ((UrmusicSplittablePane) frames.get(i).getContentPane()).saveState();
+		for(int i = 0; i < paneStates.length; i++) paneStates[i] = ((SplittablePane) frames.get(i).getContentPane()).saveState();
 
 		viewState = new UrmusicViewState();
 		viewState.setPaneStates(paneStates);

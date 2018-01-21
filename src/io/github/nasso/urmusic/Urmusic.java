@@ -9,6 +9,10 @@ public class Urmusic {
 		UrmusicModel.init();
 		UrmusicView.init();
 		UrmusicController.init();
+		
+		UrmusicModel.getTimeline().addAudioTrack("Song");
+		UrmusicModel.getTimeline().addVideoTrack("Visuals");
+		UrmusicModel.getTimeline().addVideoTrack("More shit");
 	}
 	
 	public static void main(String[] args) {

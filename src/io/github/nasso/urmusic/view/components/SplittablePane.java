@@ -19,28 +19,28 @@ import javax.swing.JSplitPane;
 import javax.swing.border.EmptyBorder;
 
 import io.github.nasso.urmusic.view.UrmusicView;
+import io.github.nasso.urmusic.view.components.panels.info.InfoView;
+import io.github.nasso.urmusic.view.components.panels.preview.PreviewView;
+import io.github.nasso.urmusic.view.components.panels.properties.PropertiesView;
+import io.github.nasso.urmusic.view.components.panels.timeline.TimelineView;
 import io.github.nasso.urmusic.view.data.UrmusicIcons;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
-import io.github.nasso.urmusic.view.panels.UrmusicInfoView;
-import io.github.nasso.urmusic.view.panels.UrmusicPreviewView;
-import io.github.nasso.urmusic.view.panels.UrmusicPropertiesView;
-import io.github.nasso.urmusic.view.panels.UrmusicTimelineView;
 
-public class UrmusicSplittablePane extends JPanel {
+public class SplittablePane extends JPanel {
 	private static final long serialVersionUID = 2803211023410018498L;
 
-	private static final Color CONTROL_BAR_BG = new Color(0xBBBBBB);
+	private static final Color CONTROL_BAR_BG = Color.LIGHT_GRAY;
 	private static final String CARD_MAIN = "main";
 	private static final String CARD_SPLIT = "split";
 	
 	private static final class ViewPaneEntry {
-		private Class<? extends UrmusicViewPane> cls;
+		private Class<? extends UrmViewPane> cls;
 		private String displayName;
 
-		private UrmusicViewPane viewInstance;
+		private UrmViewPane viewInstance;
 		
-		public ViewPaneEntry(Class<? extends UrmusicViewPane> cls, String displayName) {
+		public ViewPaneEntry(Class<? extends UrmViewPane> cls, String displayName) {
 			this.cls = cls;
 			this.displayName = displayName;
 		}
@@ -55,10 +55,10 @@ public class UrmusicSplittablePane extends JPanel {
 	}
 	
 	private ViewPaneEntry[] viewPaneEntries = {
-			new ViewPaneEntry(UrmusicInfoView.class, UrmusicStrings.getString("view.info.name")),
-			new ViewPaneEntry(UrmusicPreviewView.class, UrmusicStrings.getString("view.preview.name")),
-			new ViewPaneEntry(UrmusicPropertiesView.class, UrmusicStrings.getString("view.properties.name")),
-			new ViewPaneEntry(UrmusicTimelineView.class, UrmusicStrings.getString("view.timeline.name")),
+			new ViewPaneEntry(InfoView.class, UrmusicStrings.getString("view.info.name")),
+			new ViewPaneEntry(PreviewView.class, UrmusicStrings.getString("view.preview.name")),
+			new ViewPaneEntry(PropertiesView.class, UrmusicStrings.getString("view.properties.name")),
+			new ViewPaneEntry(TimelineView.class, UrmusicStrings.getString("view.timeline.name")),
 	};
 	
 	private CardLayout cardLayout;
@@ -72,20 +72,20 @@ public class UrmusicSplittablePane extends JPanel {
 	private JComboBox<ViewPaneEntry> viewCombo;
 	
 	private JFrame ownerFrame;
-	private UrmusicSplittablePane ownerPane;
-	private UrmusicSplittablePane childA, childB;
+	private SplittablePane ownerPane;
+	private SplittablePane childA, childB;
 	
 	private boolean split = false;
 	
-	public UrmusicSplittablePane() {
+	public SplittablePane() {
 		this(null);
 	}
 	
-	public UrmusicSplittablePane(UrmusicSplittablePane owner) {
+	public SplittablePane(SplittablePane owner) {
 		this(owner, null);
 	}
 	
-	public UrmusicSplittablePane(UrmusicSplittablePane owner, JFrame popup) {
+	public SplittablePane(SplittablePane owner, JFrame popup) {
 		this.ownerPane = owner;
 		this.ownerFrame = popup;
 		this.buildUI(owner == null ? 0 : owner.viewCombo.getSelectedIndex());
@@ -97,7 +97,7 @@ public class UrmusicSplittablePane extends JPanel {
 		this.viewCombo.setFont(this.viewCombo.getFont().deriveFont(Font.PLAIN, 11f));
 		for(int i = 0; i < this.viewPaneEntries.length; i++) this.viewCombo.addItem(this.viewPaneEntries[i]);
 		this.viewCombo.addItemListener((e) -> {
-			UrmusicSplittablePane.this.updateView(e);
+			SplittablePane.this.updateView(e);
 		});
 		
 		this.popupButton = new UrmIconButton(UrmusicIcons.POPUP_ICON);
@@ -161,8 +161,8 @@ public class UrmusicSplittablePane extends JPanel {
 		this.split = true;
 		
 		this.splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		this.splitPane.setTopComponent(this.childA = new UrmusicSplittablePane(this));
-		this.splitPane.setBottomComponent(this.childB = new UrmusicSplittablePane(this));
+		this.splitPane.setTopComponent(this.childA = new SplittablePane(this));
+		this.splitPane.setBottomComponent(this.childB = new SplittablePane(this));
 		
 		this.splitPane.setDividerLocation(0.5f);
 		
@@ -174,8 +174,8 @@ public class UrmusicSplittablePane extends JPanel {
 		this.split = true;
 		
 		this.splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-		this.splitPane.setLeftComponent(this.childA = new UrmusicSplittablePane(this));
-		this.splitPane.setRightComponent(this.childB = new UrmusicSplittablePane(this));
+		this.splitPane.setLeftComponent(this.childA = new SplittablePane(this));
+		this.splitPane.setRightComponent(this.childB = new SplittablePane(this));
 		
 		this.splitPane.setDividerLocation(0.5f);
 		
@@ -236,9 +236,9 @@ public class UrmusicSplittablePane extends JPanel {
 			if(state.isVertical()) this.splitVertically();
 			else this.splitHorizontally();
 			
-			this.splitPane.setDividerLocation(state.getSplitLocation());
 			this.childA.loadState(state.getStateA());
 			this.childB.loadState(state.getStateB());
+			this.splitPane.setDividerLocation(state.getSplitLocation());
 		} else {
 			this.viewCombo.setSelectedIndex(state.getViewID());
 		}
@@ -287,25 +287,26 @@ public class UrmusicSplittablePane extends JPanel {
 		for(int i = 0; i < this.viewPaneEntries.length; i++) this.viewPaneEntries[i].dispose();
 	}
 	
-	public static UrmusicSplittablePane popupNew() {
+	public static SplittablePane popupNew() {
 		return popupNew(null);
 	}
 	
-	public static UrmusicSplittablePane popupNew(UrmusicSplittablePane owner) {
-		UrmusicSplittablePane newPane; 
+	public static SplittablePane popupNew(SplittablePane owner) {
+		SplittablePane newPane; 
 		
 		JFrame popup = new JFrame(UrmusicStrings.getString("title"));
+		popup.setVisible(true);
 		popup.setSize(800, 600); // TODO: Maybe custom size for popups?
 		popup.setLocationRelativeTo(null);
 		popup.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		popup.setContentPane(newPane = new UrmusicSplittablePane(owner, popup));
+		popup.setContentPane(newPane = new SplittablePane(owner, popup));
 		popup.addWindowListener(new WindowAdapter() {
 			public void windowClosed(WindowEvent e) {
 				newPane.dispose();
 			}
 		});
 		UrmusicView.registerFrame(popup);
-		popup.setVisible(true);
+		// popup.setVisible(true);
 		
 		return newPane;
 	}
