@@ -12,22 +12,24 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.model.event.TrackRangesListener;
-import io.github.nasso.urmusic.model.timeline.Track;
+import io.github.nasso.urmusic.model.project.Track;
+import io.github.nasso.urmusic.model.project.audio.AudioTrack;
 import io.github.nasso.urmusic.utils.IntRange;
 
 public class TimelineTrackRangesBar extends JPanel implements TrackRangesListener {
 	private static final long serialVersionUID = -1959492010632451757L;
-	private static final Color RANGE_COLOR = new Color(0x4fa8f7);
+	private static final Color RANGE_COLOR = new Color(0xeeeeee);
 	// private static final Color RANGE_SELECTED_COLOR = new Color(0x6bb4f4);
 	private static final Color RANGE_BORDER_COLOR = new Color(0x057cfc);
+	private static final Color AUDIO_SIGNAL_COLOR = new Color(0x075cb7);
 	private static final Stroke RANGE_BORDER_STROKE = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER);
 	
-	private TimelineMainScrollable tlmain;
-	private Track track;
+	private TimelineView view;
+	private Track<?> track;
 	
-	public TimelineTrackRangesBar(TimelineMainScrollable tlmain, Track track) {
+	public TimelineTrackRangesBar(TimelineView view, Track<?> track) {
 		this.setTrack(track);
-		this.tlmain = tlmain;
+		this.view = view;
 	}
 
 	protected void paintComponent(Graphics g) {
@@ -43,7 +45,9 @@ public class TimelineTrackRangesBar extends JPanel implements TrackRangesListene
 		if(this.track != null) {
 			List<IntRange> ranges = this.track.getActivityRangesLengths();
 			
-			float s = this.tlmain.getHorizontalScale();
+			float s = this.view.getHorizontalScale();
+			
+			g2d.translate(this.view.getHorizontalScroll(), 0);
 			
 			g2d.setStroke(RANGE_BORDER_STROKE);
 			for(int i = 0; i < ranges.size(); i++) {
@@ -64,23 +68,35 @@ public class TimelineTrackRangesBar extends JPanel implements TrackRangesListene
 					(int) ((r.getEnd() - r.getStart()) * s) - 3,
 					this.getHeight() - 3
 				);
+			
+				if(this.track instanceof AudioTrack) {
+					g2d.setColor(AUDIO_SIGNAL_COLOR);
+					for(int x = (int) (r.getStart() * s + 1); x < r.getEnd() * s - 2; x++) {
+						g2d.drawLine(
+							x,
+							(int) (Math.sin((x - 1) / s * 20f) * (this.getHeight() / 2f - 4) + this.getHeight() / 2f),
+							x + 1,
+							(int) (Math.sin((x - 2) / s * 20f) * (this.getHeight() / 2f - 4) + this.getHeight() / 2f)
+						);
+					}
+				}
 			}
 		}
 		
 		g2d.dispose();
 	}
 	
-	public Track getTrack() {
+	public Track<?> getTrack() {
 		return this.track;
 	}
 
-	public void setTrack(Track track) {
+	public void setTrack(Track<?> track) {
 		if(this.track != null) this.track.removeTrackRangesListener(this);
 		this.track = track;
 		if(this.track != null) this.track.addTrackRangesListener(this);
 	}
 
-	public void rangesChanged(Track source) {
+	public void rangesChanged(Track<?> source) {
 		SwingUtilities.invokeLater(this::repaint);
 	}
 

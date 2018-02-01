@@ -1,5 +1,8 @@
 package io.github.nasso.urmusic.model.renderer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLCapabilities;
 import com.jogamp.opengl.GLDrawableFactory;
@@ -7,39 +10,35 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 
-import io.github.nasso.urmusic.model.renderer.gl3.GL3Renderer;
+import io.github.nasso.urmusic.model.event.RendererListener;
+import io.github.nasso.urmusic.model.project.Composition;
+import io.github.nasso.urmusic.model.project.video.VideoEffect;
+import io.github.nasso.urmusic.model.project.video.VideoEffect.VideoEffectInstance;
+import io.github.nasso.urmusic.model.project.video.VideoTrack;
 
 public class Renderer {
-	public static enum Backend {
-		GL3
-	}
-
-	private GLAutoDrawable drawable;
+	GLAutoDrawable drawable;
 	private final int width, height;
+	
+	private int destCacheFrame = 0;
 
 	private CachedFrame[] gpuCache;
 	private GLRenderer glRenderer;
 	
 	private GLCapabilities glCaps, glCapsPreview;
 	
-	public Renderer(int width, int height, int gpuCacheSizeMB, Backend backend) {
+	private List<RendererListener> listeners = new ArrayList<>();
+	
+	public Renderer(int width, int height, int gpuCachedFrameCount) {
 		this.width = width;
 		this.height = height;
 		
-		long frameSizeByte = width * height * 3;
-		long gpuCacheSizeByte = gpuCacheSizeMB * 1_000_000l;
-		int maxFrameCount = (int) (gpuCacheSizeByte / frameSizeByte);
+		this.gpuCache = new CachedFrame[gpuCachedFrameCount];
 		
-		this.gpuCache = new CachedFrame[maxFrameCount];
-		
-		for(int i = 0; i < maxFrameCount; i++) this.gpuCache[i] = new CachedFrame(i);
+		for(int i = 0; i < gpuCachedFrameCount; i++) this.gpuCache[i] = new CachedFrame(i);
 		
 		// JOGL init
-		switch(backend) {
-			case GL3:
-				this.glRenderer = new GL3Renderer(this);
-				break;
-		}
+		this.glRenderer = new GLRenderer(this);
 
 		GLProfile glp = this.glRenderer.getProfile();
 		this.glCapsPreview = new GLCapabilities(glp);
@@ -55,8 +54,8 @@ public class Renderer {
 		return this.gpuCache;
 	}
 	
-	public CachedFrame getDestCacheFrame() {
-		return this.gpuCache[0];
+	public CachedFrame getCurrentDestCacheFrame() {
+		return this.gpuCache[this.destCacheFrame];
 	}
 	
 	public int getWidth() {
@@ -67,25 +66,90 @@ public class Renderer {
 		return this.height;
 	}
 	
-	public void renderFrame(int frameOffset) {
-		this.shiftCachedFrames();
-		this.gpuCache[0].frame_id = frameOffset;
+	public void initEffect(VideoEffect vfx) {
+		this.glRenderer.initEffect(vfx);
+	}
+	
+	public void disposeEffect(VideoEffect vfx) {
+		this.glRenderer.disposeEffect(vfx);
+	}
+	
+	public void makeCompositionDirty(Composition comp) {
+		for(int i = 0; i < this.gpuCache.length; i++) {
+			this.gpuCache[i].dirty = true;
+		}
+		
+		this.glRenderer.makeCompositionDirty(comp);
+		
+		this.updateFrameIfNeeded();
+	}
+	
+	private void updateFrameIfNeeded() {
+		if(this.getCurrentDestCacheFrame().dirty) {
+			this.doFrame(this.getCurrentDestCacheFrame().comp, this.getCurrentDestCacheFrame().frame_id);
+		}
+	}
+	
+	private int getCacheFor(Composition comp, int frame) {
+		for(int i = 0; i < this.gpuCache.length; i++) {
+			if(this.gpuCache[i].comp == comp && this.gpuCache[i].frame_id == frame && !this.gpuCache[i].dirty) return i;
+		}
+		
+		return -1;
+	}
+	
+	private int freeFrameCache(Composition comp, int frame) {
+		int bestChoice = -1;
+		
+		for(int i = 0; i < this.gpuCache.length; i++) {
+			CachedFrame f = this.gpuCache[i];
+			
+			if(bestChoice == -1) {
+				bestChoice = i;
+			} else {
+				// Compare
+				CachedFrame c = this.gpuCache[bestChoice];
+				
+				if(!c.dirty && f.dirty) {
+					bestChoice = i;
+				} else if (Math.abs(f.frame_id - frame) > Math.abs(c.frame_id - frame)) {
+					bestChoice = i;
+				}
+			}
+		}
+		
+		return bestChoice;
+	}
+	
+	public void disposeTrack(VideoTrack track) {
+		this.glRenderer.disposeTrack(track);
+	}
+	
+	public void disposeEffect(VideoEffectInstance vfx) {
+		this.glRenderer.disposeEffectInstance(vfx);
+	}
+	
+	public void doFrame(Composition comp, int frameOffset) {
+		this.destCacheFrame = this.getCacheFor(comp, frameOffset);
+		if(this.destCacheFrame != -1) {
+			this.notifyFrameReady(comp, frameOffset);
+			return;
+		}
+		
+		this.destCacheFrame = this.freeFrameCache(comp, frameOffset);
+		this.gpuCache[this.destCacheFrame].frame_id = frameOffset;
+		this.gpuCache[this.destCacheFrame].comp = comp;
+		this.gpuCache[this.destCacheFrame].dirty = true;
 		
 		this.drawable.display();
+		
+		this.gpuCache[this.destCacheFrame].dirty = false;
+		
+		this.notifyFrameReady(comp, frameOffset);
 	}
 	
 	public void dispose() {
 		this.drawable.destroy();
-	}
-	
-	private void shiftCachedFrames() {
-		CachedFrame f = this.gpuCache[this.gpuCache.length - 1];
-		
-		for(int i = this.gpuCache.length - 1; i > 0; i--) {
-			this.gpuCache[i] = this.gpuCache[i - 1];
-		}
-		
-		this.gpuCache[0] = f;
 	}
 	
 	public GLJPanel createGLJPanelPreview() {
@@ -107,5 +171,19 @@ public class Renderer {
 		glcvs.display();
 		
 		return glcvs;
+	}
+	
+	public void addRendererListener(RendererListener l) {
+		this.listeners.add(l);
+	}
+	
+	public void removeRendererListener(RendererListener l) {
+		this.listeners.remove(l);
+	}
+	
+	private void notifyFrameReady(Composition comp, int frame) {
+		for(RendererListener l : this.listeners) {
+			l.frameRendered(comp, frame);
+		}
 	}
 }

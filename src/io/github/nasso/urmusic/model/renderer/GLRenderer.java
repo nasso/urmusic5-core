@@ -1,45 +1,275 @@
 package io.github.nasso.urmusic.model.renderer;
 
-import com.jogamp.opengl.GL;
+import static com.jogamp.opengl.GL.*;
+
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 
-public abstract class GLRenderer implements GLEventListener {
+import io.github.nasso.urmusic.model.event.CompositionListener;
+import io.github.nasso.urmusic.model.project.CompositeTrack;
+import io.github.nasso.urmusic.model.project.Composition;
+import io.github.nasso.urmusic.model.project.Track;
+import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.github.nasso.urmusic.model.project.video.VideoEffect;
+import io.github.nasso.urmusic.model.project.video.VideoEffect.VideoEffectInstance;
+import io.github.nasso.urmusic.model.project.video.VideoTrack;
+
+/**
+ * Uses OpenGL 3
+ * @author nasso
+ */
+public class GLRenderer implements GLEventListener, CompositionListener {
+	private static final class CachedFramebuffer {
+		private static int cacheSize;
+		private static IntBuffer bufTex;
+		private static IntBuffer bufFBO;
+		
+		private int width, height;
+		
+		public int[] texture, fbo;
+		public boolean[] dirty;
+		
+		private GLUtils glu;
+		
+		public CachedFramebuffer(GL3 gl, GLUtils glu, Composition comp) {
+			this.glu = glu;
+			
+			this.texture = new int[cacheSize];
+			this.fbo = new int[cacheSize];
+			this.dirty = new boolean[cacheSize];
+			
+			this.makeAllDirty(true);
+			
+			this.width = comp.getWidth();
+			this.height = comp.getHeight();
+			
+			this.glu.createFramebuffers(gl, cacheSize, this.width, this.height, bufTex, bufFBO);
+			
+			bufTex.get(this.texture);
+			bufFBO.get(this.fbo);
+
+			bufTex.flip();
+			bufFBO.flip();
+		}
+		
+		public void makeAllDirty(boolean dirty) {
+			for(int i = 0; i < this.dirty.length; i++) this.dirty[i] = dirty;
+		}
+		
+		public static void setCacheSize(int size) {
+			cacheSize = size;
+			bufTex = IntBuffer.allocate(size);
+			bufFBO = IntBuffer.allocate(size);
+		}
+
+		public CachedFramebuffer update(GL3 gl, Composition comp) {
+			if(comp.getWidth() != this.width || comp.getHeight() != this.height) {
+				this.width = comp.getWidth();
+				this.height = comp.getHeight();
+				
+				for(int i = 0; i < this.texture.length; i++) {
+					gl.glBindTexture(GL_TEXTURE_2D, this.texture[i]);
+					gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+				}
+			}
+			
+			return this;
+		}
+	}
+	
+	private Map<Composition, CachedFramebuffer> compFBOs = new HashMap<>();
 	public final Renderer mainRenderer;
+	private GL3 gl;
+	private GLUtils glu;
+	
+	private List<Composition> disposedCompositions = new ArrayList<>();
 	
 	public GLRenderer(Renderer renderer) {
 		this.mainRenderer = renderer;
+		this.glu = new GLUtils();
 	}
 	
-	public abstract void init();
-	public abstract void display();
-	public abstract void dispose();
+	public GLProfile getProfile() {
+		return GLProfile.getGL2GL3();
+	}
 	
-	public abstract void setContext(GL ctx);
-	public abstract GL getContext();
+	public void initEffect(VideoEffect vfx) {
+		GLContext ctx = this.mainRenderer.drawable.getContext();
+		ctx.makeCurrent();
+		this.gl = ctx.getGL().getGL3();
+		
+		vfx.globalSetup(this.gl);
+		
+		ctx.release();
+	}
 	
-	protected abstract GLProfile getProfile();
+	public void disposeEffect(VideoEffect vfx) {
+		GLContext ctx = this.mainRenderer.drawable.getContext();
+		ctx.makeCurrent();
+		this.gl = ctx.getGL().getGL3();
+		
+		vfx.globalDispose(this.gl);
+		
+		ctx.release();
+	}
 	
-	public abstract GLEventListener createPreviewRenderer();
+	public void disposeTrack(VideoTrack track) {
+		VideoTrack vt = track;
+		
+		GLContext ctx = this.mainRenderer.drawable.getContext();
+		ctx.makeCurrent();
+		this.gl = ctx.getGL().getGL3();
+		
+		for(int i = 0; i < vt.getEffectCount(); i++) {
+			VideoEffectInstance vfx = vt.getEffect(i);
+			
+			vfx.dispose(this.gl);
+		}
+		
+		ctx.release();
+	}
+	
+	public void disposeEffectInstance(VideoEffectInstance vfx) {
+		GLContext ctx = this.mainRenderer.drawable.getContext();
+		ctx.makeCurrent();
+		this.gl = ctx.getGL().getGL3();
+		
+		vfx.dispose(this.gl);
+		
+		ctx.release();
+	}
+	
+	public void makeCompositionDirty(Composition comp) {
+		if(this.compFBOs.containsKey(comp)) {
+			this.compFBOs.get(comp).makeAllDirty(true);
+		}
+	}
 
 	public void init(GLAutoDrawable drawable) {
-		this.setContext(drawable.getGL());
+		this.gl = drawable.getGL().getGL3();
 		
-		this.init();
+		CachedFramebuffer.setCacheSize(this.mainRenderer.getCachedFrames().length);
 	}
 	
 	public void dispose(GLAutoDrawable drawable) {
-		this.setContext(drawable.getGL());
+		this.gl = drawable.getGL().getGL3();
 
-		this.dispose();
+		this.glu.dispose(this.gl);
 	}
 	
 	public void display(GLAutoDrawable drawable) {
-		this.setContext(drawable.getGL());
+		this.gl = drawable.getGL().getGL3();
 		
-		this.display();
+		CachedFrame dest = this.mainRenderer.getCurrentDestCacheFrame();
+		int cacheIndex = dest.index_on_creation;
+
+		// Clear all
+		this.gl.glClearColor(0, 0, 0, 1);
+		this.gl.glClear(GL_COLOR_BUFFER_BIT);
+		
+		this.renderComposition(dest.comp, cacheIndex);
+	}
+	
+	private void renderComposition(Composition comp, int cacheIndex) {
+		CachedFramebuffer dest;
+		if(!this.compFBOs.containsKey(comp)) {
+			dest = new CachedFramebuffer(this.gl, this.glu, comp);
+			this.compFBOs.put(comp, dest);
+			comp.addListener(this);
+		} else {
+			dest = this.getFramebufferFor(comp).update(this.gl, comp);
+		}
+		
+		int destTex = dest.texture[cacheIndex];
+		int destFBO = dest.fbo[cacheIndex];
+		
+		// Bind framebuffer
+		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, destFBO);
+		
+		this.gl.glClearColor(
+			comp.getClearColor().getRedf(),
+			comp.getClearColor().getGreenf(),
+			comp.getClearColor().getBluef(),
+			comp.getClearColor().getAlphaf()
+		);
+		this.gl.glClear(GL_COLOR_BUFFER_BIT);
+		
+		// -- Composition --
+		List<Track<?>> tracks = comp.getTimeline().getTracks();
+		for(int i = 0; i < tracks.size(); i++) {
+			Track<?> t = tracks.get(i);
+			
+			// We only care about video tracks
+			if(t instanceof CompositeTrack) {
+				this.renderComposition(((CompositeTrack) t).getComposition(), cacheIndex);
+				
+				// Rebind framebuffer
+				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.getFBOFor(comp, cacheIndex));
+			}
+			if(!(t instanceof VideoTrack || t instanceof CompositeTrack)) continue;
+			
+			for(int j = 0; j < t.getEffectCount(); j++) {
+				TrackEffectInstance fx = t.getEffect(j);
+				
+				// We only care about video effects (composite tracks can have audio)
+				if(!(fx instanceof VideoEffectInstance)) continue;
+				
+				VideoEffectInstance vfx = (VideoEffectInstance) fx;
+				
+				vfx.apply(this.gl, destTex, destFBO);
+			}
+		}
+	}
+
+	public int getCurrentFBO(Composition comp) {
+		return this.getFBOFor(comp, this.mainRenderer.getCurrentDestCacheFrame().index_on_creation);
+	}
+	
+	public int getCurrentTexture(Composition comp) {
+		return this.getTexFor(comp, this.mainRenderer.getCurrentDestCacheFrame().index_on_creation);
+	}
+	
+	private CachedFramebuffer getFramebufferFor(Composition comp) {
+		return this.compFBOs.get(comp);
+	}
+	
+	private int getFBOFor(Composition comp, int index) {
+		return this.getFramebufferFor(comp).fbo[index];
+	}
+	
+	private int getTexFor(Composition comp, int index) {
+		return this.getFramebufferFor(comp).texture[index];
+	}
+	
+	public GLEventListener createPreviewRenderer() {
+		return new GLPreviewRenderer(this);
 	}
 	
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) { }
+
+	public void clearColorChanged(Composition comp) {
+		this.mainRenderer.makeCompositionDirty(comp);
+	}
+
+	public void lengthChanged(Composition comp) {
+	}
+
+	public void framerateChanged(Composition comp) {
+	}
+
+	public void resize(Composition comp) {
+	}
+
+	public void dispose(Composition comp) {
+		this.disposedCompositions.add(comp);
+	}
 }

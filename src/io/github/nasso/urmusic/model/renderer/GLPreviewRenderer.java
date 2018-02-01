@@ -1,50 +1,42 @@
-package io.github.nasso.urmusic.model.renderer.gl3;
+package io.github.nasso.urmusic.model.renderer;
 
 import static com.jogamp.opengl.GL.*;
-
-import java.nio.FloatBuffer;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLEventListener;
 
-public class GL3PreviewRenderer implements GLEventListener {
-	private final GL3Renderer parent;
+import io.github.nasso.urmusic.model.UrmusicModel;
+
+public class GLPreviewRenderer implements GLEventListener {
+	private final GLRenderer parent;
 	
 	private int quadProg, quadVAO, quadProgTextureLocation, quadProgScaleLocation;
 	
-	public GL3PreviewRenderer(GL3Renderer main) {
+	private GLUtils glu;
+	
+	public GLPreviewRenderer(GLRenderer main) {
 		this.parent = main;
+		this.glu = new GLUtils();
 	}
 
 	public void init(GLAutoDrawable drawable) {
 		GL3 gl = drawable.getGL().getGL3();
 		
-		this.quadProg = GL3Utils.createProgram(gl, "full_quad.vs", "full_quad.fs");
+		this.quadProg = this.glu.createProgram(gl, "full_quad.vs", "full_quad.fs");
 		gl.glUseProgram(this.quadProg);
 		this.quadProgTextureLocation = gl.glGetUniformLocation(this.quadProg, "color");
 		this.quadProgScaleLocation = gl.glGetUniformLocation(this.quadProg, "scale");
 		
-		int quadPos = GL3Utils.genBuffer(gl);
-		gl.glBindBuffer(GL_ARRAY_BUFFER, quadPos);
-		gl.glBufferData(GL_ARRAY_BUFFER, 8 * 32, FloatBuffer.wrap(new float[] {
-				-1, -1,
-				1, -1,
-				-1, 1,
-				1, 1
-		}), GL_STATIC_DRAW);
+		this.quadVAO = this.glu.genFullQuadVAO(gl);
 		
-		this.quadVAO = GL3Utils.genVertexArray(gl);
-		gl.glBindVertexArray(this.quadVAO);
-		gl.glEnableVertexAttribArray(0);
-		gl.glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);
-		
-		gl.glBindVertexArray(0);
 		gl.glUseProgram(0);
 	}
 
 	public void dispose(GLAutoDrawable drawable) {
-		// GL3 gl = drawable.getGL().getGL3();
+		GL3 gl = drawable.getGL().getGL3();
+		
+		this.glu.dispose(gl);
 	}
 
 	public void display(GLAutoDrawable drawable) {
@@ -64,7 +56,7 @@ public class GL3PreviewRenderer implements GLEventListener {
 		float w = rw * s, h = rh * s;
 		
 		gl.glUniform2f(this.quadProgScaleLocation, w / sw, h / sh);
-		GL3Utils.uniformTexture(gl, this.quadProgTextureLocation, this.parent.getCurrentTexture(), 0);
+		this.glu.uniformTexture(gl, this.quadProgTextureLocation, this.parent.getCurrentTexture(UrmusicModel.getFocusedComposition()), 0);
 		
 		gl.glBindVertexArray(this.quadVAO);
 		gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

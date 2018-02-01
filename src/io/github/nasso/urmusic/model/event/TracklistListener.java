@@ -1,6 +1,6 @@
 package io.github.nasso.urmusic.model.event;
 
-import io.github.nasso.urmusic.model.timeline.Track;
+import io.github.nasso.urmusic.model.project.Track;
 
 public interface TracklistListener {
 	/**
@@ -8,12 +8,12 @@ public interface TracklistListener {
 	 * @param index
 	 * @param track
 	 */
-	public void trackAdded(int index, Track track);
+	public void trackAdded(int index, Track<?> track);
 	
 	/**
 	 * A track has been removed from the tracklist.
 	 * @param index
 	 * @param track
 	 */
-	public void trackRemoved(int index, Track track);
+	public void trackRemoved(int index, Track<?> track);
 }

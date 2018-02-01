@@ -1,13 +1,16 @@
-package io.github.nasso.urmusic.model.timeline;
+package io.github.nasso.urmusic.model.project;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.model.event.TrackEffectsListener;
 import io.github.nasso.urmusic.model.event.TrackRangesListener;
+import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.utils.IntRange;
 
-public abstract class Track {
+public abstract class Track<T extends TrackEffectInstance> {
 	private static final class IntRangeImpl implements IntRange {
 		private int start, end;
 		
@@ -35,6 +38,7 @@ public abstract class Track {
 	}
 	
 	private String name;
+	private List<T> effects = new ArrayList<>();
 	
 	/**
 	 * @see Track#getActivityRangesLengths()
@@ -43,11 +47,16 @@ public abstract class Track {
 	private List<IntRange> unmodifiableRanges = Collections.unmodifiableList(this.activityRangesLengths);
 	
 	private List<TrackRangesListener> rangesListeners = new ArrayList<>();
+	private List<TrackEffectsListener> effectListListeners = new ArrayList<>();
 	
 	public Track() {
 		this.addActiveRange(0, 600);
 	}
-
+	
+	public void dispose() {
+		UrmusicModel.disposeTrack(this);
+	}
+	
 	public String getName() {
 		return this.name;
 	}
@@ -55,7 +64,86 @@ public abstract class Track {
 	public void setName(String name) {
 		this.name = name;
 	}
-
+	
+	public int getEffectCount() {
+		return this.effects.size();
+	}
+	
+	public T getEffect(int i) {
+		return this.effects.get(i);
+	}
+	
+	public void addEffect(T e) {
+		this.addEffect(e, this.getEffectCount());
+	}
+	
+	public void addEffect(T e, int i) {
+		this.effects.add(i, e);
+		
+		this.notifyEffectAdded(e, i);
+	}
+	
+	public T removeEffect(T e) {
+		return this.removeEffect(this.effects.indexOf(e));
+	}
+	
+	public T removeEffect(int i) {
+		if(!this.checkEffectIndex(i)) return null;
+		
+		T item = this.getEffect(i);
+		this.effects.remove(i);
+		this.notifyEffectRemoved(item, i);
+		
+		return item;
+	}
+	
+	public void moveEffect(T e, int newPos) {
+		if(!this.checkEffectIndex(newPos)) return;
+		
+		int ei = this.effects.indexOf(e);
+		if(ei >= 0) this.moveEffect(ei, newPos);
+	}
+	
+	public void moveEffect(int currPos, int newPos) {
+		if(!this.checkEffectIndex(currPos) || !this.checkEffectIndex(newPos)) return;
+		
+		T item = this.getEffect(currPos);
+		this.effects.remove(currPos);
+		this.effects.add(newPos, item);
+		
+		this.notifyEffectMoved(item, currPos, newPos);
+	}
+	
+	private boolean checkEffectIndex(int i) {
+		return i >= 0 && i < this.getEffectCount();
+	}
+	
+	public void addEffectsListener(TrackEffectsListener l) {
+		this.effectListListeners.add(l);
+	}
+	
+	public void removeEffectsListener(TrackEffectsListener l) {
+		this.effectListListeners.remove(l);
+	}
+	
+	private void notifyEffectAdded(T e, int pos) {
+		for(TrackEffectsListener l : this.effectListListeners) {
+			l.effectAdded(e, pos);
+		}
+	}
+	
+	private void notifyEffectRemoved(T e, int pos) {
+		for(TrackEffectsListener l : this.effectListListeners) {
+			l.effectRemoved(e, pos);
+		}
+	}
+	
+	private void notifyEffectMoved(T e, int oldPos, int newPos) {
+		for(TrackEffectsListener l : this.effectListListeners) {
+			l.effectMoved(e, oldPos, newPos);
+		}
+	}
+	
 	public void addTrackRangesListener(TrackRangesListener listener) {
 		this.rangesListeners.add(listener);
 	}
