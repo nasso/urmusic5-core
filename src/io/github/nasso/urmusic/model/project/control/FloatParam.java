@@ -12,16 +12,15 @@ public class FloatParam extends ControlParam<Float> {
 		this.setValue(val, 0);
 	}
 
-	public void setValue(Float val) {
+	protected void setValue(Float val) {
 		this.val = val;
 	}
 	
-	public Float getValue() {
+	protected Float getValue() {
 		return this.val;
 	}
 	
 	public Float ramp(Float s, Float e, float t) {
 		return MathUtils.lerp(s, e, t);
 	}
-
 }

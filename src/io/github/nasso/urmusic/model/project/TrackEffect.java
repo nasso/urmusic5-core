@@ -2,18 +2,21 @@ package io.github.nasso.urmusic.model.project;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.EffectParametersListener;
 import io.github.nasso.urmusic.model.project.control.ControlParam;
+import io.github.nasso.urmusic.model.renderer.EffectArgs;
 
 public abstract class TrackEffect {
 	public abstract class TrackEffectInstance {
-		private List<ControlParam<?>> parameters = new ArrayList<>();
-		private List<ControlParam<?>> unmodifiableParameters = Collections.unmodifiableList(this.parameters);
+		private Map<String, ControlParam<?>> parameters = new HashMap<>();
+		private Map<String, ControlParam<?>> unmodifiableParameters = Collections.unmodifiableMap(this.parameters);
 		
 		private List<EffectParametersListener> paramListeners = new ArrayList<>();
 		
@@ -25,19 +28,23 @@ public abstract class TrackEffect {
 			return TrackEffect.this;
 		}
 		
-		public void addControlParameter(ControlParam<?> ctrl) {
-			this.parameters.add(ctrl);
-			
-			this.notifyParameterAdded(ctrl);
+		public ControlParam<?> getControl(String name) {
+			return this.parameters.get(name);
 		}
 		
-		public void removeControlParameter(ControlParam<?> ctrl) {
-			this.parameters.remove(ctrl);
+		public void addControl(String name, ControlParam<?> ctrl) {
+			this.parameters.put(name, ctrl);
 			
-			this.notifyParameterRemoved(ctrl);
+			this.notifyParameterAdded(name, ctrl);
 		}
 		
-		public List<ControlParam<?>> getParameterListUnmodifiable() {
+		public void removeControl(String name) {
+			if(!this.parameters.containsKey(name)) return;
+			
+			this.notifyParameterRemoved(name, this.parameters.remove(name));
+		}
+		
+		public Map<String, ControlParam<?>> getParameterListUnmodifiable() {
 			return this.unmodifiableParameters;
 		}
 		
@@ -49,20 +56,20 @@ public abstract class TrackEffect {
 			this.paramListeners.remove(l);
 		}
 		
-		private void notifyParameterAdded(ControlParam<?> ctrl) {
+		private void notifyParameterAdded(String name, ControlParam<?> ctrl) {
 			for(EffectParametersListener l : this.paramListeners) {
-				l.parameterAdded(ctrl);
+				l.parameterAdded(name, ctrl);
 			}
 		}
 		
-		private void notifyParameterRemoved(ControlParam<?> ctrl) {
+		private void notifyParameterRemoved(String name, ControlParam<?> ctrl) {
 			for(EffectParametersListener l : this.paramListeners) {
-				l.parameterRemoved(ctrl);
+				l.parameterRemoved(name, ctrl);
 			}
 		}
 		
 		public abstract void setupVideo(GL3 gl);
-		public abstract void applyVideo(GL3 gl, int texInput, int fboOutput);
+		public abstract void applyVideo(GL3 gl, EffectArgs args);
 		public abstract void disposeVideo(GL3 gl);
 	}
 	

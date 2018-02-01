@@ -89,6 +89,8 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	private GL3 gl;
 	private GLUtils glu;
 	
+	private EffectArgs fxArgs = new EffectArgs();
+	
 	private List<Composition> disposedCompositions = new ArrayList<>();
 	
 	public GLRenderer(Renderer renderer) {
@@ -168,12 +170,12 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		CachedFrame dest = this.mainRenderer.getCurrentDestCacheFrame();
 		int cacheIndex = dest.index_on_creation;
 		
-		this.renderComposition(dest.comp, cacheIndex);
+		this.renderComposition(dest.comp, dest.frame_id, cacheIndex);
 		
 		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	
-	private void renderComposition(Composition comp, int cacheIndex) {
+	private void renderComposition(Composition comp, int frame_id, int cacheIndex) {
 		CachedFramebuffer dest;
 		if(!this.compFBOs.containsKey(comp)) {
 			dest = new CachedFramebuffer(this.gl, this.glu, comp);
@@ -203,9 +205,11 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		for(int i = 0; i < tracks.size(); i++) {
 			Track t = tracks.get(i);
 			
+			if(!t.isActiveAt(frame_id)) continue;
+			
 			// We only care about video tracks
 			if(t instanceof CompositeTrack) {
-				this.renderComposition(((CompositeTrack) t).getComposition(), cacheIndex);
+				this.renderComposition(((CompositeTrack) t).getComposition(), frame_id, cacheIndex);
 				
 				// Rebind framebuffer
 				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.getFBOFor(comp, cacheIndex));
@@ -218,7 +222,14 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				// We only care about video effects (composite tracks can have audio)
 				if(!fx.getEffectClass().isVideoEffect()) continue;
 				
-				fx.applyVideo(this.gl, destTex, destFBO);
+				this.fxArgs.clear();
+				this.fxArgs.width = dest.width;
+				this.fxArgs.height = dest.height;
+				this.fxArgs.frame = frame_id;
+				this.fxArgs.texInput = destTex;
+				this.fxArgs.fboOutput = destFBO;
+				
+				fx.applyVideo(this.gl, this.fxArgs);
 			}
 		}
 	}

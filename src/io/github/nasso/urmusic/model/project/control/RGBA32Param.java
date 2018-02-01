@@ -13,11 +13,11 @@ public class RGBA32Param extends ControlParam<RGBA32> {
 		this.value.setRGBA(rgba);
 	}
 	
-	public void setValue(RGBA32 val) {
+	protected void setValue(RGBA32 val) {
 		this.value.set(val);
 	}
 
-	public RGBA32 getValue() {
+	protected RGBA32 getValue() {
 		return this.value;
 	}
 
