@@ -13,12 +13,12 @@ import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.renderer.CachedFrame;
 
-public class TimelineFrameCaret extends LayerUI<JPanel> {
+public class TimelineCaretLayer extends LayerUI<JPanel> {
 	private static final long serialVersionUID = 8643950564372365882L;
 
 	private TimelineView view;
 	
-	public TimelineFrameCaret(TimelineView view) {
+	public TimelineCaretLayer(TimelineView view) {
 		this.view = view;
 	}
 	

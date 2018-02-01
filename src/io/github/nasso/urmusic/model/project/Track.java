@@ -10,7 +10,7 @@ import io.github.nasso.urmusic.model.event.TrackRangesListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.utils.IntRange;
 
-public abstract class Track<T extends TrackEffectInstance> {
+public class Track {
 	private static final class IntRangeImpl implements IntRange {
 		private int start, end;
 		
@@ -38,7 +38,7 @@ public abstract class Track<T extends TrackEffectInstance> {
 	}
 	
 	private String name;
-	private List<T> effects = new ArrayList<>();
+	private List<TrackEffectInstance> effects = new ArrayList<>();
 	
 	/**
 	 * @see Track#getActivityRangesLengths()
@@ -69,35 +69,35 @@ public abstract class Track<T extends TrackEffectInstance> {
 		return this.effects.size();
 	}
 	
-	public T getEffect(int i) {
+	public TrackEffectInstance getEffect(int i) {
 		return this.effects.get(i);
 	}
 	
-	public void addEffect(T e) {
+	public void addEffect(TrackEffectInstance e) {
 		this.addEffect(e, this.getEffectCount());
 	}
 	
-	public void addEffect(T e, int i) {
+	public void addEffect(TrackEffectInstance e, int i) {
 		this.effects.add(i, e);
 		
 		this.notifyEffectAdded(e, i);
 	}
 	
-	public T removeEffect(T e) {
+	public TrackEffectInstance removeEffect(TrackEffectInstance e) {
 		return this.removeEffect(this.effects.indexOf(e));
 	}
 	
-	public T removeEffect(int i) {
+	public TrackEffectInstance removeEffect(int i) {
 		if(!this.checkEffectIndex(i)) return null;
 		
-		T item = this.getEffect(i);
+		TrackEffectInstance item = this.getEffect(i);
 		this.effects.remove(i);
 		this.notifyEffectRemoved(item, i);
 		
 		return item;
 	}
 	
-	public void moveEffect(T e, int newPos) {
+	public void moveEffect(TrackEffectInstance e, int newPos) {
 		if(!this.checkEffectIndex(newPos)) return;
 		
 		int ei = this.effects.indexOf(e);
@@ -107,7 +107,7 @@ public abstract class Track<T extends TrackEffectInstance> {
 	public void moveEffect(int currPos, int newPos) {
 		if(!this.checkEffectIndex(currPos) || !this.checkEffectIndex(newPos)) return;
 		
-		T item = this.getEffect(currPos);
+		TrackEffectInstance item = this.getEffect(currPos);
 		this.effects.remove(currPos);
 		this.effects.add(newPos, item);
 		
@@ -126,19 +126,19 @@ public abstract class Track<T extends TrackEffectInstance> {
 		this.effectListListeners.remove(l);
 	}
 	
-	private void notifyEffectAdded(T e, int pos) {
+	private void notifyEffectAdded(TrackEffectInstance e, int pos) {
 		for(TrackEffectsListener l : this.effectListListeners) {
 			l.effectAdded(e, pos);
 		}
 	}
 	
-	private void notifyEffectRemoved(T e, int pos) {
+	private void notifyEffectRemoved(TrackEffectInstance e, int pos) {
 		for(TrackEffectsListener l : this.effectListListeners) {
 			l.effectRemoved(e, pos);
 		}
 	}
 	
-	private void notifyEffectMoved(T e, int oldPos, int newPos) {
+	private void notifyEffectMoved(TrackEffectInstance e, int oldPos, int newPos) {
 		for(TrackEffectsListener l : this.effectListListeners) {
 			l.effectMoved(e, oldPos, newPos);
 		}

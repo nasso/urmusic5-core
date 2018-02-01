@@ -1,15 +1,15 @@
-package io.github.nasso.urmusic.model.effect.video;
+package io.github.nasso.urmusic.model.effect;
 
 import static com.jogamp.opengl.GL.*;
 
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.control.FloatParam;
-import io.github.nasso.urmusic.model.project.video.VideoEffect;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
 
-public class VignetteVFX extends VideoEffect {
+public class VignetteVFX extends TrackEffect {
 	public static final VignetteVFX FX = new VignetteVFX();
 	
 	private GLUtils glu = new GLUtils();
@@ -17,26 +17,20 @@ public class VignetteVFX extends VideoEffect {
 	private int quadProg, quadVAO;
 	private int loc_colorTex, loc_vignetteColor, loc_parameters;
 	
-	public class VignetteVFXInstance extends VideoEffectInstance {
-		private FloatParam dist = new FloatParam(0);
-		private FloatParam penumbra = new FloatParam(0);
+	public class VignetteVFXInstance extends TrackEffectInstance {
+		private FloatParam dist = new FloatParam(1.2f);
+		private FloatParam penumbra = new FloatParam(0.75f);
 		
 		public VignetteVFXInstance() {
 			this.addControlParameter(this.dist);
 			this.addControlParameter(this.penumbra);
-			
-			this.dist.addKeyFrame(0, 0.0f);
-			this.dist.addKeyFrame(100, 1.0f);
-			
-			this.penumbra.addKeyFrame(100, 0.0f);
-			this.penumbra.addKeyFrame(200, 1.0f);
 		}
 		
-		public void setup(GL3 gl) {
+		public void setupVideo(GL3 gl) {
 			
 		}
 
-		public void apply(GL3 gl, int texInput, int fboOutput) {
+		public void applyVideo(GL3 gl, int texInput, int fboOutput) {
 			int frame = UrmusicModel.getRenderer().getCurrentDestCacheFrame().frame_id;
 			
 			gl.glUseProgram(VignetteVFX.this.quadProg);
@@ -49,11 +43,11 @@ public class VignetteVFX extends VideoEffect {
 			gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
 		
-		public void dispose(GL3 gl) {
+		public void disposeVideo(GL3 gl) {
 		}
 	}
 	
-	public void globalSetup(GL3 gl) {
+	public void globalVideoSetup(GL3 gl) {
 		this.quadProg = this.glu.createProgram(gl, "fx/vignette/vignette.vs", "fx/vignette/vignette.fs");
 		this.loc_colorTex = gl.glGetUniformLocation(this.quadProg, "color");
 		this.loc_vignetteColor = gl.glGetUniformLocation(this.quadProg, "vignetteColor");
@@ -62,11 +56,15 @@ public class VignetteVFX extends VideoEffect {
 		this.quadVAO = this.glu.genFullQuadVAO(gl);
 	}
 
-	public void globalDispose(GL3 gl) {
+	public void globalVideoDispose(GL3 gl) {
 		this.glu.dispose(gl);
 	}
 
-	public VideoEffectInstance instance() {
+	public TrackEffectInstance instance() {
 		return new VignetteVFXInstance();
+	}
+
+	public void effectMain() {
+		this.setVideoEffect();
 	}
 }

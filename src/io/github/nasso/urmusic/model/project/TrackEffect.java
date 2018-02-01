@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.jogamp.opengl.GL3;
+
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.EffectParametersListener;
 import io.github.nasso.urmusic.model.project.control.ControlParam;
@@ -58,5 +60,34 @@ public abstract class TrackEffect {
 				l.parameterRemoved(ctrl);
 			}
 		}
+		
+		public abstract void setupVideo(GL3 gl);
+		public abstract void applyVideo(GL3 gl, int texInput, int fboOutput);
+		public abstract void disposeVideo(GL3 gl);
 	}
+	
+	private boolean audioEffect = false, videoEffect = false;
+	
+	public void setAudioEffect() {
+		this.audioEffect = true;
+	}
+	
+	public void setVideoEffect() {
+		this.videoEffect = true;
+	}
+	
+	public boolean isAudioEffect() {
+		return this.audioEffect;
+	}
+	
+	public boolean isVideoEffect() {
+		return this.videoEffect;
+	}
+	
+	public abstract TrackEffectInstance instance();
+	
+	public abstract void globalVideoSetup(GL3 gl);
+	public abstract void globalVideoDispose(GL3 gl);
+	
+	public abstract void effectMain();
 }

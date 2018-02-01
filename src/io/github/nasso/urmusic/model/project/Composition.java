@@ -144,13 +144,13 @@ public class Composition implements TracklistListener, TrackEffectsListener {
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
 	
-	public void trackAdded(int index, Track<?> track) {
+	public void trackAdded(int index, Track track) {
 		track.addEffectsListener(this);
 		
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
 	
-	public void trackRemoved(int index, Track<?> track) {
+	public void trackRemoved(int index, Track track) {
 		track.removeEffectsListener(this);
 		
 		UrmusicModel.makeCompositionDirty(Composition.this);

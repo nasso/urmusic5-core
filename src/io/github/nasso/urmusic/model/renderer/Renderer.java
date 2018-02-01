@@ -12,9 +12,9 @@ import com.jogamp.opengl.awt.GLJPanel;
 
 import io.github.nasso.urmusic.model.event.RendererListener;
 import io.github.nasso.urmusic.model.project.Composition;
-import io.github.nasso.urmusic.model.project.video.VideoEffect;
-import io.github.nasso.urmusic.model.project.video.VideoEffect.VideoEffectInstance;
-import io.github.nasso.urmusic.model.project.video.VideoTrack;
+import io.github.nasso.urmusic.model.project.Track;
+import io.github.nasso.urmusic.model.project.TrackEffect;
+import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 
 public class Renderer {
 	GLAutoDrawable drawable;
@@ -66,11 +66,11 @@ public class Renderer {
 		return this.height;
 	}
 	
-	public void initEffect(VideoEffect vfx) {
+	public void initEffect(TrackEffect vfx) {
 		this.glRenderer.initEffect(vfx);
 	}
 	
-	public void disposeEffect(VideoEffect vfx) {
+	public void disposeEffect(TrackEffect vfx) {
 		this.glRenderer.disposeEffect(vfx);
 	}
 	
@@ -121,11 +121,11 @@ public class Renderer {
 		return bestChoice;
 	}
 	
-	public void disposeTrack(VideoTrack track) {
+	public void disposeTrack(Track track) {
 		this.glRenderer.disposeTrack(track);
 	}
 	
-	public void disposeEffect(VideoEffectInstance vfx) {
+	public void disposeEffect(TrackEffectInstance vfx) {
 		this.glRenderer.disposeEffectInstance(vfx);
 	}
 	

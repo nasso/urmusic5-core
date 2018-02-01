@@ -27,7 +27,7 @@ public class TimelineMainScrollable extends JPanel implements TracklistListener,
 	
 	private TimelineView view;
 	private JPanel infoPane, timelinePane;
-	private TimelineFrameCaret caretPane;
+	private TimelineCaretLayer caretPane;
 	
 	private JLayer<JPanel> timelineLayer;
 	
@@ -36,7 +36,7 @@ public class TimelineMainScrollable extends JPanel implements TracklistListener,
 		
 		this.infoPane = new JPanel(new VListLayout(1));
 		this.timelinePane = new JPanel(new VListLayout(1));
-		this.caretPane = new TimelineFrameCaret(this.view);
+		this.caretPane = new TimelineCaretLayer(this.view);
 		
 		this.infoPane.setBackground(Color.GRAY);
 		this.timelinePane.setBackground(Color.LIGHT_GRAY);
@@ -50,7 +50,7 @@ public class TimelineMainScrollable extends JPanel implements TracklistListener,
 		this.add(this.infoPane, BorderLayout.WEST);
 		this.add(this.timelineLayer = new JLayer<>(this.timelinePane, this.caretPane), BorderLayout.CENTER);
 		
-		List<Track<?>> tracks = UrmusicModel.getFocusedComposition().getTimeline().getTracks();
+		List<Track> tracks = UrmusicModel.getFocusedComposition().getTimeline().getTracks();
 		for(int i = 0; i < tracks.size(); i++) {
 			this.addTrack(i, tracks.get(i));
 		}
@@ -79,7 +79,7 @@ public class TimelineMainScrollable extends JPanel implements TracklistListener,
 		return this.getPreferredSize();
 	}
 
-	private void addTrack(int index, Track<?> track) {
+	private void addTrack(int index, Track track) {
 		JLabel nameLabel = new JLabel(track.getName(), JLabel.CENTER);
 		nameLabel.setPreferredSize(new Dimension(CHANNEL_WIDTH, CHANNEL_HEIGHT));
 		nameLabel.setBackground(Color.WHITE);
@@ -96,13 +96,13 @@ public class TimelineMainScrollable extends JPanel implements TracklistListener,
 		this.timelinePane.remove(index);
 	}
 	
-	public void trackAdded(int index, Track<?> track) {
+	public void trackAdded(int index, Track track) {
 		SwingUtilities.invokeLater(() -> {
 			this.addTrack(index, track);
 		});	
 	}
 
-	public void trackRemoved(int index, Track<?> track) {
+	public void trackRemoved(int index, Track track) {
 		SwingUtilities.invokeLater(() -> {
 			this.removeTrack(index);
 		});

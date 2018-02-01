@@ -157,6 +157,7 @@ public class UrmusicView {
 	
 	public static void saveViewState() {
 		File viewStateFile = new File("appdata/view-state.dat");
+		if(!viewStateFile.getParentFile().exists()) viewStateFile.getParentFile().mkdirs();
 		
 		UrmusicSplittedPaneState[] paneStates = new UrmusicSplittedPaneState[frames.size()];
 		for(int i = 0; i < paneStates.length; i++) paneStates[i] = ((SplittablePane) frames.get(i).getContentPane()).saveState();

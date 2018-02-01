@@ -18,10 +18,8 @@ import io.github.nasso.urmusic.model.event.CompositionListener;
 import io.github.nasso.urmusic.model.project.CompositeTrack;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Track;
+import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.video.VideoEffect;
-import io.github.nasso.urmusic.model.project.video.VideoEffect.VideoEffectInstance;
-import io.github.nasso.urmusic.model.project.video.VideoTrack;
 
 /**
  * Uses OpenGL 3
@@ -102,48 +100,46 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		return GLProfile.getGL2GL3();
 	}
 	
-	public void initEffect(VideoEffect vfx) {
+	public void initEffect(TrackEffect vfx) {
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
 		this.gl = ctx.getGL().getGL3();
 		
-		vfx.globalSetup(this.gl);
+		vfx.globalVideoSetup(this.gl);
 		
 		ctx.release();
 	}
 	
-	public void disposeEffect(VideoEffect vfx) {
+	public void disposeEffect(TrackEffect vfx) {
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
 		this.gl = ctx.getGL().getGL3();
 		
-		vfx.globalDispose(this.gl);
+		vfx.globalVideoDispose(this.gl);
 		
 		ctx.release();
 	}
 	
-	public void disposeTrack(VideoTrack track) {
-		VideoTrack vt = track;
-		
+	public void disposeTrack(Track vt) {
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
 		this.gl = ctx.getGL().getGL3();
 		
 		for(int i = 0; i < vt.getEffectCount(); i++) {
-			VideoEffectInstance vfx = vt.getEffect(i);
+			TrackEffectInstance vfx = vt.getEffect(i);
 			
-			vfx.dispose(this.gl);
+			vfx.disposeVideo(this.gl);
 		}
 		
 		ctx.release();
 	}
 	
-	public void disposeEffectInstance(VideoEffectInstance vfx) {
+	public void disposeEffectInstance(TrackEffectInstance vfx) {
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
 		this.gl = ctx.getGL().getGL3();
 		
-		vfx.dispose(this.gl);
+		vfx.disposeVideo(this.gl);
 		
 		ctx.release();
 	}
@@ -204,9 +200,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		this.gl.glClear(GL_COLOR_BUFFER_BIT);
 		
 		// -- Composition --
-		List<Track<?>> tracks = comp.getTimeline().getTracks();
+		List<Track> tracks = comp.getTimeline().getTracks();
 		for(int i = 0; i < tracks.size(); i++) {
-			Track<?> t = tracks.get(i);
+			Track t = tracks.get(i);
 			
 			// We only care about video tracks
 			if(t instanceof CompositeTrack) {
@@ -215,17 +211,14 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				// Rebind framebuffer
 				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.getFBOFor(comp, cacheIndex));
 			}
-			if(!(t instanceof VideoTrack || t instanceof CompositeTrack)) continue;
 			
 			for(int j = 0; j < t.getEffectCount(); j++) {
 				TrackEffectInstance fx = t.getEffect(j);
 				
 				// We only care about video effects (composite tracks can have audio)
-				if(!(fx instanceof VideoEffectInstance)) continue;
+				if(!fx.getEffectClass().isVideoEffect()) continue;
 				
-				VideoEffectInstance vfx = (VideoEffectInstance) fx;
-				
-				vfx.apply(this.gl, destTex, destFBO);
+				fx.applyVideo(this.gl, destTex, destFBO);
 			}
 		}
 	}

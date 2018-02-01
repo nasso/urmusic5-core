@@ -1,8 +1,6 @@
 package io.github.nasso.urmusic.model.project;
 
-import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-
-public class CompositeTrack extends Track<TrackEffectInstance> {
+public class CompositeTrack extends Track {
 	private Composition comp;
 	
 	public CompositeTrack(Composition comp) {

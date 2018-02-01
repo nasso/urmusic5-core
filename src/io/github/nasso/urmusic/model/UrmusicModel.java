@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.nasso.urmusic.model.effect.video.VignetteVFX;
+import io.github.nasso.urmusic.model.effect.VignetteVFX;
 import io.github.nasso.urmusic.model.event.CompositionFocusListener;
 import io.github.nasso.urmusic.model.event.FrameCursorListener;
 import io.github.nasso.urmusic.model.project.Composition;
@@ -12,9 +12,6 @@ import io.github.nasso.urmusic.model.project.Project;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.video.VideoEffect;
-import io.github.nasso.urmusic.model.project.video.VideoEffect.VideoEffectInstance;
-import io.github.nasso.urmusic.model.project.video.VideoTrack;
 import io.github.nasso.urmusic.model.renderer.Renderer;
 import io.github.nasso.urmusic.view.UrmusicView;
 
@@ -68,8 +65,9 @@ public class UrmusicModel {
 	public static void loadEffect(TrackEffect fx) {
 		if(isEffectLoaded(fx)) return;
 		
-		if(fx instanceof VideoEffect) {
-			renderer.initEffect((VideoEffect) fx);
+		fx.effectMain();
+		if(fx.isVideoEffect()) {
+			renderer.initEffect(fx);
 			loadedEffects.add(fx);
 		}
 	}
@@ -77,8 +75,8 @@ public class UrmusicModel {
 	public static void unloadEffect(TrackEffect fx) {
 		if(!isEffectLoaded(fx)) return;
 
-		if(fx instanceof VideoEffect) {
-			renderer.disposeEffect((VideoEffect) fx);
+		if(fx.isVideoEffect()) {
+			renderer.disposeEffect(fx);
 		}
 		
 		loadedEffects.remove(fx);
@@ -158,15 +156,13 @@ public class UrmusicModel {
 		}
 	}
 	
-	public static void disposeTrack(Track<?> track) {
-		if(track instanceof VideoTrack) {
-			renderer.disposeTrack((VideoTrack) track);
-		}
+	public static void disposeTrack(Track track) {
+		renderer.disposeTrack(track);
 	}
 	
 	public static void disposeEffect(TrackEffectInstance fx) {
-		if(fx instanceof VideoEffectInstance) {
-			renderer.disposeEffect((VideoEffectInstance) fx);
+		if(fx.getEffectClass().isVideoEffect()) {
+			renderer.disposeEffect(fx);
 		}
 	}
 }
