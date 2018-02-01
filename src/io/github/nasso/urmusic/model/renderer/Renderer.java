@@ -10,15 +10,105 @@ import com.jogamp.opengl.GLProfile;
 import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 
+import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.RendererListener;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 
-public class Renderer {
+public class Renderer implements Runnable {
+	private static final int RCMD_RENDER_FRAME = 0;
+	private static final int RCMD_LOAD_EFFECT = 1;
+	private static final int RCMD_UNLOAD_EFFECT = 2;
+	private static final int RCMD_UNLOAD_EFFECT_INSTANCE = 3;
+	private static final int RCMD_UNLOAD_TRACK = 4;
+	
+	private static class RenderQueue {
+		private List<Object> commands = new ArrayList<>();
+		
+		private Object notifier;
+		
+		public RenderQueue(Object notifier) {
+			this.notifier = notifier;
+		}
+		
+		public boolean isEmpty() {
+			return this.commands.isEmpty();
+		}
+		
+		private void notifyLock() {
+			synchronized(this.notifier) {
+				this.notifier.notifyAll();
+			}
+		}
+		
+		public void queueRender(Composition comp, int frame) {
+			this.commands.add(RCMD_RENDER_FRAME);
+			this.commands.add(comp);
+			this.commands.add(frame);
+			
+			this.notifyLock();
+		}
+		
+		public void queueEffectLoad(TrackEffect fx) {
+			boolean notify = this.isEmpty();
+			
+			this.commands.add(RCMD_LOAD_EFFECT);
+			this.commands.add(fx);
+			
+			if(notify) {
+				synchronized(this.notifier) {
+					this.notifier.notifyAll();
+				}
+			}
+		}
+		
+		public void queueEffectUnload(TrackEffect fx) {
+			boolean notify = this.isEmpty();
+			
+			this.commands.add(RCMD_UNLOAD_EFFECT);
+			this.commands.add(fx);
+			
+			if(notify) {
+				synchronized(this.notifier) {
+					this.notifier.notifyAll();
+				}
+			}
+		}
+		
+		public void queueEffectInstanceUnload(TrackEffectInstance fx) {
+			boolean notify = this.isEmpty();
+			
+			this.commands.add(RCMD_UNLOAD_EFFECT_INSTANCE);
+			this.commands.add(fx);
+			
+			if(notify) {
+				synchronized(this.notifier) {
+					this.notifier.notifyAll();
+				}
+			}
+		}
+		
+		public void queueTrackDispose(Track t) {
+			boolean notify = this.isEmpty();
+			
+			this.commands.add(RCMD_UNLOAD_TRACK);
+			this.commands.add(t);
+			
+			if(notify) {
+				synchronized(this.notifier) {
+					this.notifier.notifyAll();
+				}
+			}
+		}
+		
+		public Object pop() {
+			return this.commands.remove(0);
+		}
+	}
+	
 	GLAutoDrawable drawable;
-	private final int width, height;
 	
 	private int destCacheFrame = 0;
 
@@ -29,15 +119,14 @@ public class Renderer {
 	
 	private List<RendererListener> listeners = new ArrayList<>();
 	
-	public Renderer(int width, int height, int gpuCachedFrameCount) {
-		this.width = width;
-		this.height = height;
-		
+	private Object renderLock = new Object();
+	private RenderQueue renderQueue = new RenderQueue(this.renderLock);
+	
+	public Renderer(int gpuCachedFrameCount) {
 		this.gpuCache = new CachedFrame[gpuCachedFrameCount];
 		
 		for(int i = 0; i < gpuCachedFrameCount; i++) this.gpuCache[i] = new CachedFrame(i);
-		
-		// JOGL init
+
 		this.glRenderer = new GLRenderer(this);
 
 		GLProfile glp = this.glRenderer.getProfile();
@@ -46,51 +135,149 @@ public class Renderer {
 		this.glCaps.setOnscreen(false);
 		
 		GLDrawableFactory factory = GLDrawableFactory.getFactory(glp);
-		this.drawable = factory.createOffscreenAutoDrawable(null, this.glCaps, null, this.width, this.height);
+		this.drawable = factory.createDummyAutoDrawable(null, true, this.glCaps, null);
+		this.drawable.setContext(this.drawable.createContext(null), false);
 		this.drawable.addGLEventListener(this.glRenderer);
+		
+		Thread renderingThread = new Thread(this);
+		renderingThread.setName("urmusic_rendering_thread");
+		renderingThread.start();
+	}
+	
+	public void run() {
+		// JOGL init
+		int cmd = -1;
+		Composition comp = null;
+		int frame = -1;
+		TrackEffect fx = null;
+		TrackEffectInstance fxi = null;
+		Track track = null;
+		
+		// Wait for frames to render now
+		try {
+			synchronized(this.renderLock) {
+				while(true) {
+					while(this.renderQueue.isEmpty())
+						this.renderLock.wait();
+					
+					synchronized(this.renderQueue) {
+						while(!this.renderQueue.isEmpty()) {
+							cmd = (int) this.renderQueue.pop();
+							
+							switch(cmd) {
+								case RCMD_RENDER_FRAME:
+									comp = (Composition) this.renderQueue.pop();
+									frame = (int) this.renderQueue.pop();
+									break;
+								case RCMD_LOAD_EFFECT:
+								case RCMD_UNLOAD_EFFECT:
+									fx = (TrackEffect) this.renderQueue.pop();
+									break;
+								case RCMD_UNLOAD_EFFECT_INSTANCE:
+									fxi = (TrackEffectInstance) this.renderQueue.pop();
+									break;
+								case RCMD_UNLOAD_TRACK:
+									track = (Track) this.renderQueue.pop();
+									break;
+							}
+							
+							switch(cmd) {
+								case RCMD_RENDER_FRAME:
+									this.doFrame(comp, frame);
+									comp = null; // gc free
+									break;
+								case RCMD_LOAD_EFFECT:
+									this.glRenderer.initEffect(fx);
+									fx = null; // gc free
+									break;
+								case RCMD_UNLOAD_EFFECT:
+									this.glRenderer.disposeEffect(fx);
+									fx = null; // gc free
+									break;
+								case RCMD_UNLOAD_EFFECT_INSTANCE:
+									this.glRenderer.disposeEffectInstance(fxi);
+									fxi = null; // gc free
+									break;
+								case RCMD_UNLOAD_TRACK:
+									this.glRenderer.disposeTrack(track);
+									track = null; // gc free
+									break;
+							}
+						}
+					}
+				}
+			}
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void queueFrameRender(Composition comp, int frame) {
+		int cache = this.getCacheFor(comp, frame);
+		if(cache != -1) {
+			this.destCacheFrame = cache;
+			this.notifyFrameReady(comp, frame);
+			return;
+		}
+		
+		this.renderQueue.queueRender(comp, frame);
+	}
+	
+	private void doFrame(Composition comp, int frame) {
+		this.destCacheFrame = this.freeFrameCache(comp, frame);
+		this.gpuCache[this.destCacheFrame].frame_id = frame;
+		this.gpuCache[this.destCacheFrame].comp = comp;
+		this.gpuCache[this.destCacheFrame].dirty = true;
+		
+		this.drawable.display();
+		
+		this.gpuCache[this.destCacheFrame].dirty = false;
+		
+		this.notifyFrameReady(comp, frame);
 	}
 	
 	public CachedFrame[] getCachedFrames() {
 		return this.gpuCache;
 	}
 	
+	public int getCacheSize() {
+		return this.gpuCache.length;
+	}
+	
 	public CachedFrame getCurrentDestCacheFrame() {
 		return this.gpuCache[this.destCacheFrame];
 	}
 	
-	public int getWidth() {
-		return this.width;
-	}
-	
-	public int getHeight() {
-		return this.height;
-	}
-	
-	public void initEffect(TrackEffect vfx) {
-		this.glRenderer.initEffect(vfx);
+	public void initEffect(TrackEffect fx) {
+		this.renderQueue.queueEffectLoad(fx);
 	}
 	
 	public void disposeEffect(TrackEffect vfx) {
-		this.glRenderer.disposeEffect(vfx);
+		this.renderQueue.queueEffectUnload(vfx);
+	}
+	
+	public void disposeEffectInstance(TrackEffectInstance vfx) {
+		this.renderQueue.queueEffectInstanceUnload(vfx);
+	}
+	
+	public void disposeTrack(Track track) {
+		this.renderQueue.queueTrackDispose(track);
 	}
 	
 	public void makeCompositionDirty(Composition comp) {
+		boolean needUpdate = false;
 		for(int i = 0; i < this.gpuCache.length; i++) {
 			this.gpuCache[i].dirty = true;
+			needUpdate |= this.gpuCache[i].frame_id == UrmusicModel.getFrameCursor();
 		}
 		
 		this.glRenderer.makeCompositionDirty(comp);
 		
-		this.updateFrameIfNeeded();
+		if(needUpdate)
+			this.queueFrameRender(comp, UrmusicModel.getFrameCursor());
 	}
 	
-	private void updateFrameIfNeeded() {
-		if(this.getCurrentDestCacheFrame().dirty) {
-			this.doFrame(this.getCurrentDestCacheFrame().comp, this.getCurrentDestCacheFrame().frame_id);
-		}
-	}
-	
-	private int getCacheFor(Composition comp, int frame) {
+	public int getCacheFor(Composition comp, int frame) {
 		for(int i = 0; i < this.gpuCache.length; i++) {
 			if(this.gpuCache[i].comp == comp && this.gpuCache[i].frame_id == frame && !this.gpuCache[i].dirty) return i;
 		}
@@ -99,7 +286,7 @@ public class Renderer {
 	}
 	
 	private int freeFrameCache(Composition comp, int frame) {
-		int bestChoice = -1;
+		int bestChoice = 0;
 		
 		for(int i = 0; i < this.gpuCache.length; i++) {
 			CachedFrame f = this.gpuCache[i];
@@ -119,33 +306,6 @@ public class Renderer {
 		}
 		
 		return bestChoice;
-	}
-	
-	public void disposeTrack(Track track) {
-		this.glRenderer.disposeTrack(track);
-	}
-	
-	public void disposeEffect(TrackEffectInstance vfx) {
-		this.glRenderer.disposeEffectInstance(vfx);
-	}
-	
-	public void doFrame(Composition comp, int frameOffset) {
-		this.destCacheFrame = this.getCacheFor(comp, frameOffset);
-		if(this.destCacheFrame != -1) {
-			this.notifyFrameReady(comp, frameOffset);
-			return;
-		}
-		
-		this.destCacheFrame = this.freeFrameCache(comp, frameOffset);
-		this.gpuCache[this.destCacheFrame].frame_id = frameOffset;
-		this.gpuCache[this.destCacheFrame].comp = comp;
-		this.gpuCache[this.destCacheFrame].dirty = true;
-		
-		this.drawable.display();
-		
-		this.gpuCache[this.destCacheFrame].dirty = false;
-		
-		this.notifyFrameReady(comp, frameOffset);
 	}
 	
 	public void dispose() {

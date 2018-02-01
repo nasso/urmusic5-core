@@ -3,6 +3,8 @@ package io.github.nasso.urmusic.view.components.panels.preview;
 import java.awt.BorderLayout;
 import java.awt.Component;
 
+import javax.swing.SwingUtilities;
+
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.RendererListener;
 import io.github.nasso.urmusic.model.project.Composition;
@@ -28,6 +30,6 @@ public class PreviewView extends UrmViewPane implements RendererListener {
 	}
 
 	public void frameRendered(Composition comp, int frame) {
-		this.glPane.repaint();
+		SwingUtilities.invokeLater(this.glPane::repaint);
 	}
 }

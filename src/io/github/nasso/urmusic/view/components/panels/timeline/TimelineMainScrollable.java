@@ -15,11 +15,13 @@ import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.FrameCursorListener;
+import io.github.nasso.urmusic.model.event.RendererListener;
 import io.github.nasso.urmusic.model.event.TracklistListener;
+import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
-public class TimelineMainScrollable extends JPanel implements TracklistListener, FrameCursorListener  {
+public class TimelineMainScrollable extends JPanel implements TracklistListener, FrameCursorListener, RendererListener  {
 	private static final long serialVersionUID = 1008513031790674759L;
 	
 	public static final int CHANNEL_HEIGHT = 30;
@@ -108,9 +110,11 @@ public class TimelineMainScrollable extends JPanel implements TracklistListener,
 		});
 	}
 
-
 	public void frameChanged(int oldPosition, int newPosition) {
 		this.timelineLayer.repaint();
 	}
 
+	public void frameRendered(Composition comp, int frame) {
+		this.timelineLayer.repaint();
+	}
 }

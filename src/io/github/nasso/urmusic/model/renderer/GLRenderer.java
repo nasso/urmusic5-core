@@ -167,12 +167,10 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		
 		CachedFrame dest = this.mainRenderer.getCurrentDestCacheFrame();
 		int cacheIndex = dest.index_on_creation;
-
-		// Clear all
-		this.gl.glClearColor(0, 0, 0, 1);
-		this.gl.glClear(GL_COLOR_BUFFER_BIT);
 		
 		this.renderComposition(dest.comp, cacheIndex);
+		
+		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	
 	private void renderComposition(Composition comp, int cacheIndex) {
@@ -190,6 +188,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		
 		// Bind framebuffer
 		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, destFBO);
+		this.gl.glViewport(0, 0, dest.width, dest.height);
 		
 		this.gl.glClearColor(
 			comp.getClearColor().getRedf(),
@@ -210,6 +209,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				
 				// Rebind framebuffer
 				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.getFBOFor(comp, cacheIndex));
+				this.gl.glViewport(0, 0, dest.width, dest.height);
 			}
 			
 			for(int j = 0; j < t.getEffectCount(); j++) {
@@ -223,12 +223,16 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		}
 	}
 
-	public int getCurrentFBO(Composition comp) {
+	public int getCurrentDestFBO(Composition comp) {
 		return this.getFBOFor(comp, this.mainRenderer.getCurrentDestCacheFrame().index_on_creation);
 	}
 	
-	public int getCurrentTexture(Composition comp) {
+	public int getCurrentDestTexture(Composition comp) {
 		return this.getTexFor(comp, this.mainRenderer.getCurrentDestCacheFrame().index_on_creation);
+	}
+	
+	public int getTextureFor(Composition comp, int frame) {
+		return this.getTexFor(comp, this.mainRenderer.getCacheFor(comp, frame));
 	}
 	
 	private CachedFramebuffer getFramebufferFor(Composition comp) {
@@ -236,10 +240,14 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	}
 	
 	private int getFBOFor(Composition comp, int index) {
+		if(index > this.mainRenderer.getCacheSize() || index < 0) return -1;
+		
 		return this.getFramebufferFor(comp).fbo[index];
 	}
 	
 	private int getTexFor(Composition comp, int index) {
+		if(index > this.mainRenderer.getCacheSize() || index < 0) return -1;
+		
 		return this.getFramebufferFor(comp).texture[index];
 	}
 	

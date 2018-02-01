@@ -7,23 +7,23 @@ import static com.jogamp.opengl.GL2ES2.*;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.util.glsl.ShaderUtil;
 
+import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TIntArrayList;
 import io.github.nasso.urmusic.utils.DataUtils;
 
 public class GLUtils {
 	private final IntBuffer buf1a = IntBuffer.allocate(1);
 	private final IntBuffer buf1b = IntBuffer.allocate(1);
 	
-	private final List<Integer> buffers = new ArrayList<Integer>();
-	private final List<Integer> vaos = new ArrayList<Integer>();
-	private final List<Integer> textures = new ArrayList<Integer>();
-	private final List<Integer> framebuffers = new ArrayList<Integer>();
-	private final List<Integer> programs = new ArrayList<Integer>();
+	private final TIntList buffers = new TIntArrayList();
+	private final TIntList vaos = new TIntArrayList();
+	private final TIntList textures = new TIntArrayList();
+	private final TIntList framebuffers = new TIntArrayList();
+	private final TIntList programs = new TIntArrayList();
 	
 	public final int genBuffer(GL3 gl) {
 		this.genBuffers(gl, 1, this.buf1a);
@@ -211,29 +211,44 @@ public class GLUtils {
 		
 		IntBuffer buf = IntBuffer.allocate(maxSize);
 		
-		this.buffers.forEach((i) -> buf.put(i));
+		this.buffers.forEach((i) -> {
+			buf.put(i);
+			return true;
+		});
 		buf.flip();
 		gl.glDeleteBuffers(this.buffers.size(), buf);
 		
 		buf.limit(buf.capacity());
 		
-		this.vaos.forEach((i) -> buf.put(i));
+		this.vaos.forEach((i) -> {
+			buf.put(i);
+			return true;
+		});
 		buf.flip();
 		gl.glDeleteVertexArrays(this.vaos.size(), buf);
 		
 		buf.limit(buf.capacity());
 		
-		this.textures.forEach((i) -> buf.put(i));
+		this.textures.forEach((i) -> {
+			buf.put(i);
+			return true;
+		});
 		buf.flip();
 		gl.glDeleteTextures(this.textures.size(), buf);
 
 		buf.limit(buf.capacity());
 		
-		this.framebuffers.forEach((i) -> buf.put(i));
+		this.framebuffers.forEach((i) -> {
+			buf.put(i);
+			return true;
+		});
 		buf.flip();
 		gl.glDeleteFramebuffers(this.framebuffers.size(), buf);
 		
-		this.programs.forEach(gl::glDeleteProgram);
+		this.programs.forEach((i) -> {
+			gl.glDeleteProgram(i);
+			return true;
+		});
 		
 		this.buffers.clear();
 		this.vaos.clear();

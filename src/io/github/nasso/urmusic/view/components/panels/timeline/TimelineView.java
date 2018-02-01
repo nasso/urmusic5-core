@@ -2,9 +2,6 @@ package io.github.nasso.urmusic.view.components.panels.timeline;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
-import java.awt.event.KeyEvent;
 
 import javax.swing.JScrollPane;
 
@@ -13,7 +10,7 @@ import io.github.nasso.urmusic.model.event.CompositionFocusListener;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 
-public class TimelineView extends UrmViewPane implements CompositionFocusListener, KeyEventDispatcher {
+public class TimelineView extends UrmViewPane implements CompositionFocusListener {
 	private static final long serialVersionUID = -5890250765481685754L;
 	
 	private TimelineMainScrollable body;
@@ -26,9 +23,9 @@ public class TimelineView extends UrmViewPane implements CompositionFocusListene
 		
 		this.buildUI();
 		
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this);
 		UrmusicModel.addCompositionFocusListener(this);
 		UrmusicModel.addFrameCursorListener(this.body);
+		UrmusicModel.getRenderer().addRendererListener(this.body);
 	}
 	
 	private void buildUI() {
@@ -41,9 +38,9 @@ public class TimelineView extends UrmViewPane implements CompositionFocusListene
 	}
 	
 	public void dispose() {
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(this);
 		UrmusicModel.removeCompositionFocusListener(this);
 		UrmusicModel.removeFrameCursorListener(this.body);
+		UrmusicModel.getRenderer().removeRendererListener(this.body);
 		if(UrmusicModel.getFocusedComposition() != null) UrmusicModel.getFocusedComposition().getTimeline().removeTracklistListener(this.body);
 	}
 	
@@ -66,20 +63,5 @@ public class TimelineView extends UrmViewPane implements CompositionFocusListene
 
 	public void setHorizontalScroll(float horizontalScroll) {
 		this.horizontalScroll = Math.min(horizontalScroll, 0);
-	}
-
-	public boolean dispatchKeyEvent(KeyEvent e) {
-		if(e.getID() == KeyEvent.KEY_PRESSED) {
-			switch(e.getKeyCode()) {
-				case KeyEvent.VK_RIGHT:
-					UrmusicModel.setFrameCursor(UrmusicModel.getFrameCursor() + 1);
-					break;
-				case KeyEvent.VK_LEFT:
-					UrmusicModel.setFrameCursor(UrmusicModel.getFrameCursor() - 1);
-					break;
-			}
-		}
-		
-		return false;
 	}
 }

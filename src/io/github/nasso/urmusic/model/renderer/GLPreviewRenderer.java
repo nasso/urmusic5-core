@@ -42,21 +42,26 @@ public class GLPreviewRenderer implements GLEventListener {
 	public void display(GLAutoDrawable drawable) {
 		GL3 gl = drawable.getGL().getGL3();
 		
-		gl.glClearColor(0, 0, 0, 1);
+		gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
 		gl.glClear(GL_COLOR_BUFFER_BIT);
+		
+		int tex = this.parent.getTextureFor(UrmusicModel.getFocusedComposition(), UrmusicModel.getFrameCursor());
+		if(!gl.glIsTexture(tex)) return;
+		
+		gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		
 		gl.glUseProgram(this.quadProg);
 		
 		// Calc ratio
 		float sw = drawable.getSurfaceWidth();
 		float sh = drawable.getSurfaceHeight();
-		float rw = this.parent.mainRenderer.getWidth();
-		float rh = this.parent.mainRenderer.getHeight();
+		float rw = UrmusicModel.getFocusedComposition().getWidth();
+		float rh = UrmusicModel.getFocusedComposition().getHeight();
 		float s = Math.min(sw / rw, sh / rh);
 		float w = rw * s, h = rh * s;
 		
 		gl.glUniform2f(this.quadProgScaleLocation, w / sw, h / sh);
-		this.glu.uniformTexture(gl, this.quadProgTextureLocation, this.parent.getCurrentTexture(UrmusicModel.getFocusedComposition()), 0);
+		this.glu.uniformTexture(gl, this.quadProgTextureLocation, tex, 0);
 		
 		gl.glBindVertexArray(this.quadVAO);
 		gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

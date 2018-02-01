@@ -8,8 +8,6 @@ import io.github.nasso.urmusic.utils.easing.EasingFunction;
 public abstract class ControlParam<T> {
 	private List<KeyFrame<T>> keyFrames = new ArrayList<>();
 	
-	private T staticValue;
-	
 	public ControlParam() {
 	}
 	
@@ -38,7 +36,7 @@ public abstract class ControlParam<T> {
 	 */
 	public void setValue(T val, int frame) {
 		if(this.keyFrames.isEmpty()) {
-			this.staticValue = val;
+			this.setValue(val);
 			
 			return;
 		}
@@ -48,7 +46,7 @@ public abstract class ControlParam<T> {
 	
 	public T getValue(int frame) {
 		if(this.keyFrames.isEmpty()) {
-			return this.staticValue;
+			return this.getValue();
 		}
 		
 		int i;
@@ -69,6 +67,9 @@ public abstract class ControlParam<T> {
 			next.getFrame() - previous.getFrame()	// duration
 		));
 	}
+	
+	protected abstract void setValue(T val);
+	protected abstract T getValue();
 	
 	/**
 	 * Linearly interpolates between <code>s</code> and <code>e</code>, <code>t</code> being the factor (usually in the range 0.0..1.0 but not limited to).<br>

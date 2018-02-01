@@ -7,6 +7,7 @@ import java.util.List;
 import io.github.nasso.urmusic.model.effect.VignetteVFX;
 import io.github.nasso.urmusic.model.event.CompositionFocusListener;
 import io.github.nasso.urmusic.model.event.FrameCursorListener;
+import io.github.nasso.urmusic.model.playback.PlaybackThread;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
 import io.github.nasso.urmusic.model.project.Track;
@@ -24,6 +25,7 @@ public class UrmusicModel {
 
 	private static Project project;
 	private static Renderer renderer;
+	private static PlaybackThread playbackThread;
 	
 	private static List<FrameCursorListener> frameCursorListeners = new ArrayList<>();
 	private static int frameCursor = 0;
@@ -35,12 +37,12 @@ public class UrmusicModel {
 	
 	public static void init() {
 		// TODO: User prefs
-		renderer = new Renderer(1280, 720, 200);
+		renderer = new Renderer(200);
 		
 		loadProject(null);
 		
 		addFrameCursorListener((oldPosition, newPosition)  -> {
-			renderer.doFrame(focusedComposition, newPosition);
+			renderer.queueFrameRender(focusedComposition, newPosition);
 		});
 		
 		// -- EFFECTS
@@ -48,6 +50,13 @@ public class UrmusicModel {
 			loadEffect(fx);
 		}
 		// -- EFFECTS END
+		
+		playbackThread = new PlaybackThread();
+		playbackThread.setFPS(getFocusedComposition().getFramerate());
+		
+		addCompositionFocusListener((oldComp, newComp) -> {
+			playbackThread.setFPS(newComp.getFramerate());
+		});
 	}
 	
 	public static void exit() {
@@ -90,7 +99,7 @@ public class UrmusicModel {
 		if(f == null) {
 			project = new Project();
 			focusComposition(project.getMainComposition());
-			renderer.doFrame(focusedComposition, 0);
+			renderer.queueFrameRender(focusedComposition, 0);
 		}
 	}
 	
@@ -150,6 +159,18 @@ public class UrmusicModel {
 		notifyFrameCursorChange(before, UrmusicModel.frameCursor = frameCursor);
 	}
 	
+	public static boolean isPlayingBack() {
+		return playbackThread.isPlayingBack();
+	}
+	
+	public static void startPlayback() {
+		playbackThread.startPlayback();
+	}
+	
+	public static void stopPlayback() {
+		playbackThread.stopPlayback();
+	}
+	
 	private static void notifyFrameCursorChange(int before, int after) {
 		for(FrameCursorListener l : frameCursorListeners) {
 			l.frameChanged(before, after);
@@ -162,7 +183,7 @@ public class UrmusicModel {
 	
 	public static void disposeEffect(TrackEffectInstance fx) {
 		if(fx.getEffectClass().isVideoEffect()) {
-			renderer.disposeEffect(fx);
+			renderer.disposeEffectInstance(fx);
 		}
 	}
 }

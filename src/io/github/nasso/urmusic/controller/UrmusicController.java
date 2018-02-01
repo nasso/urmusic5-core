@@ -12,4 +12,17 @@ public class UrmusicController {
 	public static void requestExit() {
 		UrmusicModel.exit();
 	}
+	
+	public static void frameAdvance() {
+		UrmusicModel.setFrameCursor(UrmusicModel.getFrameCursor() + 1);
+	}
+	
+	public static void frameBack() {
+		UrmusicModel.setFrameCursor(UrmusicModel.getFrameCursor() - 1);
+	}
+	
+	public static void playPause() {
+		if(UrmusicModel.isPlayingBack()) UrmusicModel.stopPlayback();
+		else UrmusicModel.startPlayback();
+	}
 }

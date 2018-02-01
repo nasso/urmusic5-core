@@ -2,7 +2,9 @@ package io.github.nasso.urmusic.view;
 
 import static io.github.nasso.urmusic.view.data.UrmusicStrings.*;
 
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
@@ -49,8 +51,12 @@ public class UrmusicView {
 		buildMenu();
 		
 		loadViewState();
-		
+
 		SwingUtilities.invokeLater(() -> {
+			KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher((e) -> {
+				return UrmusicView.keyEvent(e);
+			});
+			
 			if(viewState == null || viewState.getPaneStates().length == 0) {
 				SplittablePane.popupNew();
 			} else {
@@ -170,5 +176,26 @@ public class UrmusicView {
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static boolean keyEvent(KeyEvent e) {
+		boolean stop = false;
+		
+		if(e.getID() == KeyEvent.KEY_PRESSED) {
+			switch(e.getKeyCode()) {
+				case KeyEvent.VK_RIGHT:
+					UrmusicController.frameAdvance();
+					break;
+				case KeyEvent.VK_LEFT:
+					UrmusicController.frameBack();
+					break;
+				case KeyEvent.VK_SPACE:
+					UrmusicController.playPause();
+					stop = true;
+					break;
+			}
+		}
+		
+		return stop;
 	}
 }
