@@ -61,8 +61,7 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 			
 			if(x < -hscalei || x > c.getWidth()) continue;
 			
-			if(f.dirty) g2d.setColor(Color.RED);
-			else g2d.setColor(Color.GREEN);
+			if(f.dirty) continue;
 			
 			g2d.fillRect(x, 0, hscalei + 1, 10);
 		}

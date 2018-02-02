@@ -6,11 +6,11 @@ import java.awt.Color;
 import javax.swing.JScrollPane;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.CompositionFocusListener;
+import io.github.nasso.urmusic.model.event.FocusListener;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 
-public class TimelineView extends UrmViewPane implements CompositionFocusListener {
+public class TimelineView extends UrmViewPane implements FocusListener<Composition> {
 	private static final long serialVersionUID = -5890250765481685754L;
 	
 	private TimelineMainScrollable body;
@@ -44,7 +44,7 @@ public class TimelineView extends UrmViewPane implements CompositionFocusListene
 		if(UrmusicModel.getFocusedComposition() != null) UrmusicModel.getFocusedComposition().getTimeline().removeTracklistListener(this.body);
 	}
 	
-	public void focusedCompositionChanged(Composition oldFocus, Composition newFocus) {
+	public void focusChanged(Composition oldFocus, Composition newFocus) {
 		if(oldFocus != null) oldFocus.getTimeline().removeTracklistListener(this.body);
 		if(newFocus != null) newFocus.getTimeline().addTracklistListener(this.body);
 	}

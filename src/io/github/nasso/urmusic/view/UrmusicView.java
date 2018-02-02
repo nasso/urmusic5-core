@@ -54,7 +54,7 @@ public class UrmusicView {
 
 		SwingUtilities.invokeLater(() -> {
 			KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher((e) -> {
-				return UrmusicView.keyEvent(e);
+							return UrmusicView.keyEvent(e);
 			});
 			
 			if(viewState == null || viewState.getPaneStates().length == 0) {
@@ -177,10 +177,8 @@ public class UrmusicView {
 			e.printStackTrace();
 		}
 	}
-
+	
 	public static boolean keyEvent(KeyEvent e) {
-		boolean stop = false;
-		
 		if(e.getID() == KeyEvent.KEY_PRESSED) {
 			switch(e.getKeyCode()) {
 				case KeyEvent.VK_RIGHT:
@@ -191,11 +189,13 @@ public class UrmusicView {
 					break;
 				case KeyEvent.VK_SPACE:
 					UrmusicController.playPause();
-					stop = true;
+					break;
+				case KeyEvent.VK_S:
+					UrmusicController.splitTrack();
 					break;
 			}
 		}
 		
-		return stop;
+		return true;
 	}
 }

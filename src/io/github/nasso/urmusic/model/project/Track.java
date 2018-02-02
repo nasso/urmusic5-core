@@ -11,20 +11,28 @@ import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.utils.IntRange;
 
 public class Track {
-	private static final class IntRangeImpl implements IntRange {
+	public static final class TrackActivityRange implements IntRange {
+		private Track track;
 		private int start, end;
 		
-		public IntRangeImpl(int start, int end) {
+		public TrackActivityRange(Track t, int start, int end) {
+			this.track = t;
 			this.setStart(start);
 			this.setEnd(end);
 		}
 
+		public Track getTrack() {
+			return this.track;
+		}
+		
 		public int getStart() {
 			return this.start;
 		}
 
 		public void setStart(int start) {
+			if(this.start == start) return;
 			this.start = start;
+			this.track.notifyTrackRangesChangedEvent();
 		}
 
 		public int getEnd() {
@@ -32,9 +40,19 @@ public class Track {
 		}
 
 		public void setEnd(int end) {
+			if(this.end == end) return;
 			this.end = end;
+			this.track.notifyTrackRangesChangedEvent();
 		}
 		
+		public void moveTo(int newStart) {
+			if(this.start == newStart) return;
+			
+			this.end = newStart + this.end - this.start;
+			this.start = newStart;
+			
+			this.track.notifyTrackRangesChangedEvent();
+		}
 	}
 	
 	private String name;
@@ -43,8 +61,8 @@ public class Track {
 	/**
 	 * @see Track#getActivityRangesLengths()
 	 */
-	private List<IntRange> activityRangesLengths = new ArrayList<>();
-	private List<IntRange> unmodifiableRanges = Collections.unmodifiableList(this.activityRangesLengths);
+	private List<TrackActivityRange> activityRangesLengths = new ArrayList<>();
+	private List<TrackActivityRange> unmodifiableRanges = Collections.unmodifiableList(this.activityRangesLengths);
 	
 	private List<TrackRangesListener> rangesListeners = new ArrayList<>();
 	private List<TrackEffectsListener> effectListListeners = new ArrayList<>();
@@ -155,16 +173,16 @@ public class Track {
 	/**
 	 * @return An unmodifiable list of int ranges corresponding to the frames where this Track is enabled in the timeline.
 	 */
-	public List<IntRange> getActivityRangesLengths() {
+	public List<TrackActivityRange> getActivityRangesLengths() {
 		return this.unmodifiableRanges;
 	}
 	
 	public IntRange addActiveRange(int start, int len) {
-		IntRange r = new IntRangeImpl(start, start + len);
+		TrackActivityRange r = new TrackActivityRange(this, start, start + len);
 		
 		this.activityRangesLengths.add(r);
 		
-		this.fireTrackRangesChangedEvent();
+		this.notifyTrackRangesChangedEvent();
 		
 		return r;
 	}
@@ -172,7 +190,7 @@ public class Track {
 	public void removeActiveRange(IntRange r) {
 		this.activityRangesLengths.remove(r);
 		
-		this.fireTrackRangesChangedEvent();
+		this.notifyTrackRangesChangedEvent();
 	}
 	
 	/**
@@ -191,27 +209,31 @@ public class Track {
 		}
 		
 		if(ri == null) return;
-		IntRangeImpl r = (IntRangeImpl) ri;
-		IntRangeImpl r2 = new IntRangeImpl(frame, r.getEnd());
+		TrackActivityRange r = (TrackActivityRange) ri;
+		TrackActivityRange r2 = new TrackActivityRange(this, frame, r.getEnd());
 		r.setEnd(frame);
 		
 		this.activityRangesLengths.add(i + 1, r2);
 		
-		this.fireTrackRangesChangedEvent();
+		this.notifyTrackRangesChangedEvent();
 	}
 	
 	/**
 	 * Returns true if the track is active on the given frame.
 	 */
 	public boolean isActiveAt(int frame) {
-		for(IntRange r : this.activityRangesLengths) {
-			if(r.contains(frame)) return true;
-		}
-		
-		return false;
+		return this.getRangeAt(frame) != null;
 	}
 	
-	private void fireTrackRangesChangedEvent() {
+	public TrackActivityRange getRangeAt(int frame) {
+		for(TrackActivityRange r : this.activityRangesLengths) {
+			if(r.contains(frame)) return r;
+		}
+		
+		return null;
+	}
+	
+	private void notifyTrackRangesChangedEvent() {
 		for(TrackRangesListener l : this.rangesListeners) {
 			l.rangesChanged(this);
 		}
