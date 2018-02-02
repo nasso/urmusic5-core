@@ -8,6 +8,7 @@ import javax.swing.SwingUtilities;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.RendererListener;
 import io.github.nasso.urmusic.model.project.Composition;
+import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 
 public class PreviewView extends UrmViewPane implements RendererListener {
@@ -31,5 +32,11 @@ public class PreviewView extends UrmViewPane implements RendererListener {
 
 	public void frameRendered(Composition comp, int frame) {
 		SwingUtilities.invokeLater(this.glPane::repaint);
+	}
+
+	public void effectLoaded(TrackEffect fx) {
+	}
+
+	public void effectUnloaded(TrackEffect fx) {
 	}
 }

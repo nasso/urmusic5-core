@@ -179,6 +179,8 @@ public class UrmusicView {
 	}
 	
 	public static boolean keyEvent(KeyEvent e) {
+		boolean stop = false;
+		
 		if(e.getID() == KeyEvent.KEY_PRESSED) {
 			switch(e.getKeyCode()) {
 				case KeyEvent.VK_RIGHT:
@@ -189,6 +191,7 @@ public class UrmusicView {
 					break;
 				case KeyEvent.VK_SPACE:
 					UrmusicController.playPause();
+					stop = true;
 					break;
 				case KeyEvent.VK_S:
 					UrmusicController.splitTrack();
@@ -196,6 +199,6 @@ public class UrmusicView {
 			}
 		}
 		
-		return true;
+		return stop;
 	}
 }

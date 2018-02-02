@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.TrackEffectsListener;
-import io.github.nasso.urmusic.model.event.TrackRangesListener;
+import io.github.nasso.urmusic.model.event.TrackListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.utils.IntRange;
+import io.github.nasso.urmusic.utils.MathUtils;
 
 public class Track {
 	public static final class TrackActivityRange implements IntRange {
@@ -17,8 +16,8 @@ public class Track {
 		
 		public TrackActivityRange(Track t, int start, int end) {
 			this.track = t;
-			this.setStart(start);
-			this.setEnd(end);
+			this.start = Math.min(start, end);
+			this.end = Math.max(start, end);
 		}
 
 		public Track getTrack() {
@@ -30,6 +29,9 @@ public class Track {
 		}
 
 		public void setStart(int start) {
+			start = Math.min(start, this.end - 1);
+			start = Math.max(start, this.startFrameMin());
+			
 			if(this.start == start) return;
 			this.start = start;
 			this.track.notifyTrackRangesChangedEvent();
@@ -40,22 +42,49 @@ public class Track {
 		}
 
 		public void setEnd(int end) {
+			end = Math.max(end, this.start + 1);
+			end = Math.min(end, this.endFrameMax());
+			
 			if(this.end == end) return;
 			this.end = end;
 			this.track.notifyTrackRangesChangedEvent();
 		}
 		
+		public int getLength() {
+			return this.end - this.start;
+		}
+		
 		public void moveTo(int newStart) {
+			int len = this.getLength();
+			newStart = MathUtils.clamp(newStart, this.startFrameMin(), this.endFrameMax() - len);
+			
 			if(this.start == newStart) return;
 			
-			this.end = newStart + this.end - this.start;
 			this.start = newStart;
+			this.end = newStart + len;
 			
 			this.track.notifyTrackRangesChangedEvent();
 		}
+		
+		private int startFrameMin() {
+			int thisIndex = this.track.activityRangesLengths.indexOf(this);
+			
+			if(thisIndex <= 0) return 0;
+			
+			return this.track.activityRangesLengths.get(thisIndex - 1).end + 1;
+		}
+		
+		private int endFrameMax() {
+			int thisIndex = this.track.activityRangesLengths.indexOf(this);
+			
+			if(thisIndex == this.track.activityRangesLengths.size() - 1) return Integer.MAX_VALUE;
+			
+			return this.track.activityRangesLengths.get(thisIndex + 1).start - 1;
+		}
 	}
 	
-	private String name;
+	private String name = "Unnamed";
+	private boolean enabled = true;
 	private List<TrackEffectInstance> effects = new ArrayList<>();
 	
 	/**
@@ -64,15 +93,10 @@ public class Track {
 	private List<TrackActivityRange> activityRangesLengths = new ArrayList<>();
 	private List<TrackActivityRange> unmodifiableRanges = Collections.unmodifiableList(this.activityRangesLengths);
 	
-	private List<TrackRangesListener> rangesListeners = new ArrayList<>();
-	private List<TrackEffectsListener> effectListListeners = new ArrayList<>();
+	private List<TrackListener> listeners = new ArrayList<>();
 	
-	public Track() {
-		this.addActiveRange(0, 600);
-	}
-	
-	public void dispose() {
-		UrmusicModel.disposeTrack(this);
+	public Track(int initRangeLen) {
+		this.addActiveRange(0, initRangeLen - 1);
 	}
 	
 	public String getName() {
@@ -80,7 +104,22 @@ public class Track {
 	}
 
 	public void setName(String name) {
+		if(this.name.equals(name)) return;
+		
 		this.name = name;
+		this.notifyNameChanged();
+	}
+
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		if(this.enabled == enabled) return;
+		
+		this.enabled = enabled;
+		
+		this.notifyEnabledStateChanged();
 	}
 	
 	public int getEffectCount() {
@@ -136,38 +175,12 @@ public class Track {
 		return i >= 0 && i < this.getEffectCount();
 	}
 	
-	public void addEffectsListener(TrackEffectsListener l) {
-		this.effectListListeners.add(l);
+	public void addTrackListener(TrackListener l) {
+		this.listeners.add(l);
 	}
 	
-	public void removeEffectsListener(TrackEffectsListener l) {
-		this.effectListListeners.remove(l);
-	}
-	
-	private void notifyEffectAdded(TrackEffectInstance e, int pos) {
-		for(TrackEffectsListener l : this.effectListListeners) {
-			l.effectAdded(e, pos);
-		}
-	}
-	
-	private void notifyEffectRemoved(TrackEffectInstance e, int pos) {
-		for(TrackEffectsListener l : this.effectListListeners) {
-			l.effectRemoved(e, pos);
-		}
-	}
-	
-	private void notifyEffectMoved(TrackEffectInstance e, int oldPos, int newPos) {
-		for(TrackEffectsListener l : this.effectListListeners) {
-			l.effectMoved(e, oldPos, newPos);
-		}
-	}
-	
-	public void addTrackRangesListener(TrackRangesListener listener) {
-		this.rangesListeners.add(listener);
-	}
-	
-	public void removeTrackRangesListener(TrackRangesListener listener) {
-		this.rangesListeners.remove(listener);
+	public void removeTrackListener(TrackListener l) {
+		this.listeners.remove(l);
 	}
 	
 	/**
@@ -177,7 +190,7 @@ public class Track {
 		return this.unmodifiableRanges;
 	}
 	
-	public IntRange addActiveRange(int start, int len) {
+	public TrackActivityRange addActiveRange(int start, int len) {
 		TrackActivityRange r = new TrackActivityRange(this, start, start + len);
 		
 		this.activityRangesLengths.add(r);
@@ -187,7 +200,7 @@ public class Track {
 		return r;
 	}
 	
-	public void removeActiveRange(IntRange r) {
+	public void removeActiveRange(TrackActivityRange r) {
 		this.activityRangesLengths.remove(r);
 		
 		this.notifyTrackRangesChangedEvent();
@@ -200,18 +213,17 @@ public class Track {
 	 */
 	public void splitAt(int frame) {
 		int i = 0; 
-		IntRange ri = null;
+		TrackActivityRange r = null;
 		
 		for(i = 0; i < this.activityRangesLengths.size(); i++) {
-			ri = this.activityRangesLengths.get(i);
+			if((r = this.activityRangesLengths.get(i)).contains(frame)) break;
 			
-			if(ri.contains(frame)) break;
+			r = null;
 		}
 		
-		if(ri == null) return;
-		TrackActivityRange r = (TrackActivityRange) ri;
+		if(r == null) return;
 		TrackActivityRange r2 = new TrackActivityRange(this, frame, r.getEnd());
-		r.setEnd(frame);
+		r.setEnd(frame - 1);
 		
 		this.activityRangesLengths.add(i + 1, r2);
 		
@@ -233,8 +245,38 @@ public class Track {
 		return null;
 	}
 	
+	private void notifyNameChanged() {
+		for(TrackListener l : this.listeners) {
+			l.nameChanged(this, this.getName());
+		}
+	}
+	
+	private void notifyEnabledStateChanged() {
+		for(TrackListener l : this.listeners) {
+			l.enabledStateChanged(this, this.isEnabled());
+		}
+	}
+	
+	private void notifyEffectAdded(TrackEffectInstance e, int pos) {
+		for(TrackListener l : this.listeners) {
+			l.effectAdded(this, e, pos);
+		}
+	}
+	
+	private void notifyEffectRemoved(TrackEffectInstance e, int pos) {
+		for(TrackListener l : this.listeners) {
+			l.effectRemoved(this, e, pos);
+		}
+	}
+	
+	private void notifyEffectMoved(TrackEffectInstance e, int oldPos, int newPos) {
+		for(TrackListener l : this.listeners) {
+			l.effectMoved(this, e, oldPos, newPos);
+		}
+	}
+	
 	private void notifyTrackRangesChangedEvent() {
-		for(TrackRangesListener l : this.rangesListeners) {
+		for(TrackListener l : this.listeners) {
 			l.rangesChanged(this);
 		}
 	}

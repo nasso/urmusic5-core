@@ -48,7 +48,7 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 				(int) x,
 				0,
 				(int) secondScreenSize,
-				10
+				TimelineView.FRAME_CARET_HEADER_HEIGHT
 			);
 		}
 		
@@ -63,11 +63,11 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 			
 			if(f.dirty) continue;
 			
-			g2d.fillRect(x, 0, hscalei + 1, 10);
+			g2d.fillRect(x, 0, hscalei + 1, TimelineView.FRAME_CARET_HEADER_HEIGHT);
 		}
 		
 		if(this.view.getHorizontalScale() >= 6) {
-			int visibleFrames = (int) (c.getWidth() / this.view.getHorizontalScale());
+			int visibleFrames = (int) (c.getWidth() / this.view.getHorizontalScale()) + 1;
 			
 			g2d.setColor(Color.GRAY);
 			for(int i = 0; i <= visibleFrames; i++) {
@@ -75,17 +75,31 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 				
 				g2d.drawLine(
 						(int) x, 0,
-						(int) x, 10
+						(int) x, TimelineView.FRAME_CARET_HEADER_HEIGHT
 				);
 			}
 		}
 		
 		g2d.setColor(Color.MAGENTA);
+		g2d.fillRect(
+			frameXOffset - 3,
+			0,
+			7,
+			TimelineView.FRAME_CARET_HEADER_HEIGHT
+		);
 		g2d.drawLine(
 			frameXOffset,
 			0,
 			frameXOffset,
 			c.getHeight()
+		);
+		
+		g2d.setColor(Color.WHITE);
+		g2d.drawLine(
+			frameXOffset,
+			2,
+			frameXOffset,
+			TimelineView.FRAME_CARET_HEADER_HEIGHT - 3
 		);
 		
 		g2d.dispose();

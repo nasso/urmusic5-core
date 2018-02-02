@@ -5,14 +5,13 @@ import java.util.List;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.CompositionListener;
-import io.github.nasso.urmusic.model.event.TrackEffectsListener;
-import io.github.nasso.urmusic.model.event.TrackRangesListener;
+import io.github.nasso.urmusic.model.event.TrackListener;
 import io.github.nasso.urmusic.model.event.TracklistListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.utils.MutableRGBA32;
 import io.github.nasso.urmusic.utils.RGBA32;
 
-public class Composition implements TracklistListener, TrackEffectsListener, TrackRangesListener {
+public class Composition implements TracklistListener, TrackListener {
 	private Timeline timeline = new Timeline();
 	private MutableRGBA32 clearColor = new MutableRGBA32();
 	private int length = 2400; // 1:20 @ 30fps
@@ -133,33 +132,38 @@ public class Composition implements TracklistListener, TrackEffectsListener, Tra
 		}
 	}
 	
-	public void effectAdded(TrackEffectInstance e, int pos) {
+	public void effectAdded(Track source, TrackEffectInstance e, int pos) {
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
 	
-	public void effectRemoved(TrackEffectInstance e, int pos) {
+	public void effectRemoved(Track source, TrackEffectInstance e, int pos) {
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
 	
-	public void effectMoved(TrackEffectInstance e, int oldPos, int newPos) {
+	public void effectMoved(Track source, TrackEffectInstance e, int oldPos, int newPos) {
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
 	
 	public void trackAdded(int index, Track track) {
-		track.addEffectsListener(this);
-		track.addTrackRangesListener(this);
+		track.addTrackListener(this);
 		
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
 	
 	public void trackRemoved(int index, Track track) {
-		track.removeEffectsListener(this);
-		track.removeTrackRangesListener(this);
+		track.addTrackListener(this);
 		
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
 
 	public void rangesChanged(Track source) {
 		UrmusicModel.makeCompositionDirty(Composition.this);
+	}
+
+	public void enabledStateChanged(Track source, boolean isEnabledNow) {
+		UrmusicModel.makeCompositionDirty(Composition.this);
+	}
+
+	public void nameChanged(Track source, String newName) {
 	}
 }

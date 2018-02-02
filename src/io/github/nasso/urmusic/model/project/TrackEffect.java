@@ -20,6 +20,12 @@ public abstract class TrackEffect {
 		
 		private List<EffectParametersListener> paramListeners = new ArrayList<>();
 		
+		private boolean hasSetupVideo = false;
+		
+		public final boolean hasSetupVideo() {
+			return this.hasSetupVideo || !(this.hasSetupVideo = true);
+		}
+		
 		public void dispose() {
 			UrmusicModel.disposeEffect(this);
 		}

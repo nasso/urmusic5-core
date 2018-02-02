@@ -25,13 +25,12 @@ public class PlaybackThread extends Thread {
 					while(!this.isPlayingBack())
 						this.lock.wait();
 					
-					/*
+					int playbackStartFrame = UrmusicModel.getFrameCursor();
+					
 					// Queue frames to render if we can
 					int cacheSize = UrmusicModel.getRenderer().getCacheSize();
-					for(int i = 0; i < cacheSize; i++) {
-						UrmusicModel.getRenderer().queueFrameRender(UrmusicModel.getFocusedComposition(), UrmusicModel.getFrameCursor() + i);
-					}
-					*/
+					int cacheSizeFifth = cacheSize / 5;
+					UrmusicModel.getRenderer().queueFrameRange(UrmusicModel.getFocusedComposition(), playbackStartFrame, cacheSize);
 					
 					while(this.isPlayingBack()) {
 						frameStartTime = System.nanoTime();
@@ -39,6 +38,11 @@ public class PlaybackThread extends Thread {
 						
 						// Advance cursor
 						UrmusicModel.setFrameCursor(UrmusicModel.getFrameCursor() + 1);
+						
+						if(UrmusicModel.getFrameCursor() - playbackStartFrame > cacheSizeFifth) {
+							UrmusicModel.getRenderer().queueFrameRange(UrmusicModel.getFocusedComposition(), playbackStartFrame + cacheSize, cacheSizeFifth);
+							playbackStartFrame += cacheSizeFifth;
+						}
 						
 						frameEndTime = System.nanoTime();
 						sleepTime = idealFrameTime - frameEndTime + frameStartTime;

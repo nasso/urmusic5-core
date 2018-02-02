@@ -103,7 +103,7 @@ public class SplittablePane extends JPanel {
 		this.popupButton = new UrmIconButton(UrmusicIcons.POPUP_ICON);
 		this.verticalSplitButton = new UrmIconButton(UrmusicIcons.VERTICAL_SPLIT_ICON);
 		this.horizontalSplitButton = new UrmIconButton(UrmusicIcons.HORIZONTAL_SPLIT_ICON);
-		this.unsplitButton = new UrmIconButton(UrmusicIcons.CLOSE_ICON);
+		this.unsplitButton = new UrmIconButton(UrmusicIcons.DELETE_ICON);
 		this.popupButton.addActionListener((e) -> this.popup());
 		this.verticalSplitButton.addActionListener((e) -> this.splitVertically());
 		this.horizontalSplitButton.addActionListener((e) -> this.splitHorizontally());

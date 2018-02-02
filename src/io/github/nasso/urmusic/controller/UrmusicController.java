@@ -55,4 +55,25 @@ public class UrmusicController {
 			t.splitAt(UrmusicModel.getFrameCursor());
 		}
 	}
+	
+	public static void deleteTrack(Track t) {
+		Composition comp = UrmusicModel.getFocusedComposition();
+		
+		if(comp == null) return;
+		if(t == null) return;
+		
+		int i = comp.getTimeline().getTracks().indexOf(t);
+		
+		if(i < 0) return;
+		
+		UrmusicModel.deleteTrack(comp, i);
+	}
+	
+	public static void deleteFocusedTrackActivityRange() {
+		UrmusicModel.deleteTrackActivityRange(UrmusicModel.getFocusedTrackActivityRange());
+	}
+	
+	public static void deleteFocusedTrack() {
+		deleteTrack(UrmusicModel.getFocusedTrack());
+	}
 }

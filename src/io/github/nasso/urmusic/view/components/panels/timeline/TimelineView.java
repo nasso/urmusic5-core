@@ -13,6 +13,10 @@ import io.github.nasso.urmusic.view.components.UrmViewPane;
 public class TimelineView extends UrmViewPane implements FocusListener<Composition> {
 	private static final long serialVersionUID = -5890250765481685754L;
 	
+	public static final int FRAME_CARET_HEADER_HEIGHT = 12;
+	public static final int CHANNEL_HEIGHT = 40;
+	public static final int CHANNEL_WIDTH = 140;
+	
 	private TimelineMainScrollable body;
 	
 	private float horizontalScale = 1;
@@ -22,6 +26,9 @@ public class TimelineView extends UrmViewPane implements FocusListener<Compositi
 		this.setLayout(new BorderLayout());
 		
 		this.buildUI();
+		
+		Composition comp = UrmusicModel.getFocusedComposition();
+		if(comp != null) comp.getTimeline().addTracklistListener(this.body);
 		
 		UrmusicModel.addCompositionFocusListener(this);
 		UrmusicModel.addFrameCursorListener(this.body);

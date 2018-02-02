@@ -129,6 +129,11 @@ public class MutableRGBA32 implements RGBA32 {
 		return new MutableRGBA32(this);
 	}
 	
+	public String toString() {
+		String istr = Integer.toHexString(this.value);
+		return "#" + ("00000000" + istr).substring(istr.length());
+	}
+	
 	public boolean equals(Object o) {
 		return o instanceof RGBA32 && ((RGBA32) o).getRGBA() == this.getRGBA();
 	}

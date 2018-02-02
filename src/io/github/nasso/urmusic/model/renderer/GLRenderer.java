@@ -33,6 +33,8 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		
 		private int width, height;
 		
+		public int textureAlt;
+		
 		public int[] texture, fbo;
 		public boolean[] dirty;
 		
@@ -49,6 +51,13 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			
 			this.width = comp.getWidth();
 			this.height = comp.getHeight();
+			
+			gl.glBindTexture(GL_TEXTURE_2D, this.textureAlt = glu.genTexture(gl));
+			gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			
 			this.glu.createFramebuffers(gl, cacheSize, this.width, this.height, bufTex, bufFBO);
 			
@@ -74,13 +83,22 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				this.width = comp.getWidth();
 				this.height = comp.getHeight();
 				
-				for(int i = 0; i < this.texture.length; i++) {
-					gl.glBindTexture(GL_TEXTURE_2D, this.texture[i]);
+				for(int i = 0; i <= this.texture.length; i++) {
+					gl.glBindTexture(GL_TEXTURE_2D, i == this.texture.length ? this.textureAlt : this.texture[i]);
 					gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
 				}
 			}
 			
 			return this;
+		}
+		
+		public void swapAlt(GL3 gl, int i) {
+			int alt = this.textureAlt;
+			this.textureAlt = this.texture[i];
+			this.texture[i] = alt;
+
+			gl.glBindFramebuffer(GL_FRAMEBUFFER, this.fbo[i]);
+			gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this.texture[i], 0);
 		}
 	}
 	
@@ -185,7 +203,6 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			dest = this.getFramebufferFor(comp).update(this.gl, comp);
 		}
 		
-		int destTex = dest.texture[cacheIndex];
 		int destFBO = dest.fbo[cacheIndex];
 		
 		// Bind framebuffer
@@ -200,35 +217,39 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		);
 		this.gl.glClear(GL_COLOR_BUFFER_BIT);
 		
+		
 		// -- Composition --
 		List<Track> tracks = comp.getTimeline().getTracks();
 		for(int i = 0; i < tracks.size(); i++) {
 			Track t = tracks.get(i);
 			
-			if(!t.isActiveAt(frame_id)) continue;
+			if(!t.isEnabled() || !t.isActiveAt(frame_id)) continue;
 			
 			// We only care about video tracks
 			if(t instanceof CompositeTrack) {
 				this.renderComposition(((CompositeTrack) t).getComposition(), frame_id, cacheIndex);
 				
 				// Rebind framebuffer
-				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.getFBOFor(comp, cacheIndex));
+				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, destFBO);
 				this.gl.glViewport(0, 0, dest.width, dest.height);
 			}
 			
 			for(int j = 0; j < t.getEffectCount(); j++) {
 				TrackEffectInstance fx = t.getEffect(j);
 				
-				// We only care about video effects (composite tracks can have audio)
+				// We only care about video effects
 				if(!fx.getEffectClass().isVideoEffect()) continue;
+				
+				dest.swapAlt(this.gl, cacheIndex);
 				
 				this.fxArgs.clear();
 				this.fxArgs.width = dest.width;
 				this.fxArgs.height = dest.height;
 				this.fxArgs.frame = frame_id;
-				this.fxArgs.texInput = destTex;
+				this.fxArgs.texInput = dest.textureAlt;
 				this.fxArgs.fboOutput = destFBO;
 				
+				if(!fx.hasSetupVideo()) fx.setupVideo(this.gl);
 				fx.applyVideo(this.gl, this.fxArgs);
 			}
 		}

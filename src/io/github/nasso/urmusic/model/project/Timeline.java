@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.TracklistListener;
 
 public class Timeline {	
@@ -29,7 +30,7 @@ public class Timeline {
 	
 	public void dispose() {
 		for(int i = 0; i < this.tracks.size(); i++) {
-			this.tracks.get(i).dispose();
+			UrmusicModel.disposeTrack(this.tracks.get(i));
 		}
 	}
 	

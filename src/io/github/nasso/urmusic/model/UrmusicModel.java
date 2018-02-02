@@ -7,6 +7,7 @@ import java.util.List;
 import io.github.nasso.urmusic.model.effect.VignetteVFX;
 import io.github.nasso.urmusic.model.event.FocusListener;
 import io.github.nasso.urmusic.model.event.FrameCursorListener;
+import io.github.nasso.urmusic.model.event.RendererListener;
 import io.github.nasso.urmusic.model.playback.PlaybackThread;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
@@ -37,10 +38,21 @@ public class UrmusicModel {
 		// TODO: User prefs
 		renderer = new Renderer(200);
 		
-		loadProject(null);
-		
-		addFrameCursorListener((oldPosition, newPosition)  -> {
-			renderer.queueFrameRender(focusedComposition, newPosition);
+		renderer.addRendererListener(new RendererListener() {
+			public void frameRendered(Composition comp, int frame) {
+			}
+			
+			public void effectLoaded(TrackEffect fx) {
+				synchronized(loadedEffects) {
+					loadedEffects.add(fx);
+				}
+			}
+			
+			public void effectUnloaded(TrackEffect fx) {
+				synchronized(loadedEffects) {
+					loadedEffects.remove(fx);
+				}
+			}
 		});
 		
 		// -- EFFECTS
@@ -48,6 +60,12 @@ public class UrmusicModel {
 			loadEffect(fx);
 		}
 		// -- EFFECTS END
+		
+		addFrameCursorListener((oldPosition, newPosition)  -> {
+			renderer.queueFrameIfNeeded(focusedComposition, newPosition);
+		});
+		
+		loadProject(null);
 		
 		playbackThread = new PlaybackThread();
 		playbackThread.setFPS(getFocusedComposition().getFramerate());
@@ -66,7 +84,9 @@ public class UrmusicModel {
 	}
 	
 	public static boolean isEffectLoaded(TrackEffect fx) {
-		return loadedEffects.contains(fx);
+		synchronized(loadedEffects) {
+			return loadedEffects.contains(fx);
+		}
 	}
 	
 	public static void loadEffect(TrackEffect fx) {
@@ -75,7 +95,6 @@ public class UrmusicModel {
 		fx.effectMain();
 		if(fx.isVideoEffect()) {
 			renderer.initEffect(fx);
-			loadedEffects.add(fx);
 		}
 	}
 	
@@ -85,8 +104,6 @@ public class UrmusicModel {
 		if(fx.isVideoEffect()) {
 			renderer.disposeEffect(fx);
 		}
-		
-		loadedEffects.remove(fx);
 	}
 	
 	public static void loadProject(File f) {
@@ -97,7 +114,7 @@ public class UrmusicModel {
 		if(f == null) {
 			project = new Project();
 			focusComposition(project.getMainComposition());
-			renderer.queueFrameRender(focusedComposition, 0);
+			renderer.queueFrameIfNeeded(focusedComposition, 0);
 		}
 	}
 	
@@ -161,6 +178,24 @@ public class UrmusicModel {
 		}
 	}
 	
+	// -- Edit --
+	public static void deleteTrackActivityRange(TrackActivityRange range) {
+		if(range == null) return;
+		if(focusedTrackRange == range) focusTrackActivityRange(null);
+		
+		range.getTrack().removeActiveRange(range);
+	}
+	
+	public static void deleteTrack(Composition comp, int trackIndex) {
+		if(comp == null || trackIndex < 0 || trackIndex >= comp.getTimeline().getTracks().size()) return;
+		
+		Track t = comp.getTimeline().getTracks().get(trackIndex);
+		if(focusedTrack == t) focusTrack(null);
+		
+		comp.getTimeline().removeTrack(trackIndex);
+		disposeTrack(t);
+	}
+	
 	// -- Focus Listeners --
 	// Composition
 	private static Composition focusedComposition;
@@ -175,6 +210,8 @@ public class UrmusicModel {
 	}
 	
 	public static void focusComposition(Composition newFocus) {
+		if(focusedComposition == newFocus) return;
+		
 		Composition oldFocus = focusedComposition;
 		focusedComposition = newFocus;
 		
@@ -200,6 +237,8 @@ public class UrmusicModel {
 	}
 	
 	public static void focusTrack(Track newFocus) {
+		if(focusedTrack == newFocus) return;
+		
 		Track oldFocus = focusedTrack;
 		focusedTrack = newFocus;
 		
@@ -229,6 +268,8 @@ public class UrmusicModel {
 	}
 	
 	public static void focusTrackActivityRange(TrackActivityRange newFocus) {
+		if(focusedTrackRange == newFocus) return;
+		
 		TrackActivityRange oldFocus = focusedTrackRange;
 		focusedTrackRange = newFocus;
 		
