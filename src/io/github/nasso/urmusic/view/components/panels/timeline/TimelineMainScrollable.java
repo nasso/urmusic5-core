@@ -2,6 +2,7 @@ package io.github.nasso.urmusic.view.components.panels.timeline;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -17,6 +18,7 @@ import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.model.event.FocusListener;
 import io.github.nasso.urmusic.model.event.FrameCursorListener;
 import io.github.nasso.urmusic.model.event.RendererListener;
 import io.github.nasso.urmusic.model.event.TracklistListener;
@@ -26,7 +28,14 @@ import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.utils.MathUtils;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
-public class TimelineMainScrollable extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, TracklistListener, FrameCursorListener, RendererListener  {
+public class TimelineMainScrollable extends JPanel implements
+													MouseListener,
+													MouseMotionListener,
+													MouseWheelListener,
+													TracklistListener,
+													FrameCursorListener,
+													RendererListener,
+													FocusListener<Composition> {
 	private static final long serialVersionUID = 1008513031790674759L;
 	
 	private TimelineView view;
@@ -64,6 +73,31 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		this.addMouseWheelListener(this);
+		
+		UrmusicModel.getFocusedComposition().getTimeline().addTracklistListener(this);
+		UrmusicModel.addFrameCursorListener(this);
+		UrmusicModel.getRenderer().addRendererListener(this);
+		UrmusicModel.addCompositionFocusListener(this);
+	}
+	
+	public void dispose() {
+		UrmusicModel.getFocusedComposition().getTimeline().removeTracklistListener(this);
+		UrmusicModel.removeFrameCursorListener(this);
+		UrmusicModel.getRenderer().removeRendererListener(this);
+		UrmusicModel.removeCompositionFocusListener(this);
+		
+		for(Component c : this.infoPane.getComponents()) {
+			if(c instanceof TimelineTrackHead) ((TimelineTrackHead) c).dispose();
+		}
+		
+		for(Component c : this.timelinePane.getComponents()) {
+			if(c instanceof TimelineTrackRangesBar) ((TimelineTrackRangesBar) c).dispose();
+		}
+	}
+	
+	public void focusChanged(Composition oldFocus, Composition newFocus) {
+		if(oldFocus != null) oldFocus.getTimeline().removeTracklistListener(this);
+		if(newFocus != null) newFocus.getTimeline().addTracklistListener(this);
 	}
 	
 	public Dimension getPreferredScrollableViewportSize() {
@@ -82,10 +116,10 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 	
 	private void removeTrack(int index) {
 		TimelineTrackHead head = (TimelineTrackHead) this.infoPane.getComponent(index);
-		head.setTrack(null);
+		head.dispose();
 		
 		TimelineTrackRangesBar ranges = (TimelineTrackRangesBar) this.timelinePane.getComponent(index);
-		ranges.setTrack(null);
+		ranges.dispose();
 		
 		this.infoPane.remove(index);
 		this.timelinePane.remove(index);
@@ -95,15 +129,11 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 	}
 	
 	public void trackAdded(int index, Track track) {
-		SwingUtilities.invokeLater(() -> {
-			this.addTrack(index, track);
-		});	
+		SwingUtilities.invokeLater(() -> this.addTrack(index, track));
 	}
 
 	public void trackRemoved(int index, Track track) {
-		SwingUtilities.invokeLater(() -> {
-			this.removeTrack(index);
-		});
+		SwingUtilities.invokeLater(() -> this.removeTrack(index));
 	}
 
 	public void frameChanged(int oldPosition, int newPosition) {
@@ -116,11 +146,11 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 			this.view.setHorizontalScroll(this.view.getHorizontalScroll() - cursorXPos + TimelineView.CHANNEL_WIDTH);
 		}
 		
-		this.timelineLayer.repaint();
+		SwingUtilities.invokeLater(this.timelineLayer::repaint);
 	}
 
 	public void frameRendered(Composition comp, int frame) {
-		this.timelineLayer.repaint();
+		SwingUtilities.invokeLater(this.timelineLayer::repaint);
 	}
 	
 	public void effectLoaded(TrackEffect fx) {
@@ -207,5 +237,4 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		
 		TimelineMainScrollable.this.repaint();
 	}
-
 }

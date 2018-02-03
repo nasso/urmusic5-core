@@ -20,6 +20,8 @@
 		"frame.multiCloseWarning.message": "Would you like to close only this window or close all?",
 		"frame.multiCloseWarning.closeOne": "Close only this one",
 		"frame.multiCloseWarning.closeAll": "Close all",
-		"frame.multiCloseWarning.cancel": "Cancel"
+		"frame.multiCloseWarning.cancel": "Cancel",
+		
+		"effect.vignette.name": "Vignette"
 	}
 }

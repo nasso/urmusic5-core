@@ -28,7 +28,7 @@ import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.view.components.SplittablePane;
-import io.github.nasso.urmusic.view.data.UrmusicIcons;
+import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicViewState;
@@ -45,7 +45,7 @@ public class UrmusicView {
 	public static void init() {
 		// TODO: Load Locale from pref file
 		UrmusicStrings.init(Locale.ENGLISH);
-		UrmusicIcons.init();
+		UrmusicUIRes.init();
 		
 		setupActions();
 		buildMenu();

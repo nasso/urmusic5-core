@@ -4,7 +4,7 @@ import javax.swing.ImageIcon;
 
 import io.github.nasso.urmusic.Urmusic;
 
-public class UrmusicIcons {
+public class UrmusicUIRes {
 	public static final ImageIcon VERTICAL_SPLIT_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-split-vertical-16.png"));
 	public static final ImageIcon HORIZONTAL_SPLIT_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-divider-16.png"));
 	public static final ImageIcon DELETE_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-delete-16.png"));
@@ -16,5 +16,5 @@ public class UrmusicIcons {
 	
 	public static final void init() { }
 	
-	private UrmusicIcons() { }
+	private UrmusicUIRes() { }
 }

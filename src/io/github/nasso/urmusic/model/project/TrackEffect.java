@@ -9,7 +9,7 @@ import java.util.Map;
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.EffectParametersListener;
+import io.github.nasso.urmusic.model.event.EffectInstanceListener;
 import io.github.nasso.urmusic.model.project.control.ControlParam;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
 
@@ -18,14 +18,30 @@ public abstract class TrackEffect {
 		private Map<String, ControlParam<?>> parameters = new HashMap<>();
 		private Map<String, ControlParam<?>> unmodifiableParameters = Collections.unmodifiableMap(this.parameters);
 		
-		private List<EffectParametersListener> paramListeners = new ArrayList<>();
+		private List<EffectInstanceListener> listeners = new ArrayList<>();
 		
+		private boolean enabled = true;
 		private boolean hasSetupVideo = false;
 		
+		/**
+		 * Assumes the video is setup just after the first call to this method.
+		 * @return
+		 */
 		public final boolean hasSetupVideo() {
 			return this.hasSetupVideo || !(this.hasSetupVideo = true);
 		}
 		
+		public boolean isEnabled() {
+			return this.enabled;
+		}
+
+		public void setEnabled(boolean enabled) {
+			if(this.enabled == enabled) return;
+			
+			this.enabled = enabled;
+			this.notifyEnabledStateChanged();
+		}
+
 		public void dispose() {
 			UrmusicModel.disposeEffect(this);
 		}
@@ -54,23 +70,29 @@ public abstract class TrackEffect {
 			return this.unmodifiableParameters;
 		}
 		
-		public void addParametersListener(EffectParametersListener l) {
-			this.paramListeners.add(l);
+		public void addParametersListener(EffectInstanceListener l) {
+			this.listeners.add(l);
 		}
 		
-		public void removeParametersListener(EffectParametersListener l) {
-			this.paramListeners.remove(l);
+		public void removeParametersListener(EffectInstanceListener l) {
+			this.listeners.remove(l);
+		}
+		
+		private void notifyEnabledStateChanged() {
+			for(EffectInstanceListener l : this.listeners) {
+				l.enabledStateChanged(this, this.isEnabled());
+			}
 		}
 		
 		private void notifyParameterAdded(String name, ControlParam<?> ctrl) {
-			for(EffectParametersListener l : this.paramListeners) {
-				l.parameterAdded(name, ctrl);
+			for(EffectInstanceListener l : this.listeners) {
+				l.parameterAdded(this, name, ctrl);
 			}
 		}
 		
 		private void notifyParameterRemoved(String name, ControlParam<?> ctrl) {
-			for(EffectParametersListener l : this.paramListeners) {
-				l.parameterRemoved(name, ctrl);
+			for(EffectInstanceListener l : this.listeners) {
+				l.parameterRemoved(this, name, ctrl);
 			}
 		}
 		
@@ -103,4 +125,6 @@ public abstract class TrackEffect {
 	public abstract void globalVideoDispose(GL3 gl);
 	
 	public abstract void effectMain();
+	
+	public abstract String getEffectClassName();
 }

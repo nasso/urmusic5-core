@@ -238,7 +238,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				TrackEffectInstance fx = t.getEffect(j);
 				
 				// We only care about video effects
-				if(!fx.getEffectClass().isVideoEffect()) continue;
+				if(!fx.isEnabled() || !fx.getEffectClass().isVideoEffect()) continue;
 				
 				dest.swapAlt(this.gl, cacheIndex);
 				

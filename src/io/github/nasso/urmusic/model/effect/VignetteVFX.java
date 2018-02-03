@@ -74,4 +74,8 @@ public class VignetteVFX extends TrackEffect {
 	public void effectMain() {
 		this.setVideoEffect();
 	}
+
+	public String getEffectClassName() {
+		return "vignette";
+	}
 }

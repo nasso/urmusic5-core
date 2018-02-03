@@ -10,13 +10,14 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.event.TrackListener;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.view.components.UrmIconButton;
-import io.github.nasso.urmusic.view.data.UrmusicIcons;
+import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 
 public class TimelineTrackHead extends JPanel implements TrackListener {
 	private static final long serialVersionUID = -7262310150252521358L;
@@ -45,7 +46,7 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 			t.setEnabled(this.enableCheckbox.isSelected());
 		});
 		
-		this.deleteBtn = new UrmIconButton(UrmusicIcons.DELETE_ICON_S);
+		this.deleteBtn = new UrmIconButton(UrmusicUIRes.DELETE_ICON_S);
 		this.deleteBtn.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 		this.deleteBtn.setAlignmentX(1.0f);
 		this.deleteBtn.addActionListener((e) -> {
@@ -68,6 +69,12 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 		this.setTrack(t);
 	}
 
+	public void dispose() {
+		if(this.track != null) {
+			this.track.removeTrackListener(this);
+		}
+	}
+	
 	public Track getTrack() {
 		return this.track;
 	}
@@ -87,11 +94,11 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 	}
 
 	public void nameChanged(Track source, String newName) {
-		this.nameLabel.setText(newName);
+		SwingUtilities.invokeLater(() -> this.nameLabel.setText(newName));
 	}
 
 	public void enabledStateChanged(Track source, boolean isEnabledNow) {
-		this.enableCheckbox.setSelected(isEnabledNow);
+		SwingUtilities.invokeLater(() -> this.enableCheckbox.setSelected(isEnabledNow));
 	}
 
 	public void rangesChanged(Track source) {

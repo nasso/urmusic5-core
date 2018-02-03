@@ -5,12 +5,9 @@ import java.awt.Color;
 
 import javax.swing.JScrollPane;
 
-import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.FocusListener;
-import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 
-public class TimelineView extends UrmViewPane implements FocusListener<Composition> {
+public class TimelineView extends UrmViewPane {
 	private static final long serialVersionUID = -5890250765481685754L;
 	
 	public static final int FRAME_CARET_HEADER_HEIGHT = 12;
@@ -27,12 +24,6 @@ public class TimelineView extends UrmViewPane implements FocusListener<Compositi
 		
 		this.buildUI();
 		
-		Composition comp = UrmusicModel.getFocusedComposition();
-		if(comp != null) comp.getTimeline().addTracklistListener(this.body);
-		
-		UrmusicModel.addCompositionFocusListener(this);
-		UrmusicModel.addFrameCursorListener(this.body);
-		UrmusicModel.getRenderer().addRendererListener(this.body);
 	}
 	
 	private void buildUI() {
@@ -45,15 +36,7 @@ public class TimelineView extends UrmViewPane implements FocusListener<Compositi
 	}
 	
 	public void dispose() {
-		UrmusicModel.removeCompositionFocusListener(this);
-		UrmusicModel.removeFrameCursorListener(this.body);
-		UrmusicModel.getRenderer().removeRendererListener(this.body);
-		if(UrmusicModel.getFocusedComposition() != null) UrmusicModel.getFocusedComposition().getTimeline().removeTracklistListener(this.body);
-	}
-	
-	public void focusChanged(Composition oldFocus, Composition newFocus) {
-		if(oldFocus != null) oldFocus.getTimeline().removeTracklistListener(this.body);
-		if(newFocus != null) newFocus.getTimeline().addTracklistListener(this.body);
+		this.body.dispose();
 	}
 	
 	public float getHorizontalScale() {

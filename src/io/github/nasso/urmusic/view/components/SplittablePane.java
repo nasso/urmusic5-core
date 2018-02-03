@@ -23,7 +23,7 @@ import io.github.nasso.urmusic.view.components.panels.info.InfoView;
 import io.github.nasso.urmusic.view.components.panels.preview.PreviewView;
 import io.github.nasso.urmusic.view.components.panels.properties.PropertiesView;
 import io.github.nasso.urmusic.view.components.panels.timeline.TimelineView;
-import io.github.nasso.urmusic.view.data.UrmusicIcons;
+import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
@@ -100,10 +100,10 @@ public class SplittablePane extends JPanel {
 			SplittablePane.this.updateView(e);
 		});
 		
-		this.popupButton = new UrmIconButton(UrmusicIcons.POPUP_ICON);
-		this.verticalSplitButton = new UrmIconButton(UrmusicIcons.VERTICAL_SPLIT_ICON);
-		this.horizontalSplitButton = new UrmIconButton(UrmusicIcons.HORIZONTAL_SPLIT_ICON);
-		this.unsplitButton = new UrmIconButton(UrmusicIcons.DELETE_ICON);
+		this.popupButton = new UrmIconButton(UrmusicUIRes.POPUP_ICON);
+		this.verticalSplitButton = new UrmIconButton(UrmusicUIRes.VERTICAL_SPLIT_ICON);
+		this.horizontalSplitButton = new UrmIconButton(UrmusicUIRes.HORIZONTAL_SPLIT_ICON);
+		this.unsplitButton = new UrmIconButton(UrmusicUIRes.DELETE_ICON);
 		this.popupButton.addActionListener((e) -> this.popup());
 		this.verticalSplitButton.addActionListener((e) -> this.splitVertically());
 		this.horizontalSplitButton.addActionListener((e) -> this.splitHorizontally());

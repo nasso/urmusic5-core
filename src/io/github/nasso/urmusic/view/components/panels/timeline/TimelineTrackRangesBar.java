@@ -53,8 +53,8 @@ public class TimelineTrackRangesBar extends JPanel implements
 	private boolean button1Pressed = false;
 	private int pressedAtX = 0;
 	
-	private FocusListener<TrackActivityRange> rangesFocusListener = (oldRange, newRange) -> { this.repaint(); };
-	private FocusListener<Track> trackFocusListener = (oldRange, newRange) -> { this.repaint(); };
+	private FocusListener<TrackActivityRange> rangesFocusListener = (oldRange, newRange) -> { SwingUtilities.invokeLater(this::repaint); };
+	private FocusListener<Track> trackFocusListener = (oldRange, newRange) -> { SwingUtilities.invokeLater(this::repaint); };
 	
 	public TimelineTrackRangesBar(TimelineView view, Track track) {
 		this.setFocusable(true);
@@ -66,6 +66,14 @@ public class TimelineTrackRangesBar extends JPanel implements
 		this.view = view;
 	}
 
+	public void dispose() {
+		if(this.track != null) {
+			this.track.removeTrackListener(this);
+			UrmusicModel.removeTrackActivityRangeFocusListener(this.rangesFocusListener);
+			UrmusicModel.removeTrackFocusListener(this.trackFocusListener);
+		}
+	}
+	
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g.create();
 		
@@ -231,7 +239,7 @@ public class TimelineTrackRangesBar extends JPanel implements
 	}
 	
 	public void focusChanged(Object oldFocus, Object newFocus) {
-		this.repaint();
+		SwingUtilities.invokeLater(() -> this.repaint());
 	}
 	
 	public void keyTyped(KeyEvent e) {
@@ -258,7 +266,6 @@ public class TimelineTrackRangesBar extends JPanel implements
 	}
 	
 	public void enabledStateChanged(Track source, boolean enabledNow) {
-		
 	}
 
 	public void nameChanged(Track source, String newName) {

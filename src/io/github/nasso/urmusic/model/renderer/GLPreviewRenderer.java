@@ -42,7 +42,7 @@ public class GLPreviewRenderer implements GLEventListener {
 	public void display(GLAutoDrawable drawable) {
 		GL3 gl = drawable.getGL().getGL3();
 		
-		gl.glClearColor(0.1f, 0.1f, 0.1f, 1);
+		gl.glClearColor(1, 1, 1, 1);
 		gl.glClear(GL_COLOR_BUFFER_BIT);
 		
 		int tex = this.parent.getTextureFor(UrmusicModel.getFocusedComposition(), UrmusicModel.getFrameCursor());
