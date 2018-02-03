@@ -112,4 +112,7 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 
 	public void effectMoved(Track source, TrackEffectInstance e, int oldPos, int newPos) {
 	}
+
+	public void dirtyFlagged(Track source) {
+	}
 }

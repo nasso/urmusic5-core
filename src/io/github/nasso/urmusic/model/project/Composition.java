@@ -132,6 +132,10 @@ public class Composition implements TracklistListener, TrackListener {
 		}
 	}
 	
+	public void dirtyFlagged(Track source) {
+		UrmusicModel.makeCompositionDirty(Composition.this);
+	}
+	
 	public void effectAdded(Track source, TrackEffectInstance e, int pos) {
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
@@ -166,4 +170,5 @@ public class Composition implements TracklistListener, TrackListener {
 
 	public void nameChanged(Track source, String newName) {
 	}
+
 }

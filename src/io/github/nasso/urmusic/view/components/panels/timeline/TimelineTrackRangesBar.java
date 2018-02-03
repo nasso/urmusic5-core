@@ -270,4 +270,7 @@ public class TimelineTrackRangesBar extends JPanel implements
 
 	public void nameChanged(Track source, String newName) {
 	}
+
+	public void dirtyFlagged(Track source) {
+	}
 }

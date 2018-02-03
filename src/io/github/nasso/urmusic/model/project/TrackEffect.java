@@ -70,12 +70,22 @@ public abstract class TrackEffect {
 			return this.unmodifiableParameters;
 		}
 		
-		public void addParametersListener(EffectInstanceListener l) {
+		public void addEffectInstanceListener(EffectInstanceListener l) {
 			this.listeners.add(l);
 		}
 		
-		public void removeParametersListener(EffectInstanceListener l) {
+		public void removeEffectInstanceListener(EffectInstanceListener l) {
 			this.listeners.remove(l);
+		}
+		
+		public void markDirty() {
+			this.notifyDirtyFlag();
+		}
+		
+		private void notifyDirtyFlag() {
+			for(EffectInstanceListener l : this.listeners) {
+				l.dirtyFlagged(this);
+			}
 		}
 		
 		private void notifyEnabledStateChanged() {

@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.nasso.urmusic.model.event.EffectInstanceListener;
 import io.github.nasso.urmusic.model.event.TrackListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.github.nasso.urmusic.model.project.control.ControlParam;
 import io.github.nasso.urmusic.utils.IntRange;
 import io.github.nasso.urmusic.utils.MathUtils;
 
-public class Track {
+public class Track implements EffectInstanceListener {
 	public static final class TrackActivityRange implements IntRange {
 		private Track track;
 		private int start, end;
@@ -137,6 +139,7 @@ public class Track {
 	public void addEffect(TrackEffectInstance e, int i) {
 		this.effects.add(i, e);
 		
+		e.addEffectInstanceListener(this);
 		this.notifyEffectAdded(e, i);
 	}
 	
@@ -149,6 +152,8 @@ public class Track {
 		
 		TrackEffectInstance item = this.getEffect(i);
 		this.effects.remove(i);
+		
+		item.removeEffectInstanceListener(this);
 		this.notifyEffectRemoved(item, i);
 		
 		return item;
@@ -243,6 +248,26 @@ public class Track {
 		}
 		
 		return null;
+	}
+	
+	public void dirtyFlagged(TrackEffectInstance source) {
+		this.notifyDirtyFlagged();
+	}
+
+	public void enabledStateChanged(TrackEffectInstance source, boolean isEnabledNow) {
+		this.notifyDirtyFlagged();
+	}
+
+	public void parameterAdded(TrackEffectInstance source, String name, ControlParam<?> ctrl) {
+	}
+
+	public void parameterRemoved(TrackEffectInstance source, String name, ControlParam<?> ctrl) {
+	}
+	
+	private void notifyDirtyFlagged() {
+		for(TrackListener l : this.listeners) {
+			l.dirtyFlagged(this);
+		}
 	}
 	
 	private void notifyNameChanged() {

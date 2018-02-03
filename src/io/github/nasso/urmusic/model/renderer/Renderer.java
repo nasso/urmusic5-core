@@ -291,6 +291,7 @@ public class Renderer implements Runnable {
 	}
 	
 	private int freeFrameCache(Composition comp, int frame) {
+		int curs = UrmusicModel.getFrameCursor();
 		int bestChoice = 0;
 		
 		for(int i = 0; i < this.gpuCache.length; i++) {
@@ -302,11 +303,11 @@ public class Renderer implements Runnable {
 				// Compare
 				CachedFrame c = this.gpuCache[bestChoice];
 				
-				if(!c.dirty && f.dirty) {
-					bestChoice = i;
-				} else if (Math.abs(f.frame_id - frame) > Math.abs(c.frame_id - frame)) {
-					bestChoice = i;
-				}
+				if(
+					(!c.dirty && f.dirty) ||
+					(c.frame_id < curs && f.frame_id < c.frame_id) ||
+					(Math.abs(f.frame_id - frame) > Math.abs(c.frame_id - frame))
+				) bestChoice = i;
 			}
 		}
 		
