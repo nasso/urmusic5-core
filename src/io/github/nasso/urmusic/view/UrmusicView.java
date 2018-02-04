@@ -195,32 +195,29 @@ public class UrmusicView {
 	public static boolean keyEvent(KeyEvent e) {
 		if(keyEventBlocked) return false;
 		
-		boolean stop = false;
-		
 		if(e.getID() == KeyEvent.KEY_PRESSED) {
 			switch(e.getKeyCode()) {
 				case KeyEvent.VK_RIGHT:
 					UrmusicController.frameAdvance();
-					break;
+					return true;
 				case KeyEvent.VK_LEFT:
 					UrmusicController.frameBack();
-					break;
+					return true;
 				case KeyEvent.VK_UP:
 					UrmusicController.goToNextKeyFrame();
-					break;
+					return true;
 				case KeyEvent.VK_DOWN:
 					UrmusicController.goToPreviousKeyFrame();
-					break;
+					return true;
 				case KeyEvent.VK_SPACE:
 					UrmusicController.playPause();
-					stop = true;
-					break;
+					return true;
 				case KeyEvent.VK_S:
 					UrmusicController.splitTrack();
-					break;
+					return true;
 			}
 		}
 		
-		return stop;
+		return false;
 	}
 }

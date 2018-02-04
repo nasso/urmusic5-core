@@ -100,13 +100,13 @@ public class TimelineMainScrollable extends JPanel implements
 	}
 	
 	public void focusChanged(Object oldFocus, Object newFocus) {
-		if(oldFocus instanceof Composition) {
+		if(oldFocus instanceof Composition || newFocus instanceof Composition) {
 			Composition oldFocusComp = (Composition) oldFocus;
 			Composition newFocusComp = (Composition) newFocus;
 			
 			if(oldFocusComp != null) oldFocusComp.getTimeline().removeTracklistListener(this);
 			if(newFocusComp != null) newFocusComp.getTimeline().addTracklistListener(this);
-		} else if(oldFocus instanceof EffectParam<?>) {
+		} else if(oldFocus instanceof EffectParam<?> || newFocus instanceof EffectParam<?>) {
 			SwingUtilities.invokeLater(this.timelineLayer::repaint);
 		}
 	}

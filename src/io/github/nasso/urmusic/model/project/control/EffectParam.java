@@ -199,18 +199,36 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	}
 	
 	// -- Abstract
+	/**
+	 * Sets the static value for this parameter.<br>
+	 * Only called when there's no key frames for this parameter ({@link EffectParam#getKeyFrameCount()} returns <code>0</code>)
+	 * @param val
+	 */
 	protected abstract void setStaticValue(T val);
+	
+	/**
+	 * Gets the static value for this parameter.<br>
+	 * Only called when there's no key frames for this parameter ({@link EffectParam#getKeyFrameCount()} returns <code>0</code>)
+	 * @return
+	 */
 	protected abstract T getStaticValue();
 	
+	/**
+	 * Returns a copy of the given value. Used when adding key frames to prevent unexpected modifications to the value.<br>
+	 * So if <code>val</code> is already immutable (e.g. {@link Float}), this method should be able to just return it with no problem.
+	 * @param val
+	 * @return
+	 */
 	protected abstract T cloneValue(T val);
 	
 	/**
 	 * Linearly interpolates between <code>s</code> and <code>e</code>, <code>t</code> being the factor (usually in the range 0.0..1.0 but not limited to).<br>
-	 * For <code>t == 0.0</code>, <code>s</code> should be returned, and for <code>t == 1.0</code>, <code>e</code> should be returned.
+	 * For <code>t == 0.0</code>, <code>s</code> should be returned, and for <code>t == 1.0</code>, <code>e</code> should be returned.<br>
+	 * The implementation can make modification to some local mutable object instance and return it to use less memory.
 	 * 
-	 * @param s
-	 * @param e
-	 * @param t
+	 * @param s Begin value
+	 * @param e End value
+	 * @param t Lerp factor
 	 * @return
 	 */
 	public abstract T ramp(T s, T e, float t);

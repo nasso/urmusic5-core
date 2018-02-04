@@ -2,10 +2,13 @@ package io.github.nasso.urmusic.model.effect;
 
 import static com.jogamp.opengl.GL.*;
 
+import org.joml.Vector2fc;
+
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.control.FloatParam;
+import io.github.nasso.urmusic.model.project.control.Point2DParam;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
@@ -20,12 +23,14 @@ public class CircleMaskVFX extends TrackEffect {
 	private int loc_inputTex, loc_size, loc_outerColor, loc_innerColor, loc_parameters;
 	
 	public class CircleMaskVFXInstance extends TrackEffectInstance {
+		private Point2DParam position = new Point2DParam("position", 0, 0);
 		private RGBA32Param outerColor = new RGBA32Param("outerColor", 0x00000000);
 		private RGBA32Param innerColor = new RGBA32Param("innerColor", 0xFFFFFFFF);
-		private FloatParam penumbra = new FloatParam("penumbra", 0.0f);
+		private FloatParam penumbra = new FloatParam("penumbra", 5.0f);
 		private FloatParam radius = new FloatParam("radius", 500.0f);
 		
 		public CircleMaskVFXInstance() {
+			this.addParameter(this.position);
 			this.addParameter(this.outerColor);
 			this.addParameter(this.innerColor);
 			this.addParameter(this.radius);
@@ -38,6 +43,7 @@ public class CircleMaskVFX extends TrackEffect {
 		
 		public void applyVideo(GL3 gl, EffectArgs args) {
 			// Retrieve params
+			Vector2fc position = this.position.getValue(args.frame);
 			float radius = this.radius.getValue(args.frame);
 			float penumbra = this.penumbra.getValue(args.frame);
 			RGBA32 outerColor = this.outerColor.getValue(args.frame);
@@ -50,8 +56,8 @@ public class CircleMaskVFX extends TrackEffect {
 			gl.glUniform4f(CircleMaskVFX.this.loc_outerColor, outerColor.getRedf(), outerColor.getGreenf(), outerColor.getBluef(), outerColor.getAlphaf());
 			gl.glUniform4f(CircleMaskVFX.this.loc_innerColor, innerColor.getRedf(), innerColor.getGreenf(), innerColor.getBluef(), innerColor.getAlphaf());
 			gl.glUniform4f(CircleMaskVFX.this.loc_parameters,
-					args.width / 2f,
-					args.height / 2f,
+					position.x(),
+					position.y(),
 					radius,
 					penumbra
 			);

@@ -37,6 +37,16 @@ public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 		protected void paintComponent(Graphics g) {
 			Graphics2D g2d = (Graphics2D) g.create();
 			
+			g2d.setColor(Color.WHITE);
+			g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
+			
+			g2d.setColor(Color.LIGHT_GRAY);
+			for(int x = 0; x < this.getWidth(); x += 5) {
+				for(int y = x % 10; y < this.getHeight(); y += 10) {
+					g2d.fillRect(x, y, 5, 5);
+				}
+			}
+			
 			g2d.setColor(this.color);
 			g2d.fillRect(0, 0, this.getWidth(), this.getHeight());
 			
