@@ -10,7 +10,6 @@ import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.control.FloatParam;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 import io.github.nasso.urmusic.utils.MutableRGBA32;
-import io.github.nasso.urmusic.utils.easing.EasingFunction;
 import io.github.nasso.urmusic.utils.easing.penner.easing.Elastic;
 import io.github.nasso.urmusic.view.UrmusicView;
 
@@ -32,16 +31,16 @@ public class Urmusic {
 		FloatParam radius = (FloatParam) vignette.getParamByName("radius");
 		radius.addKeyFrame(0, 0.0f);
 		radius.addKeyFrame(comp.getFramerate() * 2, 400.0f, Elastic::easeOut);
-		radius.addKeyFrame(comp.getFramerate() * 3, 200.0f, EasingFunction.EASE_IN_OUT);
+		radius.addKeyFrame(comp.getFramerate() * 3, 200.0f);
 		
 		TrackEffectInstance vignette2 = CircleMaskVFX.FX.instance();
 		((RGBA32Param) vignette2.getParamByName("innerColor")).addKeyFrame(0, new MutableRGBA32(0xff0000ff));
 		((RGBA32Param) vignette2.getParamByName("innerColor")).addKeyFrame(100, new MutableRGBA32(0x0000ffff));
 		FloatParam radius2 = (FloatParam) vignette2.getParamByName("radius");
 		radius2.addKeyFrame(0, 0.0f);
-		radius2.addKeyFrame(comp.getFramerate() * 1, 300.0f, EasingFunction.EASE_IN_OUT);
+		radius2.addKeyFrame(comp.getFramerate() * 1, 300.0f);
 		radius2.addKeyFrame(comp.getFramerate() * 2, 300.0f);
-		radius2.addKeyFrame(comp.getFramerate() * 3, 0.0f, EasingFunction.EASE_IN_OUT);
+		radius2.addKeyFrame(comp.getFramerate() * 3, 0.0f);
 		
 		visuals.addEffect(vignette);
 		visuals.addEffect(vignette2);

@@ -39,7 +39,7 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	}
 	
 	public KeyFrame<T> addKeyFrame(int frame, T val) {
-		return this.addKeyFrame(frame, val, EasingFunction.LINEAR);
+		return this.addKeyFrame(frame, val, EasingFunction.EASE);
 	}
 	
 	public KeyFrame<T> addKeyFrame(int frame, T val, EasingFunction func) {
