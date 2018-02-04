@@ -3,17 +3,31 @@ package io.github.nasso.urmusic.model.project.control;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.nasso.urmusic.model.event.ControlParamListener;
+import io.github.nasso.urmusic.model.event.EffectParamListener;
+import io.github.nasso.urmusic.model.event.KeyFrameListener;
 import io.github.nasso.urmusic.utils.easing.EasingFunction;
 
-public abstract class ControlParam<T> {
-	private List<ControlParamListener<T>> listeners = new ArrayList<>();
+public abstract class EffectParam<T> implements KeyFrameListener<T> {
+	private List<EffectParamListener<T>> listeners = new ArrayList<>();
 	
 	private List<KeyFrame<T>> keyFrames = new ArrayList<>();
 	private String name;
 	
-	public ControlParam(String name) {
+	public EffectParam(String name) {
 		this.name = name;
+		
+		this.addEffectParamListener(new EffectParamListener<T>() {
+			public void valueChanged(EffectParam<T> source, T newVal) {
+			}
+
+			public void keyFrameAdded(EffectParam<T> source, KeyFrame<T> kf) {
+				kf.addKeyFrameListener(EffectParam.this);
+			}
+
+			public void keyFrameRemoved(EffectParam<T> source, KeyFrame<T> kf) {
+				kf.removeKeyFrameListener(EffectParam.this);
+			}
+		});
 	}
 	
 	public String getName() {
@@ -29,12 +43,20 @@ public abstract class ControlParam<T> {
 	}
 	
 	public KeyFrame<T> addKeyFrame(int frame, T val, EasingFunction func) {
+		T valClone = this.cloneValue(val);
+		
 		int i;
 		for(i = 0; i < this.keyFrames.size(); i++) {
-			if(this.keyFrames.get(i).getFrame() > frame) break;
+			KeyFrame<T> kf = this.keyFrames.get(i);
+			
+			if(kf.getFrame() == frame) {
+				kf.setValue(valClone);
+				kf.setInterpolationMethod(func);
+				return kf;
+			} else if(kf.getFrame() > frame) break;
 		}
 		
-		KeyFrame<T> kf = new KeyFrame<T>(frame, this.cloneValue(val), func);
+		KeyFrame<T> kf = new KeyFrame<T>(frame, valClone, func);
 		this.keyFrames.add(i, kf);
 		
 		this.notifyKeyFrameAdded(kf);
@@ -49,15 +71,70 @@ public abstract class ControlParam<T> {
 		
 		return null;
 	}
+
+	public KeyFrame<T> getKeyFrameBefore(int frame) {
+		int i;
+		for(i = 0; i < this.keyFrames.size(); i++) {
+			if(this.keyFrames.get(i).getFrame() >= frame) break;
+		}
+		
+		return i == 0 ? null : this.keyFrames.get(i - 1);
+	}
+	
+	public KeyFrame<T> getKeyFrameAfter(int frame) {
+		int i;
+		for(i = 0; i < this.keyFrames.size(); i++) {
+			if(this.keyFrames.get(i).getFrame() > frame) break;
+		}
+		
+		return i == this.keyFrames.size() ? null : this.keyFrames.get(i);
+	}
+	
+	public int getKeyFrameCount() {
+		return this.keyFrames.size();
+	}
+	
+	public KeyFrame<T> getKeyFrame(int index) {
+		return this.keyFrames.get(index);
+	}
 	
 	public void removeKeyFrame(KeyFrame<T> kf) {
 		this.keyFrames.remove(kf);
 		this.notifyKeyFrameRemoved(kf);
 	}
 	
+	public void frameChanged(KeyFrame<T> source, int frame) {
+		this.keyFrames.remove(source);
+
+		int i;
+		for(i = 0; i < this.keyFrames.size(); i++) {
+			KeyFrame<T> kf = this.keyFrames.get(i);
+			
+			if(kf.getFrame() == frame) {
+				this.removeKeyFrame(kf);
+				break;
+			}
+			
+			if(kf.getFrame() > frame) {
+				i--;
+				break;
+			}
+		}
+		
+		this.keyFrames.add(i, source);
+	}
+	
+	public void valueChanged(KeyFrame<T> source, T newValue) {
+		// No need to reorder
+	}
+	
+	public void interpChanged(KeyFrame<T> source, EasingFunction newInterp) {
+		// No need to reorder
+	}
+	
 	/**
-	 * Sets the value of the control at the specified frame.<br>
-	 * If there's no key frames for this control, the frame index given won't matter.
+	 * Sets the value of the parameter at the specified frame.<br>
+	 * If there's no key frames for this parameter, the frame index given won't matter.
 	 * 
 	 * @param val
 	 * @param frame
@@ -85,10 +162,11 @@ public abstract class ControlParam<T> {
 		
 		if(i == 0) return this.keyFrames.get(i).getValue();
 		if(i == this.keyFrames.size()) return this.keyFrames.get(this.keyFrames.size() - 1).getValue();
-		
+
 		KeyFrame<T> previous, next;
 		previous = this.keyFrames.get(i - 1);
 		next = this.keyFrames.get(i);
+		
 		return this.ramp(previous.getValue(), next.getValue(), next.getInterpolationMethod().apply(
 			frame - previous.getFrame(),			// position
 			0,										// beginning value
@@ -97,26 +175,26 @@ public abstract class ControlParam<T> {
 		));
 	}
 	
-	public void addControlParamListener(ControlParamListener<T> l) {
+	public void addEffectParamListener(EffectParamListener<T> l) {
 		this.listeners.add(l);
 	}
 	
-	public void removeControlParamListener(ControlParamListener<T> l) {
+	public void removeEffectParamListener(EffectParamListener<T> l) {
 		this.listeners.remove(l);
 	}
 	
 	private void notifyKeyFrameAdded(KeyFrame<T> kf) {
-		for(ControlParamListener<T> l : this.listeners)
+		for(EffectParamListener<T> l : this.listeners)
 			l.keyFrameAdded(this, kf);
 	}
 	
 	private void notifyKeyFrameRemoved(KeyFrame<T> kf) {
-		for(ControlParamListener<T> l : this.listeners)
+		for(EffectParamListener<T> l : this.listeners)
 			l.keyFrameRemoved(this, kf);
 	}
 	
 	private void notifyValueChanged(T val) {
-		for(ControlParamListener<T> l : this.listeners)
+		for(EffectParamListener<T> l : this.listeners)
 			l.valueChanged(this, val);
 	}
 	

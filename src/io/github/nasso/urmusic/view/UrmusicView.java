@@ -28,9 +28,9 @@ import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.view.components.SplittablePane;
-import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
+import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.data.UrmusicViewState;
 import io.github.nasso.urmusic.view.data.UrmusicViewStateCodec;
 import io.github.nasso.urmusic.view.dialog.UrmusicAboutDialog;
@@ -42,9 +42,11 @@ public class UrmusicView {
 	
 	private static Action menuExitAction, menuAboutAction;
 	
+	private static boolean keyEventBlocked = false;
+	
 	public static void init() {
 		// TODO: Load Locale from pref file
-		UrmusicStrings.init(Locale.ENGLISH);
+		UrmusicStrings.init(getLocale());
 		UrmusicUIRes.init();
 		
 		setupActions();
@@ -67,6 +69,10 @@ public class UrmusicView {
 				}
 			}			
 		});
+	}
+	
+	public static Locale getLocale() {
+		return Locale.ENGLISH;
 	}
 	
 	public static void registerFrame(JFrame frame) {
@@ -178,7 +184,17 @@ public class UrmusicView {
 		}
 	}
 	
+	public static void blockKeyEvent() {
+		keyEventBlocked = true;
+	}
+	
+	public static void freeKeyEvent() {
+		keyEventBlocked = false;
+	}
+	
 	public static boolean keyEvent(KeyEvent e) {
+		if(keyEventBlocked) return false;
+		
 		boolean stop = false;
 		
 		if(e.getID() == KeyEvent.KEY_PRESSED) {
@@ -188,6 +204,12 @@ public class UrmusicView {
 					break;
 				case KeyEvent.VK_LEFT:
 					UrmusicController.frameBack();
+					break;
+				case KeyEvent.VK_UP:
+					UrmusicController.goToNextKeyFrame();
+					break;
+				case KeyEvent.VK_DOWN:
+					UrmusicController.goToPreviousKeyFrame();
 					break;
 				case KeyEvent.VK_SPACE:
 					UrmusicController.playPause();

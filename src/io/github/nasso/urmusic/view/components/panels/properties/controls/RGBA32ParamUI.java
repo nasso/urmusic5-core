@@ -17,7 +17,7 @@ import io.github.nasso.urmusic.utils.MathUtils;
 import io.github.nasso.urmusic.utils.MutableRGBA32;
 import io.github.nasso.urmusic.utils.RGBA32;
 
-public class RGBA32ParamUI extends ControlParamUI<RGBA32Param> {
+public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 	private static final long serialVersionUID = 8290439490941369516L;
 	
 	private static class ColorButton extends JComponent implements MouseListener {
@@ -28,7 +28,7 @@ public class RGBA32ParamUI extends ControlParamUI<RGBA32Param> {
 		private Runnable onClick;
 		
 		public ColorButton(Runnable onClick) {
-			this.setPreferredSize(new Dimension(30, 10));
+			this.setPreferredSize(new Dimension(30, 0));
 			
 			this.addMouseListener(this);
 			this.onClick = onClick;

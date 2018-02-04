@@ -4,6 +4,8 @@ import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
+import io.github.nasso.urmusic.model.project.control.EffectParam;
+import io.github.nasso.urmusic.model.project.control.KeyFrame;
 
 public class UrmusicController {
 	private UrmusicController() { }
@@ -29,7 +31,11 @@ public class UrmusicController {
 		UrmusicModel.focusTrackActivityRange(r);
 	}
 	
-	// -- Playback --
+	public static void focusEffectParameter(EffectParam<?> p) {
+		UrmusicModel.focusEffectParameter(p);
+	}
+	
+	// -- Frame control --
 	public static void setFramePosition(int frame) {
 		UrmusicModel.setFrameCursor(frame);
 	}
@@ -40,6 +46,22 @@ public class UrmusicController {
 	
 	public static void frameBack() {
 		UrmusicModel.setFrameCursor(UrmusicModel.getFrameCursor() - 1);
+	}
+
+	public static void goToNextKeyFrame() {
+		EffectParam<?> param = UrmusicModel.getFocusedEffectParameter();
+		if(param == null) return;
+
+		KeyFrame<?> kf = param.getKeyFrameAfter(UrmusicModel.getFrameCursor());
+		if(kf != null) setFramePosition(kf.getFrame());
+	}
+	
+	public static void goToPreviousKeyFrame() {
+		EffectParam<?> param = UrmusicModel.getFocusedEffectParameter();
+		if(param == null) return;
+
+		KeyFrame<?> kf = param.getKeyFrameBefore(UrmusicModel.getFrameCursor());
+		if(kf != null) setFramePosition(kf.getFrame());
 	}
 	
 	public static void playPause() {

@@ -3,7 +3,7 @@ package io.github.nasso.urmusic.model.project.control;
 import io.github.nasso.urmusic.utils.MutableRGBA32;
 import io.github.nasso.urmusic.utils.RGBA32;
 
-public class RGBA32Param extends ControlParam<RGBA32> {
+public class RGBA32Param extends EffectParam<RGBA32> {
 	private MutableRGBA32 value = new MutableRGBA32();
 	
 	public RGBA32Param(String name) {

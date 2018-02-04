@@ -11,10 +11,13 @@ import javax.swing.plaf.LayerUI;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
+import io.github.nasso.urmusic.model.project.control.EffectParam;
+import io.github.nasso.urmusic.model.project.control.KeyFrame;
 import io.github.nasso.urmusic.model.renderer.CachedFrame;
 
 public class TimelineCaretLayer extends LayerUI<JPanel> {
 	private static final long serialVersionUID = 8643950564372365882L;
+	private static final Color KEY_FRAME_COLOR = new Color(0x0099FF);
 
 	private TimelineView view;
 	
@@ -27,8 +30,8 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 
 		Composition comp = UrmusicModel.getFocusedComposition();
 
-		int hscroll = (int) this.view.getHorizontalScroll();
-		int hscalei = (int) this.view.getHorizontalScale();
+		int hscroll = Math.round(this.view.getHorizontalScroll());
+		int hscalei = Math.round(this.view.getHorizontalScale());
 		
 		int frameIndex = UrmusicModel.getFrameCursor();
 		int frameXOffset = (int) (frameIndex * this.view.getHorizontalScale() + this.view.getHorizontalScroll());
@@ -57,13 +60,28 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 		for(int i = 0; i < renderedFrames.length; i++) {
 			CachedFrame f = renderedFrames[i];
 			
-			int x = (int) (f.frame_id * this.view.getHorizontalScale() + hscroll);
+			int x = Math.round(f.frame_id * this.view.getHorizontalScale() + hscroll);
 			
 			if(x < -hscalei || x > c.getWidth()) continue;
 			
 			if(f.dirty) continue;
 			
-			g2d.fillRect(x, 0, hscalei + 1, TimelineView.FRAME_CARET_HEADER_HEIGHT);
+			g2d.fillRect(x, 0, hscalei, TimelineView.FRAME_CARET_HEADER_HEIGHT);
+		}
+		
+		EffectParam<?> param = UrmusicModel.getFocusedEffectParameter();
+		if(param != null) {
+			int keyframesCount = param.getKeyFrameCount();
+			
+			g2d.setColor(KEY_FRAME_COLOR);
+			for(int i = 0; i < keyframesCount; i++) {
+				KeyFrame<?> kf = param.getKeyFrame(i);
+
+				int x = Math.round(kf.getFrame() * this.view.getHorizontalScale() + hscroll);
+				if(x < -hscalei || x > c.getWidth()) continue;
+				
+				g2d.fillRect(x, 0, hscalei + 1, TimelineView.FRAME_CARET_HEADER_HEIGHT);
+			}
 		}
 		
 		if(this.view.getHorizontalScale() >= 6) {
@@ -71,7 +89,7 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 			
 			g2d.setColor(Color.GRAY);
 			for(int i = 0; i <= visibleFrames; i++) {
-				float x = (i - (int) (hscroll / this.view.getHorizontalScale())) * this.view.getHorizontalScale() + hscroll;
+				float x = (i - Math.round(hscroll / this.view.getHorizontalScale())) * this.view.getHorizontalScale() + hscroll;
 				
 				g2d.drawLine(
 						(int) x, 0,

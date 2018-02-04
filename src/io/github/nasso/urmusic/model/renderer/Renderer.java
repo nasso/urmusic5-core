@@ -50,7 +50,7 @@ public class Renderer implements Runnable {
 			this.availableCommands--;
 		}
 		
-		public synchronized int getAvailableCommands() {
+		public int getAvailableCommands() {
 			return this.availableCommands;
 		}
 		

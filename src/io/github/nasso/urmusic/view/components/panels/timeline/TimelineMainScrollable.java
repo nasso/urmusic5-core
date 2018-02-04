@@ -25,9 +25,11 @@ import io.github.nasso.urmusic.model.event.TracklistListener;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect;
+import io.github.nasso.urmusic.model.project.control.EffectParam;
 import io.github.nasso.urmusic.utils.MathUtils;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class TimelineMainScrollable extends JPanel implements
 													MouseListener,
 													MouseMotionListener,
@@ -35,7 +37,7 @@ public class TimelineMainScrollable extends JPanel implements
 													TracklistListener,
 													FrameCursorListener,
 													RendererListener,
-													FocusListener<Composition> {
+													FocusListener {
 	private static final long serialVersionUID = 1008513031790674759L;
 	
 	private TimelineView view;
@@ -78,6 +80,7 @@ public class TimelineMainScrollable extends JPanel implements
 		UrmusicModel.addFrameCursorListener(this);
 		UrmusicModel.getRenderer().addRendererListener(this);
 		UrmusicModel.addCompositionFocusListener(this);
+		UrmusicModel.addEffectParameterFocusListener(this);
 	}
 	
 	public void dispose() {
@@ -85,6 +88,7 @@ public class TimelineMainScrollable extends JPanel implements
 		UrmusicModel.removeFrameCursorListener(this);
 		UrmusicModel.getRenderer().removeRendererListener(this);
 		UrmusicModel.removeCompositionFocusListener(this);
+		UrmusicModel.removeEffectParameterFocusListener(this);
 		
 		for(Component c : this.infoPane.getComponents()) {
 			if(c instanceof TimelineTrackHead) ((TimelineTrackHead) c).dispose();
@@ -95,9 +99,16 @@ public class TimelineMainScrollable extends JPanel implements
 		}
 	}
 	
-	public void focusChanged(Composition oldFocus, Composition newFocus) {
-		if(oldFocus != null) oldFocus.getTimeline().removeTracklistListener(this);
-		if(newFocus != null) newFocus.getTimeline().addTracklistListener(this);
+	public void focusChanged(Object oldFocus, Object newFocus) {
+		if(oldFocus instanceof Composition) {
+			Composition oldFocusComp = (Composition) oldFocus;
+			Composition newFocusComp = (Composition) newFocus;
+			
+			if(oldFocusComp != null) oldFocusComp.getTimeline().removeTracklistListener(this);
+			if(newFocusComp != null) newFocusComp.getTimeline().addTracklistListener(this);
+		} else if(oldFocus instanceof EffectParam<?>) {
+			SwingUtilities.invokeLater(this.timelineLayer::repaint);
+		}
 	}
 	
 	public Dimension getPreferredScrollableViewportSize() {

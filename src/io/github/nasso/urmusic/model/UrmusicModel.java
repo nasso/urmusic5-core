@@ -15,6 +15,7 @@ import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.github.nasso.urmusic.model.project.control.EffectParam;
 import io.github.nasso.urmusic.model.renderer.Renderer;
 import io.github.nasso.urmusic.view.UrmusicView;
 
@@ -284,5 +285,32 @@ public class UrmusicModel {
 	
 	public static TrackActivityRange getFocusedTrackActivityRange() {
 		return focusedTrackRange;
+	}
+	
+	// Control parameter
+	private static EffectParam<?> focusedParam = null;
+	private static List<FocusListener<EffectParam<?>>> controlParamFocusListeners = new ArrayList<>();
+	
+	public static void addEffectParameterFocusListener(FocusListener<EffectParam<?>> l) {
+		controlParamFocusListeners.add(l);
+	}
+	
+	public static void removeEffectParameterFocusListener(FocusListener<EffectParam<?>> l) {
+		controlParamFocusListeners.remove(l);
+	}
+	
+	public static void focusEffectParameter(EffectParam<?> newFocus) {
+		if(focusedParam == newFocus) return;
+		
+		EffectParam<?> oldFocus = focusedParam;
+		focusedParam = newFocus;
+		
+		for(FocusListener<EffectParam<?>> l : controlParamFocusListeners) {
+			l.focusChanged(oldFocus, newFocus);
+		}
+	}
+	
+	public static EffectParam<?> getFocusedEffectParameter() {
+		return focusedParam;
 	}
 }

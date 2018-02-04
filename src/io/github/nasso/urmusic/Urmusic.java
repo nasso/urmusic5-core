@@ -25,9 +25,6 @@ public class Urmusic {
 		Composition comp = prj.getMainComposition();
 		comp.setClearColor(new MutableRGBA32(0x5c2aaff));
 		
-		Track song = new Track(comp.getLength());
-		song.setName("Song");
-		
 		Track visuals = new Track(comp.getLength());
 		visuals.setName("Visuals");
 		
@@ -47,7 +44,6 @@ public class Urmusic {
 		visuals.addEffect(vignette);
 		visuals.addEffect(vignette2);
 		
-		prj.getMainComposition().getTimeline().addTrack(song);
 		prj.getMainComposition().getTimeline().addTrack(visuals);
 	}
 	

@@ -3,14 +3,14 @@ package io.github.nasso.urmusic.view.components.panels.properties.controls;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import io.github.nasso.urmusic.model.project.control.ControlParam;
+import io.github.nasso.urmusic.model.project.control.EffectParam;
 
-public abstract class ControlParamUI<T extends ControlParam<?>> extends JPanel {
+public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
 	private static final long serialVersionUID = 4381903239053495291L;
 
 	private final T param;
 	
-	public ControlParamUI(T param) {
+	public EffectParamUI(T param) {
 		this.param = param;
 		
 		this.setOpaque(false);

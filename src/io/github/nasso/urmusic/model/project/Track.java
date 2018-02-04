@@ -7,7 +7,7 @@ import java.util.List;
 import io.github.nasso.urmusic.model.event.EffectInstanceListener;
 import io.github.nasso.urmusic.model.event.TrackListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.ControlParam;
+import io.github.nasso.urmusic.model.project.control.EffectParam;
 import io.github.nasso.urmusic.utils.IntRange;
 import io.github.nasso.urmusic.utils.MathUtils;
 
@@ -258,10 +258,10 @@ public class Track implements EffectInstanceListener {
 		this.notifyDirtyFlagged();
 	}
 
-	public void parameterAdded(TrackEffectInstance source, int i, ControlParam<?> ctrl) {
+	public void parameterAdded(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
 	}
 
-	public void parameterRemoved(TrackEffectInstance source, int i, ControlParam<?> ctrl) {
+	public void parameterRemoved(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
 	}
 	
 	private void notifyDirtyFlagged() {

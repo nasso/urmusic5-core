@@ -18,7 +18,7 @@ import javax.swing.border.BevelBorder;
 
 import io.github.nasso.urmusic.model.event.EffectInstanceListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.ControlParam;
+import io.github.nasso.urmusic.model.project.control.EffectParam;
 import io.github.nasso.urmusic.utils.MathUtils;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
@@ -121,13 +121,13 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener {
 	
 	public void dispose() {
 		for(Component c : this.contentPane.getComponents()) {
-			if(c instanceof ControlParamPane)
-				((ControlParamPane) c).dispose();
+			if(c instanceof EffectParamPane)
+				((EffectParamPane) c).dispose();
 		}
 	}
 
-	private void addParam(ControlParam<?> ctrl, int i) {
-		this.contentPane.add(new ControlParamPane(this.fx, ctrl, i), i);
+	private void addParam(EffectParam<?> ctrl, int i) {
+		this.contentPane.add(new EffectParamPane(this.fx, ctrl, i), i);
 	}
 	
 	private void removeParam(int i) {
@@ -186,11 +186,11 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener {
 		this.chbxEnabled.setSelected(isEnabledNow);
 	}
 
-	public void parameterAdded(TrackEffectInstance source, int i, ControlParam<?> ctrl) {
+	public void parameterAdded(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
 		SwingUtilities.invokeLater(() -> this.addParam(ctrl, i));
 	}
 
-	public void parameterRemoved(TrackEffectInstance source, int i, ControlParam<?> ctrl) {
+	public void parameterRemoved(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
 		SwingUtilities.invokeLater(() -> this.removeParam(i));
 	}
 

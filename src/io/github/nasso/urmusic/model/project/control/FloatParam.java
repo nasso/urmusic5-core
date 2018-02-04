@@ -2,7 +2,7 @@ package io.github.nasso.urmusic.model.project.control;
 
 import io.github.nasso.urmusic.utils.MathUtils;
 
-public class FloatParam extends ControlParam<Float> {
+public class FloatParam extends EffectParam<Float> {
 	private Float val;
 	
 	public FloatParam(String name) {
