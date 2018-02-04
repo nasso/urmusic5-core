@@ -24,6 +24,7 @@
 		
 		"effect.vignette.name": "Vignette",
 		"effect.vignette.param.outerColor.name": "Outer color",
+		"effect.vignette.param.innerColor.name": "Inner color",
 		"effect.vignette.param.distance.name": "Distance",
 		"effect.vignette.param.penumbra.name": "Penumbra"
 	}

@@ -17,15 +17,17 @@ public class VignetteVFX extends TrackEffect {
 	private GLUtils glu = new GLUtils();
 	
 	private int quadProg, quadVAO;
-	private int loc_colorTex, loc_vignetteColor, loc_parameters;
+	private int loc_inputTex, loc_size, loc_outerColor, loc_innerColor, loc_parameters;
 	
 	public class VignetteVFXInstance extends TrackEffectInstance {
 		private RGBA32Param outerColor = new RGBA32Param("outerColor", 0x000000FF);
-		private FloatParam penumbra = new FloatParam("penumbra", 0.75f);
-		private FloatParam distance = new FloatParam("distance", 1.2f);
+		private RGBA32Param innerColor = new RGBA32Param("innerColor", 0x00000000);
+		private FloatParam penumbra = new FloatParam("penumbra", 200.0f);
+		private FloatParam distance = new FloatParam("distance", 1500.0f);
 		
 		public VignetteVFXInstance() {
 			this.addParameter(this.outerColor);
+			this.addParameter(this.innerColor);
 			this.addParameter(this.distance);
 			this.addParameter(this.penumbra);
 		}
@@ -39,12 +41,20 @@ public class VignetteVFX extends TrackEffect {
 			float dist = this.distance.getValue(args.frame);
 			float penumbra = this.penumbra.getValue(args.frame);
 			RGBA32 outerColor = this.outerColor.getValue(args.frame);
+			RGBA32 innerColor = this.innerColor.getValue(args.frame);
 			
 			gl.glUseProgram(VignetteVFX.this.quadProg);
-			VignetteVFX.this.glu.uniformTexture(gl, VignetteVFX.this.loc_colorTex, args.texInput, 0);
+			VignetteVFX.this.glu.uniformTexture(gl, VignetteVFX.this.loc_inputTex, args.texInput, 0);
 			
-			gl.glUniform4f(VignetteVFX.this.loc_vignetteColor, outerColor.getRedf(), outerColor.getGreenf(), outerColor.getBluef(), outerColor.getAlphaf());
-			gl.glUniform2f(VignetteVFX.this.loc_parameters, dist, penumbra);
+			gl.glUniform2f(VignetteVFX.this.loc_size, args.width, args.height);
+			gl.glUniform4f(VignetteVFX.this.loc_outerColor, outerColor.getRedf(), outerColor.getGreenf(), outerColor.getBluef(), outerColor.getAlphaf());
+			gl.glUniform4f(VignetteVFX.this.loc_innerColor, innerColor.getRedf(), innerColor.getGreenf(), innerColor.getBluef(), innerColor.getAlphaf());
+			gl.glUniform4f(VignetteVFX.this.loc_parameters,
+					args.width / 2f,
+					args.height / 2f,
+					dist,
+					penumbra
+			);
 			
 			gl.glBindVertexArray(VignetteVFX.this.quadVAO);
 			gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -56,8 +66,10 @@ public class VignetteVFX extends TrackEffect {
 	
 	public void globalVideoSetup(GL3 gl) {
 		this.quadProg = this.glu.createProgram(gl, "fx/vignette/vignette.vs", "fx/vignette/vignette.fs");
-		this.loc_colorTex = gl.glGetUniformLocation(this.quadProg, "color");
-		this.loc_vignetteColor = gl.glGetUniformLocation(this.quadProg, "outerColor");
+		this.loc_inputTex = gl.glGetUniformLocation(this.quadProg, "inputTex");
+		this.loc_size = gl.glGetUniformLocation(this.quadProg, "colorSize");
+		this.loc_outerColor = gl.glGetUniformLocation(this.quadProg, "outerColor");
+		this.loc_innerColor = gl.glGetUniformLocation(this.quadProg, "innerColor");
 		this.loc_parameters = gl.glGetUniformLocation(this.quadProg, "parameters");
 		
 		this.quadVAO = this.glu.genFullQuadVAO(gl);

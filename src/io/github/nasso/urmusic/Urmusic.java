@@ -31,15 +31,15 @@ public class Urmusic {
 		TrackEffectInstance vignette = VignetteVFX.FX.instance();
 		FloatParam dist = (FloatParam) vignette.getParamByName("distance");
 		dist.addKeyFrame(0, 0.0f);
-		dist.addKeyFrame(120, 1.0f, Elastic::easeOut);
+		dist.addKeyFrame(120, 300.0f, Elastic::easeOut);
 		
 		TrackEffectInstance vignette2 = VignetteVFX.FX.instance();
 		((RGBA32Param) vignette2.getParamByName("outerColor")).addKeyFrame(0, new MutableRGBA32(0xff0000ff));
 		((RGBA32Param) vignette2.getParamByName("outerColor")).addKeyFrame(100, new MutableRGBA32(0x0000ffff));
 		FloatParam dist2 = (FloatParam) vignette2.getParamByName("distance");
-		dist2.addKeyFrame(0, 2.0f);
-		dist2.addKeyFrame(150, 0.2f, EasingFunction.EASE_OUT);
-		dist2.addKeyFrame(220, 4.0f, EasingFunction.EASE_OUT);
+		dist2.addKeyFrame(0, 1000.0f);
+		dist2.addKeyFrame(150, 500.0f, EasingFunction.EASE_OUT);
+		dist2.addKeyFrame(220, 2000.0f, EasingFunction.EASE_OUT);
 		
 		visuals.addEffect(vignette);
 		visuals.addEffect(vignette2);
