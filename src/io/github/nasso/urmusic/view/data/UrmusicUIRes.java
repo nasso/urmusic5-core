@@ -15,6 +15,8 @@ public class UrmusicUIRes {
 	public static final ImageIcon DOWN_ARROW_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-down-arrow-16.png"));
 	public static final ImageIcon TRI_RIGHT_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-forward-12.png"));
 	public static final ImageIcon TRI_DOWN_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-expand-arrow-12.png"));
+	public static final ImageIcon KEY_FRAME_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-camera-automation-16.png"));
+	public static final ImageIcon KEY_FRAME_ICON_BLUE = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-camera-automation-16-blue.png"));
 	
 	public static final void init() { }
 	

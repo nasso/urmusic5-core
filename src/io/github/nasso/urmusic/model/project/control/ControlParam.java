@@ -3,12 +3,25 @@ package io.github.nasso.urmusic.model.project.control;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.nasso.urmusic.model.event.ControlParamListener;
 import io.github.nasso.urmusic.utils.easing.EasingFunction;
 
 public abstract class ControlParam<T> {
-	private List<KeyFrame<T>> keyFrames = new ArrayList<>();
+	private List<ControlParamListener<T>> listeners = new ArrayList<>();
 	
-	public ControlParam() {
+	private List<KeyFrame<T>> keyFrames = new ArrayList<>();
+	private String name;
+	
+	public ControlParam(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return this.name;
+	}
+	
+	public KeyFrame<T> addKeyFrame(int frame) {
+		return this.addKeyFrame(frame, this.getValue(frame));
 	}
 	
 	public KeyFrame<T> addKeyFrame(int frame, T val) {
@@ -21,10 +34,25 @@ public abstract class ControlParam<T> {
 			if(this.keyFrames.get(i).getFrame() > frame) break;
 		}
 		
-		KeyFrame<T> kf = new KeyFrame<T>(frame, val, func);
+		KeyFrame<T> kf = new KeyFrame<T>(frame, this.cloneValue(val), func);
 		this.keyFrames.add(i, kf);
 		
+		this.notifyKeyFrameAdded(kf);
+		
 		return kf;
+	}
+	
+	public KeyFrame<T> getKeyFrameAt(int frame) {
+		for(KeyFrame<T> kf : this.keyFrames) {
+			if(kf.getFrame() == frame) return kf;
+		}
+		
+		return null;
+	}
+	
+	public void removeKeyFrame(KeyFrame<T> kf) {
+		this.keyFrames.remove(kf);
+		this.notifyKeyFrameRemoved(kf);
 	}
 	
 	/**
@@ -36,7 +64,8 @@ public abstract class ControlParam<T> {
 	 */
 	public void setValue(T val, int frame) {
 		if(this.keyFrames.isEmpty()) {
-			this.setValue(val);
+			this.setStaticValue(val);
+			this.notifyValueChanged(val);
 			
 			return;
 		}
@@ -46,7 +75,7 @@ public abstract class ControlParam<T> {
 	
 	public T getValue(int frame) {
 		if(this.keyFrames.isEmpty()) {
-			return this.getValue();
+			return this.getStaticValue();
 		}
 		
 		int i;
@@ -68,8 +97,34 @@ public abstract class ControlParam<T> {
 		));
 	}
 	
-	protected abstract void setValue(T val);
-	protected abstract T getValue();
+	public void addControlParamListener(ControlParamListener<T> l) {
+		this.listeners.add(l);
+	}
+	
+	public void removeControlParamListener(ControlParamListener<T> l) {
+		this.listeners.remove(l);
+	}
+	
+	private void notifyKeyFrameAdded(KeyFrame<T> kf) {
+		for(ControlParamListener<T> l : this.listeners)
+			l.keyFrameAdded(this, kf);
+	}
+	
+	private void notifyKeyFrameRemoved(KeyFrame<T> kf) {
+		for(ControlParamListener<T> l : this.listeners)
+			l.keyFrameRemoved(this, kf);
+	}
+	
+	private void notifyValueChanged(T val) {
+		for(ControlParamListener<T> l : this.listeners)
+			l.valueChanged(this, val);
+	}
+	
+	// -- Abstract
+	protected abstract void setStaticValue(T val);
+	protected abstract T getStaticValue();
+	
+	protected abstract T cloneValue(T val);
 	
 	/**
 	 * Linearly interpolates between <code>s</code> and <code>e</code>, <code>t</code> being the factor (usually in the range 0.0..1.0 but not limited to).<br>

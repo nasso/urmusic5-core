@@ -258,10 +258,10 @@ public class Track implements EffectInstanceListener {
 		this.notifyDirtyFlagged();
 	}
 
-	public void parameterAdded(TrackEffectInstance source, String name, ControlParam<?> ctrl) {
+	public void parameterAdded(TrackEffectInstance source, int i, ControlParam<?> ctrl) {
 	}
 
-	public void parameterRemoved(TrackEffectInstance source, String name, ControlParam<?> ctrl) {
+	public void parameterRemoved(TrackEffectInstance source, int i, ControlParam<?> ctrl) {
 	}
 	
 	private void notifyDirtyFlagged() {

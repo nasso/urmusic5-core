@@ -6,21 +6,27 @@ import io.github.nasso.urmusic.utils.RGBA32;
 public class RGBA32Param extends ControlParam<RGBA32> {
 	private MutableRGBA32 value = new MutableRGBA32();
 	
-	public RGBA32Param() {
+	public RGBA32Param(String name) {
+		super(name);
 	}
 	
-	public RGBA32Param(int rgba) {
+	public RGBA32Param(String name, int rgba) {
+		super(name);
 		this.value.setRGBA(rgba);
 	}
 	
-	protected void setValue(RGBA32 val) {
+	protected void setStaticValue(RGBA32 val) {
 		this.value.set(val);
 	}
 
-	protected RGBA32 getValue() {
+	protected RGBA32 getStaticValue() {
 		return this.value;
 	}
-
+	
+	protected RGBA32 cloneValue(RGBA32 val) {
+		return new MutableRGBA32(val);
+	}
+	
 	public RGBA32 ramp(RGBA32 s, RGBA32 e, float t) {
 		this.value.setFade(s, e, t);
 		return this.value;

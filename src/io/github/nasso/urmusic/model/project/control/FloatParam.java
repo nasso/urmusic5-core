@@ -5,19 +5,25 @@ import io.github.nasso.urmusic.utils.MathUtils;
 public class FloatParam extends ControlParam<Float> {
 	private Float val;
 	
-	public FloatParam() {
+	public FloatParam(String name) {
+		super(name);
 	}
 	
-	public FloatParam(float val) {
+	public FloatParam(String name, float val) {
+		super(name);
 		this.setValue(val, 0);
 	}
 
-	protected void setValue(Float val) {
+	protected void setStaticValue(Float val) {
 		this.val = val;
 	}
 	
-	protected Float getValue() {
+	protected Float getStaticValue() {
 		return this.val;
+	}
+	
+	protected Float cloneValue(Float val) {
+		return val;
 	}
 	
 	public Float ramp(Float s, Float e, float t) {

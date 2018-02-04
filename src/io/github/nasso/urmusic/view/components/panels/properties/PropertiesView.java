@@ -31,10 +31,30 @@ public class PropertiesView extends UrmViewPane implements TracklistListener, Fo
 		
 		List<Track> tracks = UrmusicModel.getFocusedComposition().getTimeline().getTracks();
 		for(int i = 0; i < tracks.size(); i++) {
-			this.trackAdded(i, tracks.get(i));
+			this.addTrack(tracks.get(i));
 		}
 		
+		Track t = UrmusicModel.getFocusedTrack();
+		if(t != null)
+			this.effectListCards.show(this.effectListContainer, this.listPanes.get(t).getName());
+		
 		UrmusicModel.addTrackFocusListener(this);
+	}
+	
+	private void addTrack(Track track) {
+		TrackEffectListPane fxpane = new TrackEffectListPane(track);
+		
+		this.effectListContainer.add(fxpane, fxpane.getName());
+		
+		this.listPanes.put(track, fxpane);
+	}
+	
+	private void removeTrack(Track track) {
+		TrackEffectListPane fxpane = this.listPanes.remove(track);
+		
+		this.effectListContainer.remove(fxpane);
+		
+		fxpane.dispose();
 	}
 	
 	public void dispose() {
@@ -52,23 +72,11 @@ public class PropertiesView extends UrmViewPane implements TracklistListener, Fo
 	}
 
 	public void trackAdded(int index, Track track) {
-		SwingUtilities.invokeLater(() -> {
-			TrackEffectListPane fxpane = new TrackEffectListPane(track);
-			
-			this.effectListContainer.add(fxpane, fxpane.getName());
-			
-			this.listPanes.put(track, fxpane);
-		});
+		SwingUtilities.invokeLater(() -> this.addTrack(track));
 	}
 
 	public void trackRemoved(int index, Track track) {
-		SwingUtilities.invokeLater(() -> {
-			TrackEffectListPane fxpane = this.listPanes.remove(track);
-			
-			this.effectListContainer.remove(fxpane);
-			
-			fxpane.dispose();
-		});
+		SwingUtilities.invokeLater(() -> this.removeTrack(track));
 	}
 
 	public void focusChanged(Track oldFocus, Track newFocus) {

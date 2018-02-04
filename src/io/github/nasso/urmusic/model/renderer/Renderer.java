@@ -296,19 +296,19 @@ public class Renderer implements Runnable {
 		
 		for(int i = 0; i < this.gpuCache.length; i++) {
 			CachedFrame f = this.gpuCache[i];
-			
-			if(bestChoice == -1) {
+			CachedFrame c = this.gpuCache[bestChoice];
+
+			if(f.dirty && !c.dirty) {
 				bestChoice = i;
-			} else {
-				// Compare
-				CachedFrame c = this.gpuCache[bestChoice];
-				
-				if(
-					(!c.dirty && f.dirty) ||
-					(c.frame_id < curs && f.frame_id < c.frame_id) ||
-					(Math.abs(f.frame_id - frame) > Math.abs(c.frame_id - frame))
-				) bestChoice = i;
-			}
+				continue;
+			} else if(!f.dirty && c.dirty) continue;
+			
+			// Compare
+			if(
+				(f.frame_id < curs && c.frame_id > curs) ||
+				(f.frame_id < c.frame_id && c.frame_id < curs) ||
+				(f.frame_id > c.frame_id && c.frame_id > curs)
+			) bestChoice = i;
 		}
 		
 		return bestChoice;

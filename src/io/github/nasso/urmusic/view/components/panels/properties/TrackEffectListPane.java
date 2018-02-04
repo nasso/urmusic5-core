@@ -24,9 +24,30 @@ public class TrackEffectListPane extends JPanel implements TrackListener {
 		this.setTrack(t);
 	}
 
+	private void addEffectPane(TrackEffectInstance e, int pos) {
+		this.add(new TrackEffectPane(e), pos);
+		
+		this.revalidate();
+		this.repaint();
+	}
+	
+	private void removeEffectPane(int pos) {
+		TrackEffectPane fxPane = (TrackEffectPane) this.getComponent(pos);
+		fxPane.dispose();
+		this.remove(fxPane);
+		
+		this.revalidate();
+		this.repaint();
+	}
+	
 	public void dispose() {
 		if(this.track != null) {
 			this.track.removeTrackListener(this);
+			
+			for(Component c : this.getComponents()) {
+				if(c instanceof TrackEffectPane)
+					((TrackEffectPane) c).dispose();
+			}
 		}
 	}
 	
@@ -44,7 +65,7 @@ public class TrackEffectListPane extends JPanel implements TrackListener {
 		
 		if(this.track != null) {
 			for(int i = 0; i < this.track.getEffectCount(); i++) {
-				this.effectAdded(this.track, this.track.getEffect(i), i);
+				this.addEffectPane(this.track.getEffect(i), i);
 			}
 			
 			this.track.addTrackListener(this);
@@ -62,21 +83,13 @@ public class TrackEffectListPane extends JPanel implements TrackListener {
 
 	public void effectAdded(Track source, TrackEffectInstance e, int pos) {
 		SwingUtilities.invokeLater(() -> {
-			this.add(new TrackEffectPane(e), pos);
-			
-			this.revalidate();
-			this.repaint();
+			this.addEffectPane(e, pos);
 		});
 	}
 
 	public void effectRemoved(Track source, TrackEffectInstance e, int pos) {
 		SwingUtilities.invokeLater(() -> {
-			TrackEffectPane fxPane = (TrackEffectPane) this.getComponent(pos);
-			fxPane.dispose();
-			this.remove(fxPane);
-			
-			this.revalidate();
-			this.repaint();
+			this.removeEffectPane(pos);
 		});
 	}
 

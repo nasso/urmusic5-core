@@ -7,6 +7,6 @@ public interface EffectInstanceListener {
 	public void dirtyFlagged(TrackEffectInstance source);
 	public void enabledStateChanged(TrackEffectInstance source, boolean isEnabledNow);
 	
-	public void parameterAdded(TrackEffectInstance source, String name, ControlParam<?> ctrl);
-	public void parameterRemoved(TrackEffectInstance source, String name, ControlParam<?> ctrl);
+	public void parameterAdded(TrackEffectInstance source, int i, ControlParam<?> ctrl);
+	public void parameterRemoved(TrackEffectInstance source, int i, ControlParam<?> ctrl);
 }

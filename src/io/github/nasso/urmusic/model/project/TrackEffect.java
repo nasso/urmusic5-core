@@ -2,21 +2,24 @@ package io.github.nasso.urmusic.model.project;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.model.event.ControlParamListener;
 import io.github.nasso.urmusic.model.event.EffectInstanceListener;
+import io.github.nasso.urmusic.model.event.KeyFrameListener;
 import io.github.nasso.urmusic.model.project.control.ControlParam;
+import io.github.nasso.urmusic.model.project.control.KeyFrame;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
+import io.github.nasso.urmusic.utils.easing.EasingFunction;
 
 public abstract class TrackEffect {
-	public abstract class TrackEffectInstance {
-		private Map<String, ControlParam<?>> parameters = new HashMap<>();
-		private Map<String, ControlParam<?>> unmodifiableParameters = Collections.unmodifiableMap(this.parameters);
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public abstract class TrackEffectInstance implements ControlParamListener, KeyFrameListener {
+		private List<ControlParam<?>> parameters = new ArrayList<>();
+		private List<ControlParam<?>> unmodifiableParameters = Collections.unmodifiableList(this.parameters);
 		
 		private List<EffectInstanceListener> listeners = new ArrayList<>();
 		
@@ -50,24 +53,69 @@ public abstract class TrackEffect {
 			return TrackEffect.this;
 		}
 		
-		public ControlParam<?> getControl(String name) {
-			return this.parameters.get(name);
-		}
-		
-		public void addControl(String name, ControlParam<?> ctrl) {
-			this.parameters.put(name, ctrl);
+		public ControlParam<?> getParamByName(String name) {
+			for(ControlParam<?> param : this.parameters) {
+				if(param.getName().equals(name))
+					return param;
+			}
 			
-			this.notifyParameterAdded(name, ctrl);
+			return null;
 		}
 		
-		public void removeControl(String name) {
-			if(!this.parameters.containsKey(name)) return;
+		public ControlParam<?> getParameter(int i) {
+			return this.parameters.get(i);
+		}
+		
+		public int getParameterCount() {
+			return this.parameters.size();
+		}
+		
+		public void addParameter(ControlParam<?> param) {
+			this.addParameter(param, this.parameters.size());
+		}
+		
+		public void addParameter(ControlParam<?> param, int i) {
+			this.parameters.add(i, param);
+			param.addControlParamListener(this);
 			
-			this.notifyParameterRemoved(name, this.parameters.remove(name));
+			this.notifyParameterAdded(param, i);
 		}
 		
-		public Map<String, ControlParam<?>> getParameterListUnmodifiable() {
+		public void removeParameter(ControlParam<?> param) {
+			int i = this.parameters.indexOf(param);
+			if(i < 0) return;
+			
+			this.notifyParameterRemoved(this.parameters.remove(i), i);
+		}
+		
+		public List<ControlParam<?>> getParameterListUnmodifiable() {
 			return this.unmodifiableParameters;
+		}
+		
+		public void valueChanged(ControlParam source, Object newVal) {
+			this.markDirty();
+		}
+
+		public void keyFrameAdded(ControlParam source, KeyFrame kf) {
+			kf.addKeyFrameListener(this);
+			this.markDirty();
+		}
+
+		public void keyFrameRemoved(ControlParam source, KeyFrame kf) {
+			kf.removeKeyFrameListener(this);
+			this.markDirty();
+		}
+		
+		public void valueChanged(KeyFrame source, Object newValue) {
+			this.markDirty();
+		}
+		
+		public void frameChanged(KeyFrame source, int newFrame) {
+			this.markDirty();
+		}
+		
+		public void interpChanged(KeyFrame source, EasingFunction newInterp) {
+			this.markDirty();
 		}
 		
 		public void addEffectInstanceListener(EffectInstanceListener l) {
@@ -94,15 +142,15 @@ public abstract class TrackEffect {
 			}
 		}
 		
-		private void notifyParameterAdded(String name, ControlParam<?> ctrl) {
+		private void notifyParameterAdded(ControlParam<?> param, int i) {
 			for(EffectInstanceListener l : this.listeners) {
-				l.parameterAdded(this, name, ctrl);
+				l.parameterAdded(this, i, param);
 			}
 		}
 		
-		private void notifyParameterRemoved(String name, ControlParam<?> ctrl) {
+		private void notifyParameterRemoved(ControlParam<?> param, int i) {
 			for(EffectInstanceListener l : this.listeners) {
-				l.parameterRemoved(this, name, ctrl);
+				l.parameterRemoved(this, i, param);
 			}
 		}
 		

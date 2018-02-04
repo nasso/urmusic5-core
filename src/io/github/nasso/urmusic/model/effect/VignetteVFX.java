@@ -20,14 +20,14 @@ public class VignetteVFX extends TrackEffect {
 	private int loc_colorTex, loc_vignetteColor, loc_parameters;
 	
 	public class VignetteVFXInstance extends TrackEffectInstance {
-		private FloatParam distance = new FloatParam(1.2f);
-		private FloatParam penumbra = new FloatParam(0.75f);
-		private RGBA32Param outerColor = new RGBA32Param(0x000000FF);
+		private RGBA32Param outerColor = new RGBA32Param("outerColor", 0x000000FF);
+		private FloatParam penumbra = new FloatParam("penumbra", 0.75f);
+		private FloatParam distance = new FloatParam("distance", 1.2f);
 		
 		public VignetteVFXInstance() {
-			this.addControl("distance", this.distance);
-			this.addControl("penumbra", this.penumbra);
-			this.addControl("outerColor", this.outerColor);
+			this.addParameter(this.outerColor);
+			this.addParameter(this.distance);
+			this.addParameter(this.penumbra);
 		}
 		
 		public void setupVideo(GL3 gl) {
@@ -57,7 +57,7 @@ public class VignetteVFX extends TrackEffect {
 	public void globalVideoSetup(GL3 gl) {
 		this.quadProg = this.glu.createProgram(gl, "fx/vignette/vignette.vs", "fx/vignette/vignette.fs");
 		this.loc_colorTex = gl.glGetUniformLocation(this.quadProg, "color");
-		this.loc_vignetteColor = gl.glGetUniformLocation(this.quadProg, "vignetteColor");
+		this.loc_vignetteColor = gl.glGetUniformLocation(this.quadProg, "outerColor");
 		this.loc_parameters = gl.glGetUniformLocation(this.quadProg, "parameters");
 		
 		this.quadVAO = this.glu.genFullQuadVAO(gl);
