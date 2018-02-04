@@ -9,7 +9,7 @@
 		"menu.help.about": "About",
 		
 		"view.info.name": "Info",
-		"view.properties.name": "Properties",
+		"view.effectlist.name": "Effects",
 		"view.preview.name": "Preview",
 		"view.timeline.name": "Timeline",
 		
@@ -22,10 +22,10 @@
 		"frame.multiCloseWarning.closeAll": "Close all",
 		"frame.multiCloseWarning.cancel": "Cancel",
 		
-		"effect.vignette.name": "Vignette",
-		"effect.vignette.param.outerColor.name": "Outer color",
-		"effect.vignette.param.innerColor.name": "Inner color",
-		"effect.vignette.param.distance.name": "Distance",
-		"effect.vignette.param.penumbra.name": "Penumbra"
+		"effect.circle_mask.name": "Circle Mask",
+		"effect.circle_mask.param.outerColor.name": "Outer color",
+		"effect.circle_mask.param.innerColor.name": "Inner color",
+		"effect.circle_mask.param.radius.name": "Radius",
+		"effect.circle_mask.param.penumbra.name": "Penumbra"
 	}
 }

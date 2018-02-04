@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.properties.controls;
+package io.github.nasso.urmusic.view.components.panels.effectlist.controls;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

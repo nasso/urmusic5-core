@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.properties;
+package io.github.nasso.urmusic.view.components.panels.effectlist;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -24,9 +24,9 @@ import io.github.nasso.urmusic.model.project.control.FloatParam;
 import io.github.nasso.urmusic.model.project.control.KeyFrame;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 import io.github.nasso.urmusic.utils.MathUtils;
-import io.github.nasso.urmusic.view.components.panels.properties.controls.EffectParamUI;
-import io.github.nasso.urmusic.view.components.panels.properties.controls.FloatParamUI;
-import io.github.nasso.urmusic.view.components.panels.properties.controls.RGBA32ParamUI;
+import io.github.nasso.urmusic.view.components.panels.effectlist.controls.EffectParamUI;
+import io.github.nasso.urmusic.view.components.panels.effectlist.controls.FloatParamUI;
+import io.github.nasso.urmusic.view.components.panels.effectlist.controls.RGBA32ParamUI;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 

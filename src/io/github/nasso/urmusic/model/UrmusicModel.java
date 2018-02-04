@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.nasso.urmusic.model.effect.VignetteVFX;
+import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
 import io.github.nasso.urmusic.model.event.FocusListener;
 import io.github.nasso.urmusic.model.event.FrameCursorListener;
 import io.github.nasso.urmusic.model.event.RendererListener;
@@ -21,7 +21,7 @@ import io.github.nasso.urmusic.view.UrmusicView;
 
 public class UrmusicModel {
 	public static final TrackEffect[] STOCK_EFFECTS = new TrackEffect[] {
-		VignetteVFX.FX
+		CircleMaskVFX.FX
 	};
 	
 	private UrmusicModel() { }

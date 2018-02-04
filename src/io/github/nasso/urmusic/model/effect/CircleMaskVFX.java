@@ -11,52 +11,52 @@ import io.github.nasso.urmusic.model.renderer.EffectArgs;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
 import io.github.nasso.urmusic.utils.RGBA32;
 
-public class VignetteVFX extends TrackEffect {
-	public static final VignetteVFX FX = new VignetteVFX();
+public class CircleMaskVFX extends TrackEffect {
+	public static final CircleMaskVFX FX = new CircleMaskVFX();
 	
 	private GLUtils glu = new GLUtils();
 	
 	private int quadProg, quadVAO;
 	private int loc_inputTex, loc_size, loc_outerColor, loc_innerColor, loc_parameters;
 	
-	public class VignetteVFXInstance extends TrackEffectInstance {
-		private RGBA32Param outerColor = new RGBA32Param("outerColor", 0x000000FF);
-		private RGBA32Param innerColor = new RGBA32Param("innerColor", 0x00000000);
-		private FloatParam penumbra = new FloatParam("penumbra", 200.0f);
-		private FloatParam distance = new FloatParam("distance", 1500.0f);
+	public class CircleMaskVFXInstance extends TrackEffectInstance {
+		private RGBA32Param outerColor = new RGBA32Param("outerColor", 0x00000000);
+		private RGBA32Param innerColor = new RGBA32Param("innerColor", 0xFFFFFFFF);
+		private FloatParam penumbra = new FloatParam("penumbra", 0.0f);
+		private FloatParam radius = new FloatParam("radius", 500.0f);
 		
-		public VignetteVFXInstance() {
+		public CircleMaskVFXInstance() {
 			this.addParameter(this.outerColor);
 			this.addParameter(this.innerColor);
-			this.addParameter(this.distance);
+			this.addParameter(this.radius);
 			this.addParameter(this.penumbra);
 		}
 		
 		public void setupVideo(GL3 gl) {
 			
 		}
-
+		
 		public void applyVideo(GL3 gl, EffectArgs args) {
 			// Retrieve params
-			float dist = this.distance.getValue(args.frame);
+			float radius = this.radius.getValue(args.frame);
 			float penumbra = this.penumbra.getValue(args.frame);
 			RGBA32 outerColor = this.outerColor.getValue(args.frame);
 			RGBA32 innerColor = this.innerColor.getValue(args.frame);
 			
-			gl.glUseProgram(VignetteVFX.this.quadProg);
-			VignetteVFX.this.glu.uniformTexture(gl, VignetteVFX.this.loc_inputTex, args.texInput, 0);
+			gl.glUseProgram(CircleMaskVFX.this.quadProg);
+			CircleMaskVFX.this.glu.uniformTexture(gl, CircleMaskVFX.this.loc_inputTex, args.texInput, 0);
 			
-			gl.glUniform2f(VignetteVFX.this.loc_size, args.width, args.height);
-			gl.glUniform4f(VignetteVFX.this.loc_outerColor, outerColor.getRedf(), outerColor.getGreenf(), outerColor.getBluef(), outerColor.getAlphaf());
-			gl.glUniform4f(VignetteVFX.this.loc_innerColor, innerColor.getRedf(), innerColor.getGreenf(), innerColor.getBluef(), innerColor.getAlphaf());
-			gl.glUniform4f(VignetteVFX.this.loc_parameters,
+			gl.glUniform2f(CircleMaskVFX.this.loc_size, args.width, args.height);
+			gl.glUniform4f(CircleMaskVFX.this.loc_outerColor, outerColor.getRedf(), outerColor.getGreenf(), outerColor.getBluef(), outerColor.getAlphaf());
+			gl.glUniform4f(CircleMaskVFX.this.loc_innerColor, innerColor.getRedf(), innerColor.getGreenf(), innerColor.getBluef(), innerColor.getAlphaf());
+			gl.glUniform4f(CircleMaskVFX.this.loc_parameters,
 					args.width / 2f,
 					args.height / 2f,
-					dist,
+					radius,
 					penumbra
 			);
 			
-			gl.glBindVertexArray(VignetteVFX.this.quadVAO);
+			gl.glBindVertexArray(CircleMaskVFX.this.quadVAO);
 			gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
 		
@@ -80,7 +80,7 @@ public class VignetteVFX extends TrackEffect {
 	}
 
 	public TrackEffectInstance instance() {
-		return new VignetteVFXInstance();
+		return new CircleMaskVFXInstance();
 	}
 
 	public void effectMain() {
@@ -88,6 +88,6 @@ public class VignetteVFX extends TrackEffect {
 	}
 
 	public String getEffectClassName() {
-		return "vignette";
+		return "circle_mask";
 	}
 }

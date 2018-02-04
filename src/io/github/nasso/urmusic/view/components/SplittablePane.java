@@ -19,13 +19,13 @@ import javax.swing.JSplitPane;
 import javax.swing.border.EmptyBorder;
 
 import io.github.nasso.urmusic.view.UrmusicView;
+import io.github.nasso.urmusic.view.components.panels.effectlist.EffectListView;
 import io.github.nasso.urmusic.view.components.panels.info.InfoView;
 import io.github.nasso.urmusic.view.components.panels.preview.PreviewView;
-import io.github.nasso.urmusic.view.components.panels.properties.PropertiesView;
 import io.github.nasso.urmusic.view.components.panels.timeline.TimelineView;
-import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
+import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 
 public class SplittablePane extends JPanel {
 	private static final long serialVersionUID = 2803211023410018498L;
@@ -57,7 +57,7 @@ public class SplittablePane extends JPanel {
 	private ViewPaneEntry[] viewPaneEntries = {
 			new ViewPaneEntry(InfoView.class, UrmusicStrings.getString("view.info.name")),
 			new ViewPaneEntry(PreviewView.class, UrmusicStrings.getString("view.preview.name")),
-			new ViewPaneEntry(PropertiesView.class, UrmusicStrings.getString("view.properties.name")),
+			new ViewPaneEntry(EffectListView.class, UrmusicStrings.getString("view.effectlist.name")),
 			new ViewPaneEntry(TimelineView.class, UrmusicStrings.getString("view.timeline.name")),
 	};
 	

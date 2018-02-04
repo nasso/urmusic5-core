@@ -2,7 +2,7 @@ package io.github.nasso.urmusic;
 
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.effect.VignetteVFX;
+import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
 import io.github.nasso.urmusic.model.project.Track;
@@ -28,18 +28,20 @@ public class Urmusic {
 		Track visuals = new Track(comp.getLength());
 		visuals.setName("Visuals");
 		
-		TrackEffectInstance vignette = VignetteVFX.FX.instance();
-		FloatParam dist = (FloatParam) vignette.getParamByName("distance");
-		dist.addKeyFrame(0, 0.0f);
-		dist.addKeyFrame(120, 300.0f, Elastic::easeOut);
+		TrackEffectInstance vignette = CircleMaskVFX.FX.instance();
+		FloatParam radius = (FloatParam) vignette.getParamByName("radius");
+		radius.addKeyFrame(0, 0.0f);
+		radius.addKeyFrame(comp.getFramerate() * 2, 400.0f, Elastic::easeOut);
+		radius.addKeyFrame(comp.getFramerate() * 3, 200.0f, EasingFunction.EASE_IN_OUT);
 		
-		TrackEffectInstance vignette2 = VignetteVFX.FX.instance();
-		((RGBA32Param) vignette2.getParamByName("outerColor")).addKeyFrame(0, new MutableRGBA32(0xff0000ff));
-		((RGBA32Param) vignette2.getParamByName("outerColor")).addKeyFrame(100, new MutableRGBA32(0x0000ffff));
-		FloatParam dist2 = (FloatParam) vignette2.getParamByName("distance");
-		dist2.addKeyFrame(0, 1000.0f);
-		dist2.addKeyFrame(150, 500.0f, EasingFunction.EASE_OUT);
-		dist2.addKeyFrame(220, 2000.0f, EasingFunction.EASE_OUT);
+		TrackEffectInstance vignette2 = CircleMaskVFX.FX.instance();
+		((RGBA32Param) vignette2.getParamByName("innerColor")).addKeyFrame(0, new MutableRGBA32(0xff0000ff));
+		((RGBA32Param) vignette2.getParamByName("innerColor")).addKeyFrame(100, new MutableRGBA32(0x0000ffff));
+		FloatParam radius2 = (FloatParam) vignette2.getParamByName("radius");
+		radius2.addKeyFrame(0, 0.0f);
+		radius2.addKeyFrame(comp.getFramerate() * 1, 300.0f, EasingFunction.EASE_IN_OUT);
+		radius2.addKeyFrame(comp.getFramerate() * 2, 300.0f);
+		radius2.addKeyFrame(comp.getFramerate() * 3, 0.0f, EasingFunction.EASE_IN_OUT);
 		
 		visuals.addEffect(vignette);
 		visuals.addEffect(vignette2);

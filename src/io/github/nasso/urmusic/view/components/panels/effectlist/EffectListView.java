@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.properties;
+package io.github.nasso.urmusic.view.components.panels.effectlist;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
@@ -16,7 +16,7 @@ import io.github.nasso.urmusic.model.event.TracklistListener;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 
-public class PropertiesView extends UrmViewPane implements TracklistListener, FocusListener<Track> {
+public class EffectListView extends UrmViewPane implements TracklistListener, FocusListener<Track> {
 	private static final long serialVersionUID = -896247777042870529L;
 
 	private Map<Track, TrackEffectListPane> listPanes = new HashMap<>();
@@ -24,7 +24,7 @@ public class PropertiesView extends UrmViewPane implements TracklistListener, Fo
 	private JPanel effectListContainer = new JPanel();
 	private CardLayout effectListCards = new CardLayout();
 	
-	public PropertiesView() {
+	public EffectListView() {
 		this.setLayout(new BorderLayout());
 		
 		this.buildUI();

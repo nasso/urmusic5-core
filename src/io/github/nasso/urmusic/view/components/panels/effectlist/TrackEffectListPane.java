@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.properties;
+package io.github.nasso.urmusic.view.components.panels.effectlist;
 
 import java.awt.Component;
 
