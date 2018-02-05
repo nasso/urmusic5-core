@@ -18,6 +18,7 @@ public class FloatParamUI extends EffectParamUI<FloatParam> {
 			
 			this.getParam().setValue(f.getValue().floatValue(), frame);
 		});
+		this.field.setStep(param.getStep());
 		
 		this.setLayout(new BorderLayout());
 		this.add(this.field, BorderLayout.EAST);
