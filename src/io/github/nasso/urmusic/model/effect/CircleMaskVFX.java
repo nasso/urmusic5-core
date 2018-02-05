@@ -57,7 +57,7 @@ public class CircleMaskVFX extends TrackEffect {
 			gl.glUniform4f(CircleMaskVFX.this.loc_innerColor, innerColor.getRedf(), innerColor.getGreenf(), innerColor.getBluef(), innerColor.getAlphaf());
 			gl.glUniform4f(CircleMaskVFX.this.loc_parameters,
 					position.x(),
-					position.y(),
+					-position.y(),
 					radius,
 					penumbra
 			);

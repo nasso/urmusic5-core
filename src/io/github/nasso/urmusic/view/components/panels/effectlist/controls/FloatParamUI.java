@@ -13,8 +13,7 @@ public class FloatParamUI extends EffectParamUI<FloatParam> {
 	public FloatParamUI(FloatParam param) {
 		super(param);
 
-		this.field = new NumberField();
-		this.field.setOnValueChange((f) -> {
+		this.field = new NumberField((f) -> {
 			int frame = UrmusicModel.getFrameCursor();
 			
 			this.getParam().setValue(f.getValue().floatValue(), frame);

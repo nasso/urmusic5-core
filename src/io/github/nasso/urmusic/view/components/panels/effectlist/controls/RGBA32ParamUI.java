@@ -88,6 +88,8 @@ public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 		}
 	}
 	
+	private MutableRGBA32 _rgba32 = new MutableRGBA32();
+	
 	private ColorButton colorButton;
 	
 	public RGBA32ParamUI(RGBA32Param param) {
@@ -97,7 +99,8 @@ public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 			Color c = JColorChooser.showDialog(this, "Pick a color", this.colorButton.color);
 			
 			if(c != null) {
-				this.getParam().setValue(new MutableRGBA32(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha()), UrmusicModel.getFrameCursor());
+				this._rgba32.setRGBA(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+				this.getParam().setValue(this._rgba32, UrmusicModel.getFrameCursor());
 				this.updateControl(UrmusicModel.getFrameCursor());
 			}
 		});

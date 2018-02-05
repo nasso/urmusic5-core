@@ -18,6 +18,7 @@ import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.EffectParamListener;
 import io.github.nasso.urmusic.model.event.FocusListener;
 import io.github.nasso.urmusic.model.event.FrameCursorListener;
+import io.github.nasso.urmusic.model.event.KeyFrameListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.control.EffectParam;
 import io.github.nasso.urmusic.model.project.control.FloatParam;
@@ -25,6 +26,7 @@ import io.github.nasso.urmusic.model.project.control.KeyFrame;
 import io.github.nasso.urmusic.model.project.control.Point2DParam;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 import io.github.nasso.urmusic.utils.MathUtils;
+import io.github.nasso.urmusic.utils.easing.EasingFunction;
 import io.github.nasso.urmusic.view.components.panels.effectlist.controls.EffectParamUI;
 import io.github.nasso.urmusic.view.components.panels.effectlist.controls.FloatParamUI;
 import io.github.nasso.urmusic.view.components.panels.effectlist.controls.Point2DParamUI;
@@ -33,7 +35,7 @@ import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class EffectParamPane extends JPanel implements FrameCursorListener, EffectParamListener, MouseListener, FocusListener<EffectParam<?>> {
+public class EffectParamPane extends JPanel implements FrameCursorListener, EffectParamListener, MouseListener, FocusListener<EffectParam<?>>, KeyFrameListener {
 	private static final long serialVersionUID = -6007745267301626934L;
 	private static final Color PARAM_LINE_COLOR = new Color(0xffffff);
 	private static final Color PARAM_LINE_SELECTED_COLOR = new Color(0xeeeeee);
@@ -86,6 +88,10 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		UrmusicModel.addFrameCursorListener(this);
 		UrmusicModel.addEffectParameterFocusListener(this);
 		
+		for(int j = 0; j < this.param.getKeyFrameCount(); j++) {
+			this.param.getKeyFrame(j).addKeyFrameListener(this);
+		}
+		
 		this.update(UrmusicModel.getFrameCursor());
 	}
 	
@@ -128,6 +134,10 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 	}
 	
 	public void dispose() {
+		for(int i = 0; i < this.param.getKeyFrameCount(); i++) {
+			this.param.getKeyFrame(i).removeKeyFrameListener(this);
+		}
+		
 		this.param.removeEffectParamListener(this);
 		UrmusicModel.removeFrameCursorListener(this);
 		UrmusicModel.removeEffectParameterFocusListener(this);
@@ -142,10 +152,24 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 	}
 
 	public void keyFrameAdded(EffectParam source, KeyFrame kf) {
+		kf.addKeyFrameListener(this);
 		this.update(UrmusicModel.getFrameCursor());
 	}
 
 	public void keyFrameRemoved(EffectParam source, KeyFrame kf) {
+		kf.removeKeyFrameListener(this);
+		this.update(UrmusicModel.getFrameCursor());
+	}
+	
+	public void valueChanged(KeyFrame source, Object newValue) {
+		this.update(UrmusicModel.getFrameCursor());
+	}
+
+	public void frameChanged(KeyFrame source, int newFrame) {
+		this.update(UrmusicModel.getFrameCursor());
+	}
+
+	public void interpChanged(KeyFrame source, EasingFunction newInterp) {
 		this.update(UrmusicModel.getFrameCursor());
 	}
 	

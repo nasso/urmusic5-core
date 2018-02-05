@@ -35,7 +35,9 @@ public class NumberField extends JPanel {
 	
 	private Consumer<NumberField> onValueChange;
 
-	public NumberField() {
+	public NumberField(Consumer<NumberField> onValueChange) {
+		this.onValueChange = onValueChange;
+		
 		this.valueLabel = new JLabel();
 		this.valueLabel.setOpaque(false);
 		this.valueLabel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
