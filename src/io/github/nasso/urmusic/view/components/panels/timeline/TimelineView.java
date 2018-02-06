@@ -23,7 +23,6 @@ public class TimelineView extends UrmViewPane {
 		this.setLayout(new BorderLayout());
 		
 		this.buildUI();
-		
 	}
 	
 	private void buildUI() {
@@ -42,15 +41,15 @@ public class TimelineView extends UrmViewPane {
 	public float getHorizontalScale() {
 		return this.horizontalScale;
 	}
-
+	
 	public void setHorizontalScale(float horizontalScale) {
 		this.horizontalScale = Math.max(Math.min(horizontalScale, 100f), 0.1f);
 	}
-
+	
 	public float getHorizontalScroll() {
 		return this.horizontalScroll;
 	}
-
+	
 	public void setHorizontalScroll(float horizontalScroll) {
 		this.horizontalScroll = Math.min(horizontalScroll, 0);
 	}

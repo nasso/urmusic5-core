@@ -29,15 +29,8 @@ import io.github.nasso.urmusic.model.project.control.EffectParam;
 import io.github.nasso.urmusic.utils.MathUtils;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class TimelineMainScrollable extends JPanel implements
-													MouseListener,
-													MouseMotionListener,
-													MouseWheelListener,
-													TracklistListener,
-													FrameCursorListener,
-													RendererListener,
-													FocusListener {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public class TimelineMainScrollable extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, TracklistListener, FrameCursorListener, RendererListener, FocusListener {
 	private static final long serialVersionUID = 1008513031790674759L;
 	
 	private TimelineView view;
@@ -114,7 +107,7 @@ public class TimelineMainScrollable extends JPanel implements
 	public Dimension getPreferredScrollableViewportSize() {
 		return this.getPreferredSize();
 	}
-
+	
 	private void addTrack(int index, Track track) {
 		TimelineTrackHead head = new TimelineTrackHead(track);
 		head.setPreferredSize(new Dimension(TimelineView.CHANNEL_WIDTH, TimelineView.CHANNEL_HEIGHT));
@@ -122,7 +115,7 @@ public class TimelineMainScrollable extends JPanel implements
 		
 		TimelineTrackRangesBar ranges = new TimelineTrackRangesBar(this.view, track);
 		ranges.setPreferredSize(new Dimension(0, TimelineView.CHANNEL_HEIGHT));
-		this.timelinePane.add(ranges);	
+		this.timelinePane.add(ranges);
 	}
 	
 	private void removeTrack(int index) {
@@ -142,11 +135,11 @@ public class TimelineMainScrollable extends JPanel implements
 	public void trackAdded(int index, Track track) {
 		SwingUtilities.invokeLater(() -> this.addTrack(index, track));
 	}
-
+	
 	public void trackRemoved(int index, Track track) {
 		SwingUtilities.invokeLater(() -> this.removeTrack(index));
 	}
-
+	
 	public void frameChanged(int oldPosition, int newPosition) {
 		// Auto scroll
 		int cursorXPos = this.framesToPixels(newPosition);
@@ -159,17 +152,17 @@ public class TimelineMainScrollable extends JPanel implements
 		
 		SwingUtilities.invokeLater(this.timelineLayer::repaint);
 	}
-
+	
 	public void frameRendered(Composition comp, int frame) {
 		SwingUtilities.invokeLater(this.timelineLayer::repaint);
 	}
 	
 	public void effectLoaded(TrackEffect fx) {
 	}
-
+	
 	public void effectUnloaded(TrackEffect fx) {
 	}
-
+	
 	private int framesToPixels(int f) {
 		return (int) (f * this.view.getHorizontalScale() + this.view.getHorizontalScroll() + TimelineView.CHANNEL_WIDTH);
 	}
@@ -185,38 +178,36 @@ public class TimelineMainScrollable extends JPanel implements
 	}
 	
 	public void mouseDragged(MouseEvent e) {
-		if(this.mouseButton1Pressed)
-			this.moveFrameCursorClick(e.getX(), e.getY());
+		if(this.mouseButton1Pressed) this.moveFrameCursorClick(e.getX(), e.getY());
 	}
-
+	
 	public void mouseMoved(MouseEvent e) {
 	}
 	
 	public void mouseClicked(MouseEvent e) {
 	}
-
+	
 	public void mousePressed(MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON1 && e.getY() <= TimelineView.FRAME_CARET_HEADER_HEIGHT) {
 			this.mouseButton1Pressed = true;
 			this.moveFrameCursorClick(e.getX(), e.getY());
 		}
 	}
-
+	
 	public void mouseReleased(MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON1)
-			this.mouseButton1Pressed = false;
+		if(e.getButton() == MouseEvent.BUTTON1) this.mouseButton1Pressed = false;
 	}
-
+	
 	public void mouseEntered(MouseEvent e) {
 	}
-
+	
 	public void mouseExited(MouseEvent e) {
 	}
 	
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		if(e.isControlDown()) {
 			float f = 1.5f;
-			if(e.getWheelRotation() > 0) {
+			if(e.getPreciseWheelRotation() > 0) {
 				f = 1 / f;
 			}
 			
@@ -237,11 +228,11 @@ public class TimelineMainScrollable extends JPanel implements
 			
 			int mx = MathUtils.clamp(e.getX(), TimelineView.CHANNEL_WIDTH, this.getWidth());
 			int ffx = this.pixelToFrames(mx);
-
+			
 			this.view.setHorizontalScale(this.view.getHorizontalScale() * f);
 			this.view.setHorizontalScroll(-ffx * this.view.getHorizontalScale() + mx - TimelineView.CHANNEL_WIDTH);
 		} else {
-			float s = e.getWheelRotation() > 0 ? 10 : -10;
+			float s = (float) (10 * e.getPreciseWheelRotation());
 			
 			TimelineMainScrollable.this.view.setHorizontalScroll(TimelineMainScrollable.this.view.getHorizontalScroll() + s);
 		}
