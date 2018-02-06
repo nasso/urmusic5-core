@@ -71,7 +71,7 @@ public class CircleMaskVFX extends TrackEffect {
 	}
 	
 	public void globalVideoSetup(GL3 gl) {
-		this.quadProg = this.glu.createProgram(gl, "fx/vignette/vignette.vs", "fx/vignette/vignette.fs");
+		this.quadProg = this.glu.createProgram(gl, "fx/circle_mask/vert_main.vs", "fx/circle_mask/frag_main.fs");
 		this.loc_inputTex = gl.glGetUniformLocation(this.quadProg, "inputTex");
 		this.loc_size = gl.glGetUniformLocation(this.quadProg, "colorSize");
 		this.loc_outerColor = gl.glGetUniformLocation(this.quadProg, "outerColor");

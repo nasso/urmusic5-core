@@ -8,11 +8,6 @@
 		"menu.help": "Help",
 		"menu.help.about": "About",
 		
-		"view.info.name": "Info",
-		"view.effectlist.name": "Effects",
-		"view.preview.name": "Preview",
-		"view.timeline.name": "Timeline",
-		
 		"dialog.global.ok": "OK",
 		"dialog.about.title": "About",
 		
@@ -22,11 +17,23 @@
 		"frame.multiCloseWarning.closeAll": "Close all",
 		"frame.multiCloseWarning.cancel": "Cancel",
 		
+		"view.project.name": "Project",
+		"view.preview.name": "Preview",
+		
+		"view.timeline.name": "Timeline",
+		"view.timeline.menu.add": "Add",
+		"view.timeline.menu.add.track": "Track",
+		
+		"view.effectList.name": "Effects",
+		"view.effectList.menu.add": "Add",
+		"view.effectList.menu.add.effect": "Effect",
+		
 		"effect.circle_mask.name": "Circle Mask",
 		"effect.circle_mask.param.position.name": "Position",
 		"effect.circle_mask.param.outerColor.name": "Outer color",
 		"effect.circle_mask.param.innerColor.name": "Inner color",
 		"effect.circle_mask.param.radius.name": "Radius",
 		"effect.circle_mask.param.penumbra.name": "Penumbra"
+		
 	}
 }

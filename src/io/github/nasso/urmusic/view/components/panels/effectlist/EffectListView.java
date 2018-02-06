@@ -2,10 +2,13 @@ package io.github.nasso.urmusic.view.components.panels.effectlist;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
@@ -14,10 +17,13 @@ import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.FocusListener;
 import io.github.nasso.urmusic.model.event.TracklistListener;
 import io.github.nasso.urmusic.model.project.Track;
+import io.github.nasso.urmusic.view.components.UrmMenu;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
+import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
 public class EffectListView extends UrmViewPane implements TracklistListener, FocusListener<Track> {
 	private static final long serialVersionUID = -896247777042870529L;
+	public static final String VIEW_NAME = "effectList";
 
 	private Map<Track, TrackEffectListPane> listPanes = new HashMap<>();
 	
@@ -25,6 +31,19 @@ public class EffectListView extends UrmViewPane implements TracklistListener, Fo
 	private CardLayout effectListCards = new CardLayout();
 	
 	public EffectListView() {
+		// -- menu -- 
+		// Add
+		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add"),
+			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add.effect")) {
+				private static final long serialVersionUID = 1L;
+
+				public void actionPerformed(ActionEvent e) {
+					EffectListView.this.showAddEffectDialog();
+				}
+			})
+		));
+		
+		// -- view --
 		this.setLayout(new BorderLayout());
 		
 		this.buildUI();
@@ -39,6 +58,10 @@ public class EffectListView extends UrmViewPane implements TracklistListener, Fo
 			this.effectListCards.show(this.effectListContainer, this.listPanes.get(t).getName());
 		
 		UrmusicModel.addTrackFocusListener(this);
+	}
+	
+	private void showAddEffectDialog() {
+		System.out.println("EffectListView.showAddEffectDialog()");
 	}
 	
 	private void addTrack(Track track) {

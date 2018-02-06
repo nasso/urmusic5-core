@@ -5,12 +5,13 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -20,7 +21,7 @@ import javax.swing.border.EmptyBorder;
 
 import io.github.nasso.urmusic.view.UrmusicView;
 import io.github.nasso.urmusic.view.components.panels.effectlist.EffectListView;
-import io.github.nasso.urmusic.view.components.panels.info.InfoView;
+import io.github.nasso.urmusic.view.components.panels.info.ProjectView;
 import io.github.nasso.urmusic.view.components.panels.preview.PreviewView;
 import io.github.nasso.urmusic.view.components.panels.timeline.TimelineView;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
@@ -55,15 +56,16 @@ public class SplittablePane extends JPanel {
 	}
 	
 	private ViewPaneEntry[] viewPaneEntries = {
-			new ViewPaneEntry(InfoView.class, UrmusicStrings.getString("view.info.name")),
-			new ViewPaneEntry(PreviewView.class, UrmusicStrings.getString("view.preview.name")),
-			new ViewPaneEntry(EffectListView.class, UrmusicStrings.getString("view.effectlist.name")),
-			new ViewPaneEntry(TimelineView.class, UrmusicStrings.getString("view.timeline.name")),
+			new ViewPaneEntry(ProjectView.class, UrmusicStrings.getString("view." + ProjectView.VIEW_NAME + ".name")),
+			new ViewPaneEntry(PreviewView.class, UrmusicStrings.getString("view." + PreviewView.VIEW_NAME + ".name")),
+			new ViewPaneEntry(EffectListView.class, UrmusicStrings.getString("view." + EffectListView.VIEW_NAME + ".name")),
+			new ViewPaneEntry(TimelineView.class, UrmusicStrings.getString("view." + TimelineView.VIEW_NAME + ".name")),
 	};
 	
 	private CardLayout cardLayout;
 	private JPanel bodyContainer;
 	private JPanel controlBar;
+	private JPanel menuBarContainer;
 	private JSplitPane splitPane;
 	private JButton popupButton;
 	private JButton verticalSplitButton;
@@ -93,12 +95,16 @@ public class SplittablePane extends JPanel {
 
 	private void buildUI(int viewID) {
 		// View
+		this.menuBarContainer = new JPanel(new BorderLayout());
+		this.menuBarContainer.setOpaque(false);
+		
 		this.viewCombo = new JComboBox<>();
 		this.viewCombo.setFont(this.viewCombo.getFont().deriveFont(Font.PLAIN, 11f));
 		for(int i = 0; i < this.viewPaneEntries.length; i++) this.viewCombo.addItem(this.viewPaneEntries[i]);
 		this.viewCombo.addItemListener((e) -> {
 			SplittablePane.this.updateView(e);
 		});
+		this.viewCombo.setMaximumSize(this.viewCombo.getPreferredSize());
 		
 		this.popupButton = new UrmIconButton(UrmusicUIRes.POPUP_ICON);
 		this.verticalSplitButton = new UrmIconButton(UrmusicUIRes.VERTICAL_SPLIT_ICON);
@@ -114,22 +120,25 @@ public class SplittablePane extends JPanel {
 				this.ownerFrame.dispatchEvent(new WindowEvent(this.ownerFrame, WindowEvent.WINDOW_CLOSING));
 		});
 		
-		JPanel rightControls = new JPanel(new GridLayout(1, 0, 2, 0));
-		rightControls.setOpaque(false);
-		rightControls.add(this.popupButton);
-		rightControls.add(this.horizontalSplitButton);
-		rightControls.add(this.verticalSplitButton);
-		rightControls.add(this.unsplitButton);
+		this.controlBar = new JPanel();
+		BoxLayout ctrlLayout = new BoxLayout(this.controlBar, BoxLayout.X_AXIS);
+		this.controlBar.setLayout(ctrlLayout);
 		
-		JPanel leftControls = new JPanel(new GridLayout(1, 0, 2, 0));
-		leftControls.setOpaque(false);
-		leftControls.add(this.viewCombo);
-		
-		this.controlBar = new JPanel(new BorderLayout(0, 0));
 		this.controlBar.setBorder(new EmptyBorder(2, 2, 2, 2));
 		this.controlBar.setBackground(CONTROL_BAR_BG);
-		this.controlBar.add(rightControls, BorderLayout.EAST);
-		this.controlBar.add(leftControls, BorderLayout.WEST);
+
+		this.controlBar.add(this.viewCombo);
+		this.controlBar.add(Box.createHorizontalStrut(2));
+		this.controlBar.add(this.menuBarContainer);
+		this.controlBar.add(Box.createHorizontalStrut(2));
+		this.controlBar.add(this.popupButton);
+		this.controlBar.add(Box.createHorizontalStrut(2));
+		this.controlBar.add(this.horizontalSplitButton);
+		this.controlBar.add(Box.createHorizontalStrut(2));
+		this.controlBar.add(this.verticalSplitButton);
+		this.controlBar.add(Box.createHorizontalStrut(2));
+		this.controlBar.add(this.unsplitButton);
+		
 		this.controlBar.setPreferredSize(new Dimension(200, 24));
 		
 		this.bodyContainer = new JPanel(new BorderLayout(0, 0));
@@ -257,6 +266,8 @@ public class SplittablePane extends JPanel {
 			}
 			
 			this.bodyContainer.add(entry.viewInstance, BorderLayout.CENTER);
+			this.menuBarContainer.add(entry.viewInstance.getMenuBar(), BorderLayout.CENTER);
+			
 			this.bodyContainer.revalidate();
 			this.bodyContainer.repaint();
 		} else if(event.getStateChange() == ItemEvent.DESELECTED) {
@@ -264,6 +275,8 @@ public class SplittablePane extends JPanel {
 			
 			if(entry.viewInstance != null) {
 				this.bodyContainer.remove(entry.viewInstance);
+				this.menuBarContainer.remove(entry.viewInstance.getMenuBar());
+				
 				this.bodyContainer.revalidate();
 				this.bodyContainer.repaint();
 			}

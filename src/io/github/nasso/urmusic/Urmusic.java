@@ -22,7 +22,7 @@ public class Urmusic {
 		Project prj = UrmusicModel.getCurrentProject();
 		
 		Composition comp = prj.getMainComposition();
-		comp.setClearColor(new MutableRGBA32(0x5c2aaff));
+		comp.setClearColor(new MutableRGBA32(0xE621ffff));
 		
 		int fps = comp.getFramerate();
 		

@@ -19,6 +19,7 @@ import io.github.nasso.urmusic.view.components.UrmViewPane;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class PreviewView extends UrmViewPane implements RendererListener, FocusListener<EffectParam<?>>, EffectParamListener {
 	private static final long serialVersionUID = -761158235222787214L;
+	public static final String VIEW_NAME = "preview";
 
 	private PreviewParameterControlsPane controlPane;
 	private JComponent glPane;
