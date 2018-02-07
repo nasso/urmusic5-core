@@ -1,5 +1,6 @@
 package io.github.nasso.urmusic.view.panes.preview;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -8,6 +9,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.LayoutManager;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -26,6 +28,11 @@ import io.github.nasso.urmusic.utils.MathUtils;
 
 public class PreviewParameterControlsPane extends JComponent {
 	private static final long serialVersionUID = -6814038302072686626L;
+	
+	private static final Stroke POINT_BORDER_STROKE = new BasicStroke(3);
+	private static final Stroke POINT_INNER_STROKE = new BasicStroke(1);
+	private static final Color POINT_BORDER_COLOR = new Color(0x990000);
+	private static final Color POINT_INNER_COLOR = new Color(0xFF0000);
 	
 	private class ControlsLayout implements LayoutManager {
 		public void addLayoutComponent(String name, Component comp) {
@@ -90,11 +97,19 @@ public class PreviewParameterControlsPane extends JComponent {
 			int w = this.getWidth() - 1;
 			int h = this.getHeight() - 1;
 			
-			g2d.setColor(Color.RED);
+			g2d.setColor(POINT_BORDER_COLOR);
+			g2d.setStroke(POINT_BORDER_STROKE);
 			if(!this.hover) g2d.drawOval(3, 3, w - 6, h - 6);
 			else g2d.drawOval(1, 1, w - 2, h - 2);
 			g2d.drawLine(0, h / 2, w, h / 2);
 			g2d.drawLine(w / 2, 0, w / 2, h);
+			
+			g2d.setColor(POINT_INNER_COLOR);
+			g2d.setStroke(POINT_INNER_STROKE);
+			if(!this.hover) g2d.drawOval(3, 3, w - 6, h - 6);
+			else g2d.drawOval(1, 1, w - 2, h - 2);
+			g2d.drawLine(1, h / 2, w - 1, h / 2);
+			g2d.drawLine(w / 2, 1, w / 2, h - 1);
 			
 			g2d.dispose();
 		}

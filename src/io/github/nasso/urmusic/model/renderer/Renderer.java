@@ -187,10 +187,12 @@ public class Renderer implements Runnable {
 							break;
 						case RCMD_LOAD_EFFECT:
 							this.glRenderer.initEffect(fx);
+							this.notifyEffectLoaded(fx);
 							fx = null; // gc free
 							break;
 						case RCMD_UNLOAD_EFFECT:
 							this.glRenderer.disposeEffect(fx);
+							this.notifyEffectUnloaded(fx);
 							fx = null; // gc free
 							break;
 						case RCMD_UNLOAD_EFFECT_INSTANCE:
@@ -350,6 +352,18 @@ public class Renderer implements Runnable {
 	private void notifyFrameReady(Composition comp, int frame) {
 		for(RendererListener l : this.listeners) {
 			l.frameRendered(comp, frame);
+		}
+	}
+	
+	private void notifyEffectLoaded(TrackEffect fx) {
+		for(RendererListener l : this.listeners) {
+			l.effectLoaded(fx);
+		}
+	}
+	
+	private void notifyEffectUnloaded(TrackEffect fx) {
+		for(RendererListener l : this.listeners) {
+			l.effectUnloaded(fx);
 		}
 	}
 }

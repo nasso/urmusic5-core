@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.FocusListener;
 import io.github.nasso.urmusic.model.event.TimelineListener;
@@ -29,6 +30,10 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 	
 	private JPanel effectListContainer = new JPanel();
 	private CardLayout effectListCards = new CardLayout();
+	
+	private EffectPickerDialog addEffectDialog = new EffectPickerDialog(UrmusicStrings.getString("view.effectList.dialog.add.title"), (e) -> {
+		UrmusicController.addEffects(e);
+	});
 	
 	public EffectListView() {
 		// -- menu -- 
@@ -56,7 +61,7 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 	}
 	
 	private void showAddEffectDialog() {
-		System.out.println("EffectListView.showAddEffectDialog()");
+		this.addEffectDialog.showDialog();
 	}
 	
 	private TrackEffectListPane getPaneFor(Track track) {

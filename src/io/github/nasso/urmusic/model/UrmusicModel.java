@@ -2,6 +2,7 @@ package io.github.nasso.urmusic.model;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
@@ -21,7 +22,7 @@ import io.github.nasso.urmusic.view.UrmusicView;
 
 public class UrmusicModel {
 	public static final TrackEffect[] STOCK_EFFECTS = new TrackEffect[] {
-		CircleMaskVFX.FX
+		CircleMaskVFX.FX,
 	};
 	
 	private UrmusicModel() { }
@@ -34,6 +35,7 @@ public class UrmusicModel {
 	private static int frameCursor = 0;
 	
 	private static List<TrackEffect> loadedEffects = new ArrayList<>();
+	private static List<TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableList(loadedEffects);
 	
 	public static void init() {
 		// TODO: User prefs
@@ -105,6 +107,10 @@ public class UrmusicModel {
 		if(fx.isVideoEffect()) {
 			renderer.disposeEffect(fx);
 		}
+	}
+	
+	public static List<TrackEffect> getLoadedEffects() {
+		return loadedEffectsUnmodifiable;
 	}
 	
 	public static void loadProject(File f) {

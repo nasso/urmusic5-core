@@ -9,6 +9,7 @@
 		"menu.help.about": "About",
 		
 		"dialog.global.ok": "OK",
+		"dialog.global.cancel": "Cancel",
 		"dialog.about.title": "About",
 		
 		"frame.multiCloseWarning.title": "Closing a window",
@@ -27,6 +28,7 @@
 		"view.effectList.name": "Effects",
 		"view.effectList.menu.add": "Add",
 		"view.effectList.menu.add.effect": "Effect",
+		"view.effectList.dialog.add.title": "Pick an effect to add",
 		
 		"effect.circle_mask.name": "Circle Mask",
 		"effect.circle_mask.param.position.name": "Position",
@@ -34,6 +36,5 @@
 		"effect.circle_mask.param.innerColor.name": "Inner color",
 		"effect.circle_mask.param.radius.name": "Radius",
 		"effect.circle_mask.param.penumbra.name": "Penumbra"
-		
 	}
 }

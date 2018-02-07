@@ -1,9 +1,12 @@
 package io.github.nasso.urmusic.controller;
 
+import java.util.List;
+
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
+import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.control.EffectParam;
 import io.github.nasso.urmusic.model.project.control.KeyFrame;
 
@@ -70,6 +73,25 @@ public class UrmusicController {
 	}
 	
 	// -- Edit --
+	public static void addEffect(TrackEffect e) {
+		if(e == null) return;
+		
+		Track t = UrmusicModel.getFocusedTrack();
+		if(t == null) return;
+		
+		t.addEffect(e.instance());
+	}
+	
+	public static void addEffects(List<TrackEffect> elist) {
+		if(elist == null || elist.isEmpty()) return;
+		
+		Track t = UrmusicModel.getFocusedTrack();
+		if(t == null) return;
+		
+		for(TrackEffect e : elist)
+			t.addEffect(e.instance());
+	}
+	
 	public static void addTrack() {
 		Composition comp = UrmusicModel.getFocusedComposition();
 		if(comp == null) return;
