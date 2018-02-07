@@ -136,19 +136,19 @@ public class EffectPickerDialog extends JDialog {
 		JPanel controlPane = new JPanel();
 		controlPane.setLayout(new BoxLayout(controlPane, BoxLayout.X_AXIS));
 		
-		controlPane.add(new JButton(new AbstractAction(UrmusicStrings.getString("dialog.global.ok")) {
-			private static final long serialVersionUID = 1L;
-
-			public void actionPerformed(ActionEvent e) {
-				EffectPickerDialog.this.sendResults();
-			}
-		}));
-		controlPane.add(Box.createHorizontalGlue());
 		controlPane.add(new JButton(new AbstractAction(UrmusicStrings.getString("dialog.global.cancel")) {
 			private static final long serialVersionUID = 1L;
 
 			public void actionPerformed(ActionEvent e) {
 				EffectPickerDialog.this.setVisible(false);
+			}
+		}));
+		controlPane.add(Box.createHorizontalGlue());
+		controlPane.add(new JButton(new AbstractAction(UrmusicStrings.getString("dialog.global.ok")) {
+			private static final long serialVersionUID = 1L;
+
+			public void actionPerformed(ActionEvent e) {
+				EffectPickerDialog.this.sendResults();
 			}
 		}));
 		

@@ -32,9 +32,10 @@
 		
 		"effect.circle_mask.name": "Circle Mask",
 		"effect.circle_mask.param.position.name": "Position",
-		"effect.circle_mask.param.outerColor.name": "Outer color",
-		"effect.circle_mask.param.innerColor.name": "Inner color",
-		"effect.circle_mask.param.radius.name": "Radius",
-		"effect.circle_mask.param.penumbra.name": "Penumbra"
+		"effect.circle_mask.param.color.name": "Color",
+		"effect.circle_mask.param.innerRadius.name": "Inner Radius",
+		"effect.circle_mask.param.outerRadius.name": "Outer Radius",
+		"effect.circle_mask.param.innerFade.name": "Inner Fade",
+		"effect.circle_mask.param.outerFade.name": "Outer Fade"
 	}
 }
