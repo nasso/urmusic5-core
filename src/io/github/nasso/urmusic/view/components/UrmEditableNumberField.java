@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.effectlist.controls;
+package io.github.nasso.urmusic.view.components;
 
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -26,7 +26,7 @@ import javax.swing.text.NumberFormatter;
 import io.github.nasso.urmusic.utils.MathUtils;
 import io.github.nasso.urmusic.view.UrmusicView;
 
-public class NumberField extends JPanel {
+public class UrmEditableNumberField extends JPanel {
 	private static final long serialVersionUID = -63508914364230123L;
 	private static final String CARD_LABEL = "label";
 	private static final String CARD_FIELD = "field";
@@ -35,12 +35,12 @@ public class NumberField extends JPanel {
 	private JLabel valueLabel;
 	private JFormattedTextField valueField;
 	
-	private float lastValue;
+	private float lastValue = Float.NaN;
 	private float step = 1.0f;
 	
 	private boolean editing = false;
 	
-	private Consumer<NumberField> onValueChange;
+	private Consumer<UrmEditableNumberField> onValueChange;
 
 	private class ValueLabelMouseController implements MouseListener, MouseMotionListener {
 		private boolean button1 = false;
@@ -49,7 +49,7 @@ public class NumberField extends JPanel {
 		public void mousePressed(MouseEvent e) {
 			if(	!this.button1 && 
 				e.getButton() == MouseEvent.BUTTON1 &&
-				MathUtils.boxContains(e.getX(), e.getY(), 0, 0, NumberField.this.valueLabel.getWidth(), NumberField.this.valueLabel.getHeight())
+				MathUtils.boxContains(e.getX(), e.getY(), 0, 0, UrmEditableNumberField.this.valueLabel.getWidth(), UrmEditableNumberField.this.valueLabel.getHeight())
 					) {
 				this.button1 = true;
 				this.pressedX = e.getXOnScreen();
@@ -62,8 +62,8 @@ public class NumberField extends JPanel {
 		
 		public void mouseDragged(MouseEvent e) {
 			if(this.button1) {
-				NumberField.this.setValue(NumberField.this.lastValue + (e.getXOnScreen() - this.pressedX) * NumberField.this.getStep());
-				if(NumberField.this.onValueChange != null) NumberField.this.onValueChange.accept(NumberField.this);
+				UrmEditableNumberField.this.setValue(UrmEditableNumberField.this.lastValue + (e.getXOnScreen() - this.pressedX) * UrmEditableNumberField.this.getStep());
+				if(UrmEditableNumberField.this.onValueChange != null) UrmEditableNumberField.this.onValueChange.accept(UrmEditableNumberField.this);
 				
 				this.pressedX = e.getXOnScreen();
 			}
@@ -71,7 +71,7 @@ public class NumberField extends JPanel {
 		
 		public void mouseClicked(MouseEvent e) {
 			if(e.getButton() == MouseEvent.BUTTON1)
-				NumberField.this.startTextEdit();
+				UrmEditableNumberField.this.startTextEdit();
 		}
 
 		public void mouseMoved(MouseEvent e) {
@@ -84,7 +84,7 @@ public class NumberField extends JPanel {
 		}
 	}
 	
-	public NumberField(Consumer<NumberField> onValueChange) {
+	public UrmEditableNumberField(Consumer<UrmEditableNumberField> onValueChange) {
 		this.onValueChange = onValueChange;
 		
 		this.valueLabel = new JLabel();
@@ -112,17 +112,27 @@ public class NumberField extends JPanel {
 		this.valueField.setOpaque(false);
 		this.valueField.setHorizontalAlignment(SwingConstants.CENTER);
 		this.valueField.addFocusListener(new FocusListener() {
+			private boolean waitingToGetItBack = false;
+			
 			public void focusLost(FocusEvent e) {
-				SwingUtilities.invokeLater(() -> NumberField.this.validateTextEdit());
+				if(!e.isTemporary())
+					SwingUtilities.invokeLater(UrmEditableNumberField.this::validateTextEdit);
+				else
+					this.waitingToGetItBack = true;
 			}
 			
 			public void focusGained(FocusEvent e) {
+				if(this.waitingToGetItBack) {
+					this.waitingToGetItBack = false;
+					return;
+				}
+				
 				SwingUtilities.invokeLater(() -> {
-					NumberField.this.valueField.setText(NumberField.this.valueLabel.getText());
-					NumberField.this.valueField.selectAll();
+					UrmEditableNumberField.this.valueField.setText(UrmEditableNumberField.this.valueLabel.getText());
+					UrmEditableNumberField.this.valueField.selectAll();
 					
 					// Set text to empty string to let the field reduce the size
-					NumberField.this.valueLabel.setText(null);
+					UrmEditableNumberField.this.valueLabel.setText(null);
 				});
 			}
 		});
@@ -130,25 +140,25 @@ public class NumberField extends JPanel {
 			public void keyPressed(KeyEvent e) {
 				switch(e.getKeyCode()) {
 					case KeyEvent.VK_ESCAPE:
-						NumberField.this.cancelTextEdit();
+						UrmEditableNumberField.this.cancelTextEdit();
 						break;
 					case KeyEvent.VK_ENTER:
-						NumberField.this.validateTextEdit();
+						UrmEditableNumberField.this.validateTextEdit();
 						break;
 				}
 			}
 		});
 		this.valueField.getDocument().addDocumentListener(new DocumentListener() {
 			public void removeUpdate(DocumentEvent e) {
-				NumberField.this.revalidate();
+				UrmEditableNumberField.this.revalidate();
 			}
 			
 			public void insertUpdate(DocumentEvent e) {
-				NumberField.this.revalidate();
+				UrmEditableNumberField.this.revalidate();
 			}
 			
 			public void changedUpdate(DocumentEvent e) {
-				NumberField.this.revalidate();
+				UrmEditableNumberField.this.revalidate();
 			}
 		});
 		
@@ -193,15 +203,17 @@ public class NumberField extends JPanel {
 		this.card.show(this, CARD_LABEL);
 	}
 	
-	public Consumer<NumberField> getOnValueChange() {
+	public Consumer<UrmEditableNumberField> getOnValueChange() {
 		return this.onValueChange;
 	}
 
-	public void setOnValueChange(Consumer<NumberField> onValueChange) {
+	public void setOnValueChange(Consumer<UrmEditableNumberField> onValueChange) {
 		this.onValueChange = onValueChange;
 	}
 
 	public void setValue(Number val) {
+		if(val != null && val.floatValue() == this.lastValue) return;
+		
 		this.lastValue = Math.round(val.floatValue() * 100.0f) / 100.0f;
 		
 		this.valueLabel.setText(String.valueOf(this.lastValue));

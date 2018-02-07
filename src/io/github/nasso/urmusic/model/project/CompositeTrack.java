@@ -4,7 +4,7 @@ public class CompositeTrack extends Track {
 	private Composition comp;
 	
 	public CompositeTrack(Composition comp) {
-		super(comp.getLength());
+		super(comp.getTimeline().getLength());
 		this.comp = comp;
 	}
 	

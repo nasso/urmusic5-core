@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.preview;
+package io.github.nasso.urmusic.view.panes.preview;
 	
 import java.awt.Color;
 

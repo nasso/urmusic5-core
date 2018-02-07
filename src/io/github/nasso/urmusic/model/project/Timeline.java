@@ -5,23 +5,47 @@ import java.util.Collections;
 import java.util.List;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.TracklistListener;
+import io.github.nasso.urmusic.model.event.TimelineListener;
 
 public class Timeline {	
 	private List<Track> tracks = new ArrayList<>();
 	private List<Track> unmodifiableTracks = Collections.unmodifiableList(this.tracks);
 	
-	private List<TracklistListener> tracklistListeners = new ArrayList<>();
+	private List<TimelineListener> timelineListeners = new ArrayList<>();
+	
+	private int length = 2400; // 1:20 @ 30fps
+	private int framerate = 30;
 	
 	public Timeline() {
 	}
-	
-	public void addTracklistListener(TracklistListener l) {
-		this.tracklistListeners.add(l);
+
+	public int getLength() {
+		return this.length;
+	}
+
+	public void setLength(int length) {
+		if(this.length == length) return;
+		this.length = length;
+		this.notifyLengthChanged();
 	}
 	
-	public void removeTracklistListener(TracklistListener l) {
-		this.tracklistListeners.remove(l);
+	public int getFramerate() {
+		return this.framerate;
+	}
+
+	public void setFramerate(int framerate) {
+		if(this.framerate == framerate) return;
+		this.framerate = framerate;
+		this.notifyFramerateChanged();
+	}
+	
+	
+	public void addTracklistListener(TimelineListener l) {
+		this.timelineListeners.add(l);
+	}
+	
+	public void removeTracklistListener(TimelineListener l) {
+		this.timelineListeners.remove(l);
 	}
 	
 	public List<Track> getTracks() {
@@ -61,16 +85,28 @@ public class Timeline {
 		
 		this.removeTrack(i);
 	}
+
+	private void notifyLengthChanged() {
+		for(TimelineListener l : this.timelineListeners) {
+			l.lengthChanged(this);
+		}
+	}
+	
+	private void notifyFramerateChanged() {
+		for(TimelineListener l : this.timelineListeners) {
+			l.framerateChanged(this);
+		}
+	}
 	
 	private void notifyTrackAdded(int index, Track t) {
-		for(TracklistListener l : this.tracklistListeners) {
-			l.trackAdded(index, t);
+		for(TimelineListener l : this.timelineListeners) {
+			l.trackAdded(this, index, t);
 		}
 	}
 	
 	private void notifyTrackRemoved(int index, Track t) {
-		for(TracklistListener l : this.tracklistListeners) {
-			l.trackRemoved(index, t);
+		for(TimelineListener l : this.timelineListeners) {
+			l.trackRemoved(this, index, t);
 		}
 	}
 }

@@ -20,13 +20,13 @@ import javax.swing.JSplitPane;
 import javax.swing.border.EmptyBorder;
 
 import io.github.nasso.urmusic.view.UrmusicView;
-import io.github.nasso.urmusic.view.components.panels.effectlist.EffectListView;
-import io.github.nasso.urmusic.view.components.panels.info.ProjectView;
-import io.github.nasso.urmusic.view.components.panels.preview.PreviewView;
-import io.github.nasso.urmusic.view.components.panels.timeline.TimelineView;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
+import io.github.nasso.urmusic.view.panes.effectlist.EffectListView;
+import io.github.nasso.urmusic.view.panes.info.ProjectView;
+import io.github.nasso.urmusic.view.panes.preview.PreviewView;
+import io.github.nasso.urmusic.view.panes.timeline.TimelineView;
 
 public class SplittablePane extends JPanel {
 	private static final long serialVersionUID = 2803211023410018498L;

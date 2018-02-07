@@ -24,9 +24,9 @@ public class Urmusic {
 		Composition comp = prj.getMainComposition();
 		comp.setClearColor(new MutableRGBA32(0xE621ffff));
 		
-		int fps = comp.getFramerate();
+		int fps = comp.getTimeline().getFramerate();
 		
-		Track visuals = new Track(comp.getLength());
+		Track visuals = new Track(comp.getTimeline().getLength());
 		visuals.setName("Visuals");
 		
 		TrackEffectInstance vignette = CircleMaskVFX.FX.instance();

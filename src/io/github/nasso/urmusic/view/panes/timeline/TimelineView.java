@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.timeline;
+package io.github.nasso.urmusic.view.panes.timeline;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -8,6 +8,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
 
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.view.components.UrmMenu;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
@@ -33,7 +34,7 @@ public class TimelineView extends UrmViewPane {
 				private static final long serialVersionUID = 1L;
 
 				public void actionPerformed(ActionEvent e) {
-					TimelineView.this.showAddTrackDialog();
+					UrmusicController.addTrack();
 				}
 			})
 		));
@@ -41,10 +42,6 @@ public class TimelineView extends UrmViewPane {
 		this.setLayout(new BorderLayout());
 		
 		this.buildUI();
-	}
-	
-	private void showAddTrackDialog() {
-		System.out.println("TimelineView.showAddTrackDialog()");
 	}
 	
 	private void buildUI() {

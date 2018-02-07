@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.info;
+package io.github.nasso.urmusic.view.panes.info;
 
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 

@@ -70,6 +70,13 @@ public class UrmusicController {
 	}
 	
 	// -- Edit --
+	public static void addTrack() {
+		Composition comp = UrmusicModel.getFocusedComposition();
+		if(comp == null) return;
+		
+		comp.getTimeline().addTrack(new Track(comp.getTimeline().getLength()));
+	}
+	
 	public static void splitTrack() {
 		Track t = UrmusicModel.getFocusedTrack();
 		

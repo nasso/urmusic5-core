@@ -6,17 +6,15 @@ import java.util.List;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.CompositionListener;
 import io.github.nasso.urmusic.model.event.TrackListener;
-import io.github.nasso.urmusic.model.event.TracklistListener;
+import io.github.nasso.urmusic.model.event.TimelineListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.utils.MutableRGBA32;
 import io.github.nasso.urmusic.utils.RGBA32;
 
-public class Composition implements TracklistListener, TrackListener {
+public class Composition implements TimelineListener, TrackListener {
 	private Timeline timeline = new Timeline();
 	private MutableRGBA32 clearColor = new MutableRGBA32();
-	private int length = 2400; // 1:20 @ 30fps
 	private int width = 1280, height = 720;
-	private int framerate = 30;
 	
 	private List<CompositionListener> listeners = new ArrayList<>();
 	
@@ -27,17 +25,7 @@ public class Composition implements TracklistListener, TrackListener {
 	public Timeline getTimeline() {
 		return this.timeline;
 	}
-
-	public int getLength() {
-		return this.length;
-	}
-
-	public void setLength(int length) {
-		if(this.length == length) return;
-		this.length = length;
-		this.notifyLengthChanged();
-	}
-
+	
 	public int getWidth() {
 		return this.width;
 	}
@@ -67,16 +55,6 @@ public class Composition implements TracklistListener, TrackListener {
 		this.notifyResized();
 	}
 
-	public int getFramerate() {
-		return this.framerate;
-	}
-
-	public void setFramerate(int framerate) {
-		if(this.framerate == framerate) return;
-		this.framerate = framerate;
-		this.notifyFramerateChanged();
-	}
-	
 	public MutableRGBA32 getClearColor() {
 		return this.clearColor;
 	}
@@ -114,21 +92,9 @@ public class Composition implements TracklistListener, TrackListener {
 		}
 	}
 	
-	private void notifyLengthChanged() {
-		for(CompositionListener l : this.listeners) {
-			l.lengthChanged(this);
-		}
-	}
-	
 	private void notifyResized() {
 		for(CompositionListener l : this.listeners) {
 			l.resize(this);
-		}
-	}
-	
-	private void notifyFramerateChanged() {
-		for(CompositionListener l : this.listeners) {
-			l.framerateChanged(this);
 		}
 	}
 	
@@ -148,18 +114,24 @@ public class Composition implements TracklistListener, TrackListener {
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
 	
-	public void trackAdded(int index, Track track) {
+	public void trackAdded(Timeline src, int index, Track track) {
 		track.addTrackListener(this);
 		
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
 	
-	public void trackRemoved(int index, Track track) {
+	public void trackRemoved(Timeline src, int index, Track track) {
 		track.addTrackListener(this);
 		
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}
+	
+	public void lengthChanged(Timeline src) {
+	}
 
+	public void framerateChanged(Timeline src) {
+	}
+	
 	public void rangesChanged(Track source) {
 		UrmusicModel.makeCompositionDirty(Composition.this);
 	}

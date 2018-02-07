@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.effectlist.controls;
+package io.github.nasso.urmusic.view.panes.effectlist.controls;
 
 import java.awt.BorderLayout;
 
@@ -11,12 +11,13 @@ import org.joml.Vector2fc;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.control.Point2DParam;
+import io.github.nasso.urmusic.view.components.UrmEditableNumberField;
 
 public class Point2DParamUI extends EffectParamUI<Point2DParam> {
 	private static final long serialVersionUID = -7232967232115752212L;
 
 	private Vector2f _vec2 = new Vector2f();
-	private NumberField xField, yField;
+	private UrmEditableNumberField xField, yField;
 	
 	public Point2DParamUI(Point2DParam param) {
 		super(param);
@@ -24,14 +25,14 @@ public class Point2DParamUI extends EffectParamUI<Point2DParam> {
 		JPanel fieldsPane = new JPanel();
 		fieldsPane.setOpaque(false);
 		
-		this.xField = new NumberField((f) -> {
+		this.xField = new UrmEditableNumberField((f) -> {
 			int frame = UrmusicModel.getFrameCursor();
 
 			Vector2fc val = this.getParam().getValue(frame);
 			
 			this.getParam().setValue(this._vec2.set(f.getValue().floatValue(), val.y()), frame);
 		});
-		this.yField = new NumberField((f) -> {
+		this.yField = new UrmEditableNumberField((f) -> {
 			int frame = UrmusicModel.getFrameCursor();
 
 			Vector2fc val = this.getParam().getValue(frame);

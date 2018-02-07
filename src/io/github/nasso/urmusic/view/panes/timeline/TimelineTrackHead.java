@@ -1,14 +1,14 @@
-package io.github.nasso.urmusic.view.components.panels.timeline;
+package io.github.nasso.urmusic.view.panes.timeline;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -16,6 +16,7 @@ import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.event.TrackListener;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.github.nasso.urmusic.view.components.UrmEditableLabel;
 import io.github.nasso.urmusic.view.components.UrmIconButton;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 
@@ -24,7 +25,7 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 
 	private Track track;
 	
-	private JLabel nameLabel;
+	private UrmEditableLabel nameLabel;
 	private JCheckBox enableCheckbox;
 	private JButton deleteBtn;
 	
@@ -33,9 +34,20 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 		this.setBackground(Color.WHITE);
 		this.setOpaque(true);
 		
-		this.nameLabel = new JLabel(t.getName(), JLabel.CENTER);
+		this.nameLabel = new UrmEditableLabel((l) -> {
+			this.track.setName(l.getValue());
+		});
+		this.nameLabel.setValue(t.getName());
 		this.nameLabel.setOpaque(false);
-		this.add(this.nameLabel, BorderLayout.CENTER);
+		
+		JPanel nameContainer = new JPanel();
+		nameContainer.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		nameContainer.setOpaque(false);
+		nameContainer.setLayout(new BorderLayout());
+		
+		nameContainer.add(this.nameLabel, BorderLayout.CENTER);
+		
+		this.add(nameContainer, BorderLayout.CENTER);
 		
 		this.enableCheckbox = new JCheckBox();
 		this.enableCheckbox.setSelected(t.isEnabled());
@@ -54,17 +66,17 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 		});
 		
 		JPanel lilPanel = new JPanel();
-		lilPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 2));
 		lilPanel.setOpaque(false);
+		lilPanel.setBorder(BorderFactory.createEmptyBorder(2, 0, 2, 2));
 		
-		BoxLayout bl = new BoxLayout(lilPanel, BoxLayout.Y_AXIS);
-		
-		lilPanel.setLayout(bl);
+		lilPanel.setLayout(new BoxLayout(lilPanel, BoxLayout.Y_AXIS));
 		lilPanel.add(this.deleteBtn);
 		lilPanel.add(Box.createVerticalGlue());
 		lilPanel.add(this.enableCheckbox);
 		
 		this.add(lilPanel, BorderLayout.EAST);
+
+		this.nameLabel.setMaximumSize(new Dimension(TimelineView.CHANNEL_WIDTH - lilPanel.getPreferredSize().width - 16, TimelineView.CHANNEL_HEIGHT));
 		
 		this.setTrack(t);
 	}
@@ -87,14 +99,14 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 		this.track = t;
 		
 		if(this.track != null) {
-			this.nameLabel.setText(this.track.getName());
+			this.nameLabel.setValue(this.track.getName());
 			
 			this.track.addTrackListener(this);
 		}
 	}
 
 	public void nameChanged(Track source, String newName) {
-		SwingUtilities.invokeLater(() -> this.nameLabel.setText(newName));
+		SwingUtilities.invokeLater(() -> this.nameLabel.setValue(newName));
 	}
 
 	public void enabledStateChanged(Track source, boolean isEnabledNow) {

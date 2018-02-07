@@ -1,10 +1,9 @@
-package io.github.nasso.urmusic.view.components.panels.effectlist;
+package io.github.nasso.urmusic.view.panes.effectlist;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
@@ -15,13 +14,14 @@ import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.event.FocusListener;
-import io.github.nasso.urmusic.model.event.TracklistListener;
+import io.github.nasso.urmusic.model.event.TimelineListener;
+import io.github.nasso.urmusic.model.project.Timeline;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.view.components.UrmMenu;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
-public class EffectListView extends UrmViewPane implements TracklistListener, FocusListener<Track> {
+public class EffectListView extends UrmViewPane implements TimelineListener, FocusListener<Track> {
 	private static final long serialVersionUID = -896247777042870529L;
 	public static final String VIEW_NAME = "effectList";
 
@@ -48,14 +48,9 @@ public class EffectListView extends UrmViewPane implements TracklistListener, Fo
 		
 		this.buildUI();
 		
-		List<Track> tracks = UrmusicModel.getFocusedComposition().getTimeline().getTracks();
-		for(int i = 0; i < tracks.size(); i++) {
-			this.addTrack(tracks.get(i));
-		}
-		
 		Track t = UrmusicModel.getFocusedTrack();
 		if(t != null)
-			this.effectListCards.show(this.effectListContainer, this.listPanes.get(t).getName());
+			this.effectListCards.show(this.effectListContainer, this.getPaneFor(t).getName());
 		
 		UrmusicModel.addTrackFocusListener(this);
 	}
@@ -64,12 +59,23 @@ public class EffectListView extends UrmViewPane implements TracklistListener, Fo
 		System.out.println("EffectListView.showAddEffectDialog()");
 	}
 	
-	private void addTrack(Track track) {
+	private TrackEffectListPane getPaneFor(Track track) {
+		if(this.listPanes.containsKey(track)) {
+			return this.listPanes.get(track);
+		}
+		
+		return this.addTrack(track);
+	}
+	
+	private TrackEffectListPane addTrack(Track track) {
 		TrackEffectListPane fxpane = new TrackEffectListPane(track);
 		
 		this.effectListContainer.add(fxpane, fxpane.getName());
+		this.effectListContainer.revalidate();
 		
 		this.listPanes.put(track, fxpane);
+		
+		return fxpane;
 	}
 	
 	private void removeTrack(Track track) {
@@ -94,17 +100,27 @@ public class EffectListView extends UrmViewPane implements TracklistListener, Fo
 		this.add(new JScrollPane(this.effectListContainer, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 	}
 
-	public void trackAdded(int index, Track track) {
+	public void trackAdded(Timeline src, int index, Track track) {
 		SwingUtilities.invokeLater(() -> this.addTrack(track));
 	}
 
-	public void trackRemoved(int index, Track track) {
+	public void trackRemoved(Timeline src, int index, Track track) {
 		SwingUtilities.invokeLater(() -> this.removeTrack(track));
 	}
-
+	
 	public void focusChanged(Track oldFocus, Track newFocus) {
 		SwingUtilities.invokeLater(() -> {
-			this.effectListCards.show(this.effectListContainer, this.listPanes.get(newFocus).getName());
+			this.effectListCards.show(this.effectListContainer, this.getPaneFor(newFocus).getName());
 		});
 	}
+	
+
+	public void lengthChanged(Timeline src) {
+	}
+	
+
+	public void framerateChanged(Timeline src) {
+	}
+
+
 }

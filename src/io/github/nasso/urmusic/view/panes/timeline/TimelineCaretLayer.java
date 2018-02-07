@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.timeline;
+package io.github.nasso.urmusic.view.panes.timeline;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -40,7 +40,7 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 		
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-		float secondScreenSize = comp.getFramerate() * this.view.getHorizontalScale();
+		float secondScreenSize = comp.getTimeline().getFramerate() * this.view.getHorizontalScale();
 		int visibleSeconds = (int) (c.getWidth() / secondScreenSize / 2);
 		
 		g2d.setColor(Color.WHITE);

@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.effectlist;
+package io.github.nasso.urmusic.view.panes.effectlist;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -27,12 +27,12 @@ import io.github.nasso.urmusic.model.project.control.Point2DParam;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 import io.github.nasso.urmusic.utils.MathUtils;
 import io.github.nasso.urmusic.utils.easing.EasingFunction;
-import io.github.nasso.urmusic.view.components.panels.effectlist.controls.EffectParamUI;
-import io.github.nasso.urmusic.view.components.panels.effectlist.controls.FloatParamUI;
-import io.github.nasso.urmusic.view.components.panels.effectlist.controls.Point2DParamUI;
-import io.github.nasso.urmusic.view.components.panels.effectlist.controls.RGBA32ParamUI;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
+import io.github.nasso.urmusic.view.panes.effectlist.controls.EffectParamUI;
+import io.github.nasso.urmusic.view.panes.effectlist.controls.FloatParamUI;
+import io.github.nasso.urmusic.view.panes.effectlist.controls.Point2DParamUI;
+import io.github.nasso.urmusic.view.panes.effectlist.controls.RGBA32ParamUI;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class EffectParamPane extends JPanel implements FrameCursorListener, EffectParamListener, MouseListener, FocusListener<EffectParam<?>>, KeyFrameListener {

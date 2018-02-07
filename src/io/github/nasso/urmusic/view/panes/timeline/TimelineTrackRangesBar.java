@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.view.components.panels.timeline;
+package io.github.nasso.urmusic.view.panes.timeline;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -81,7 +81,7 @@ public class TimelineTrackRangesBar extends JPanel implements
 		
 		int w = this.getWidth();
 		int h = this.getHeight();
-		int workingWidth = this.framesToPixels(UrmusicModel.getFocusedComposition().getLength());
+		int workingWidth = this.framesToPixels(UrmusicModel.getFocusedComposition().getTimeline().getLength());
 		
 		g2d.setColor(UrmusicModel.getFocusedTrack() == this.getTrack() ? COMP_FOCUSED_BACKGROUND : COMP_BACKGROUND);
 		g2d.fillRect(0, 0, w, h);

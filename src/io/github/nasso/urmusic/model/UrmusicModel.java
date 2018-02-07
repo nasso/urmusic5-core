@@ -69,10 +69,10 @@ public class UrmusicModel {
 		loadProject(null);
 		
 		playbackThread = new PlaybackThread();
-		playbackThread.setFPS(getFocusedComposition().getFramerate());
+		playbackThread.setFPS(getFocusedComposition().getTimeline().getFramerate());
 		
 		addCompositionFocusListener((oldComp, newComp) -> {
-			playbackThread.setFPS(newComp.getFramerate());
+			playbackThread.setFPS(newComp.getTimeline().getFramerate());
 		});
 	}
 	
@@ -144,7 +144,7 @@ public class UrmusicModel {
 	}
 
 	public static void setFrameCursor(int frameCursor) {
-		frameCursor = Math.min(getFocusedComposition().getLength() - 1, Math.max(frameCursor, 0));
+		frameCursor = Math.min(getFocusedComposition().getTimeline().getLength() - 1, Math.max(frameCursor, 0));
 		
 		if(UrmusicModel.frameCursor == frameCursor) return;
 		int before = UrmusicModel.frameCursor;
