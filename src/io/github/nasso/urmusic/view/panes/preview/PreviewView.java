@@ -6,10 +6,10 @@ import javax.swing.JComponent;
 import javax.swing.OverlayLayout;
 import javax.swing.SwingUtilities;
 
+import io.github.nasso.urmusic.common.event.EffectParamListener;
+import io.github.nasso.urmusic.common.event.FocusListener;
+import io.github.nasso.urmusic.common.event.RendererListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.EffectParamListener;
-import io.github.nasso.urmusic.model.event.FocusListener;
-import io.github.nasso.urmusic.model.event.RendererListener;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.control.EffectParam;

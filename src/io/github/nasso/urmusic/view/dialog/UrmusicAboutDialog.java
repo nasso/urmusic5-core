@@ -17,7 +17,7 @@ import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
-import io.github.nasso.urmusic.utils.DataUtils;
+import io.github.nasso.urmusic.common.DataUtils;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
 public class UrmusicAboutDialog extends JDialog {

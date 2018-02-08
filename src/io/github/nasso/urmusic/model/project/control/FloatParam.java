@@ -1,6 +1,6 @@
 package io.github.nasso.urmusic.model.project.control;
 
-import io.github.nasso.urmusic.utils.MathUtils;
+import io.github.nasso.urmusic.common.MathUtils;
 
 public class FloatParam extends EffectParam<Float> {
 	private Float val;

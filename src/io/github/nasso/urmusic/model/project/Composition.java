@@ -3,13 +3,13 @@ package io.github.nasso.urmusic.model.project;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.nasso.urmusic.common.MutableRGBA32;
+import io.github.nasso.urmusic.common.RGBA32;
+import io.github.nasso.urmusic.common.event.CompositionListener;
+import io.github.nasso.urmusic.common.event.TimelineListener;
+import io.github.nasso.urmusic.common.event.TrackListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.CompositionListener;
-import io.github.nasso.urmusic.model.event.TrackListener;
-import io.github.nasso.urmusic.model.event.TimelineListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.utils.MutableRGBA32;
-import io.github.nasso.urmusic.utils.RGBA32;
 
 public class Composition implements TimelineListener, TrackListener {
 	private Timeline timeline = new Timeline();

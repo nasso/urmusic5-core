@@ -3,9 +3,9 @@ package io.github.nasso.urmusic.model.project.control;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.nasso.urmusic.model.event.EffectParamListener;
-import io.github.nasso.urmusic.model.event.KeyFrameListener;
-import io.github.nasso.urmusic.utils.easing.EasingFunction;
+import io.github.nasso.urmusic.common.easing.EasingFunction;
+import io.github.nasso.urmusic.common.event.EffectParamListener;
+import io.github.nasso.urmusic.common.event.KeyFrameListener;
 
 public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	private List<EffectParamListener<T>> listeners = new ArrayList<>();

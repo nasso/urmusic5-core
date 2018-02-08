@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.nasso.urmusic.common.event.TimelineListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.TimelineListener;
 
 public class Timeline {	
 	private List<Track> tracks = new ArrayList<>();

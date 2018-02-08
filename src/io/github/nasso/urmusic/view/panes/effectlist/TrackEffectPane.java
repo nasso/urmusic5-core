@@ -16,10 +16,10 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.BevelBorder;
 
-import io.github.nasso.urmusic.model.event.EffectInstanceListener;
+import io.github.nasso.urmusic.common.MathUtils;
+import io.github.nasso.urmusic.common.event.EffectInstanceListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.control.EffectParam;
-import io.github.nasso.urmusic.utils.MathUtils;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.layout.VListLayout;

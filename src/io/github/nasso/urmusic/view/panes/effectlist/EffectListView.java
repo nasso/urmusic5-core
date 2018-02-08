@@ -12,10 +12,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 
+import io.github.nasso.urmusic.common.event.FocusListener;
+import io.github.nasso.urmusic.common.event.TimelineListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.FocusListener;
-import io.github.nasso.urmusic.model.event.TimelineListener;
 import io.github.nasso.urmusic.model.project.Timeline;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.view.components.UrmMenu;

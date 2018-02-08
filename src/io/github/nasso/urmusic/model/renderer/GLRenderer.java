@@ -14,7 +14,7 @@ import com.jogamp.opengl.GLContext;
 import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 
-import io.github.nasso.urmusic.model.event.CompositionListener;
+import io.github.nasso.urmusic.common.event.CompositionListener;
 import io.github.nasso.urmusic.model.project.CompositeTrack;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Track;

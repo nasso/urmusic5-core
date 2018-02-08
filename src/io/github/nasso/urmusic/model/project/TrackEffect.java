@@ -6,14 +6,14 @@ import java.util.List;
 
 import com.jogamp.opengl.GL3;
 
+import io.github.nasso.urmusic.common.easing.EasingFunction;
+import io.github.nasso.urmusic.common.event.EffectInstanceListener;
+import io.github.nasso.urmusic.common.event.EffectParamListener;
+import io.github.nasso.urmusic.common.event.KeyFrameListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.EffectParamListener;
-import io.github.nasso.urmusic.model.event.EffectInstanceListener;
-import io.github.nasso.urmusic.model.event.KeyFrameListener;
 import io.github.nasso.urmusic.model.project.control.EffectParam;
 import io.github.nasso.urmusic.model.project.control.KeyFrame;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
-import io.github.nasso.urmusic.utils.easing.EasingFunction;
 
 public abstract class TrackEffect {
 	@SuppressWarnings({"rawtypes", "unchecked"})

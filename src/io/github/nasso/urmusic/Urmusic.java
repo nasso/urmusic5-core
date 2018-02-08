@@ -1,5 +1,7 @@
 package io.github.nasso.urmusic;
 
+import io.github.nasso.urmusic.common.MutableRGBA32;
+import io.github.nasso.urmusic.common.easing.penner.easing.Elastic;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
@@ -9,8 +11,6 @@ import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.control.FloatParam;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
-import io.github.nasso.urmusic.utils.MutableRGBA32;
-import io.github.nasso.urmusic.utils.easing.penner.easing.Elastic;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 public class Urmusic {

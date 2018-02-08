@@ -16,18 +16,18 @@ import javax.swing.JLayer;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import io.github.nasso.urmusic.common.MathUtils;
+import io.github.nasso.urmusic.common.event.FocusListener;
+import io.github.nasso.urmusic.common.event.FrameCursorListener;
+import io.github.nasso.urmusic.common.event.RendererListener;
+import io.github.nasso.urmusic.common.event.TimelineListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.event.FocusListener;
-import io.github.nasso.urmusic.model.event.FrameCursorListener;
-import io.github.nasso.urmusic.model.event.RendererListener;
-import io.github.nasso.urmusic.model.event.TimelineListener;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Timeline;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.control.EffectParam;
-import io.github.nasso.urmusic.utils.MathUtils;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })

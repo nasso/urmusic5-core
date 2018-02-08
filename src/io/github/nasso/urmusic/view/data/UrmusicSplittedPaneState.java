@@ -6,7 +6,7 @@ import java.io.OutputStream;
 
 import javax.swing.JFrame;
 
-import io.github.nasso.urmusic.utils.DataUtils;
+import io.github.nasso.urmusic.common.DataUtils;
 
 public class UrmusicSplittedPaneState {
 	private int viewID = 0;

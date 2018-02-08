@@ -5,7 +5,7 @@ import java.awt.Component;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import io.github.nasso.urmusic.model.event.TrackListener;
+import io.github.nasso.urmusic.common.event.TrackListener;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.view.layout.VListLayout;

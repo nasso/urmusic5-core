@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.nasso.urmusic.model.event.EffectInstanceListener;
-import io.github.nasso.urmusic.model.event.TrackListener;
+import io.github.nasso.urmusic.common.IntRange;
+import io.github.nasso.urmusic.common.MathUtils;
+import io.github.nasso.urmusic.common.event.EffectInstanceListener;
+import io.github.nasso.urmusic.common.event.TrackListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.control.EffectParam;
-import io.github.nasso.urmusic.utils.IntRange;
-import io.github.nasso.urmusic.utils.MathUtils;
 
 public class Track implements EffectInstanceListener {
 	public static final class TrackActivityRange implements IntRange {

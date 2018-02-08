@@ -11,11 +11,11 @@ import java.awt.event.MouseListener;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 
+import io.github.nasso.urmusic.common.MathUtils;
+import io.github.nasso.urmusic.common.MutableRGBA32;
+import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
-import io.github.nasso.urmusic.utils.MathUtils;
-import io.github.nasso.urmusic.utils.MutableRGBA32;
-import io.github.nasso.urmusic.utils.RGBA32;
 
 public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 	private static final long serialVersionUID = 8290439490941369516L;

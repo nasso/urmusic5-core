@@ -6,13 +6,13 @@ import org.joml.Vector2fc;
 
 import com.jogamp.opengl.GL3;
 
+import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.control.FloatParam;
 import io.github.nasso.urmusic.model.project.control.Point2DParam;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
-import io.github.nasso.urmusic.utils.RGBA32;
 
 public class CircleMaskVFX extends TrackEffect {
 	public static final CircleMaskVFX FX = new CircleMaskVFX();

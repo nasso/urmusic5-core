@@ -23,7 +23,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.NumberFormatter;
 
-import io.github.nasso.urmusic.utils.MathUtils;
+import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 public class UrmEditableNumberField extends JPanel {

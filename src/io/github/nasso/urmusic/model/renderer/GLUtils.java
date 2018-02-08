@@ -13,7 +13,7 @@ import com.jogamp.opengl.util.glsl.ShaderUtil;
 
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
-import io.github.nasso.urmusic.utils.DataUtils;
+import io.github.nasso.urmusic.common.DataUtils;
 
 public class GLUtils {
 	private final IntBuffer buf1a = IntBuffer.allocate(1);

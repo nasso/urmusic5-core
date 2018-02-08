@@ -3,8 +3,8 @@ package io.github.nasso.urmusic.model.project.control;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.nasso.urmusic.model.event.KeyFrameListener;
-import io.github.nasso.urmusic.utils.easing.EasingFunction;
+import io.github.nasso.urmusic.common.easing.EasingFunction;
+import io.github.nasso.urmusic.common.event.KeyFrameListener;
 
 public class KeyFrame<T> {
 	private List<KeyFrameListener<T>> listeners = new ArrayList<>();

@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.nasso.urmusic.common.event.FocusListener;
+import io.github.nasso.urmusic.common.event.FrameCursorListener;
+import io.github.nasso.urmusic.common.event.RendererListener;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
-import io.github.nasso.urmusic.model.event.FocusListener;
-import io.github.nasso.urmusic.model.event.FrameCursorListener;
-import io.github.nasso.urmusic.model.event.RendererListener;
 import io.github.nasso.urmusic.model.playback.PlaybackThread;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;

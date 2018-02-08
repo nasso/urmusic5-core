@@ -21,10 +21,10 @@ import javax.swing.JComponent;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
+import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.control.EffectParam;
 import io.github.nasso.urmusic.model.project.control.Point2DParam;
-import io.github.nasso.urmusic.utils.MathUtils;
 
 public class PreviewParameterControlsPane extends JComponent {
 	private static final long serialVersionUID = -6814038302072686626L;

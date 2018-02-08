@@ -9,7 +9,7 @@ public class Project {
 	public Composition getMainComposition() {
 		return this.mainComp;
 	}
-
+	
 	public void setMainComposition(Composition mainComp) {
 		this.mainComp = mainComp;
 	}
