@@ -24,7 +24,7 @@ public class CircleMaskVFX extends TrackEffect {
 	
 	public class CircleMaskVFXInstance extends TrackEffectInstance {
 		private Point2DParam position = new Point2DParam("position", 0, 0);
-		private RGBA32Param color = new RGBA32Param("color", 0xFFFFFF00);
+		private RGBA32Param color = new RGBA32Param("color", 0xFFFFFFFF);
 		private FloatParam innerRadius = new FloatParam("innerRadius", 0.0f, 1.0f);
 		private FloatParam outerRadius = new FloatParam("outerRadius", 400.0f, 1.0f);
 		private FloatParam innerFade = new FloatParam("innerFade", 0.0f, 1.0f);

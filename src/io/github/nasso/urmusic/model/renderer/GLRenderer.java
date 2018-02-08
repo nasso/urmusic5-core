@@ -263,6 +263,10 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		return this.getTexFor(comp, this.mainRenderer.getCurrentDestCacheFrame().index_on_creation);
 	}
 	
+	public int getLastTextureFor(Composition comp, int frame) {
+		return this.getTexFor(comp, this.mainRenderer.getLastCacheFor(comp, frame));
+	}
+	
 	public int getTextureFor(Composition comp, int frame) {
 		return this.getTexFor(comp, this.mainRenderer.getCacheFor(comp, frame));
 	}

@@ -65,7 +65,7 @@ public class UrmusicModel {
 		// -- EFFECTS END
 		
 		addFrameCursorListener((oldPosition, newPosition)  -> {
-			renderer.queueFrameIfNeeded(focusedComposition, newPosition);
+			renderer.queueFrameASAP(focusedComposition, newPosition);
 		});
 		
 		loadProject(null);
@@ -121,7 +121,7 @@ public class UrmusicModel {
 		if(f == null) {
 			project = new Project();
 			focusComposition(project.getMainComposition());
-			renderer.queueFrameIfNeeded(focusedComposition, 0);
+			renderer.queueFrameASAP(focusedComposition, 0);
 		}
 	}
 	

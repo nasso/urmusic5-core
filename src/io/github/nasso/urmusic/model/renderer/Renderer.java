@@ -28,7 +28,7 @@ public class Renderer implements Runnable {
 		private int availableCommands = 0;
 		private List<Object> commands = new ArrayList<>();
 		
-		private Object notifier;
+		private final Object notifier;
 		
 		public RenderQueue(Object notifier) {
 			this.notifier = notifier;
@@ -40,13 +40,20 @@ public class Renderer implements Runnable {
 			}
 		}
 		
-		private synchronized void pushCommand() {
+		private void pushCommand() {
 			this.availableCommands++;
 			
 			if(Renderer.this.renderingThreadIdle) this.notifyLock();
 		}
 		
-		public synchronized void consumeCommand() {
+		public void clearAllCommands() {
+			synchronized(this.commands) {
+				this.commands.clear();
+				this.availableCommands = 0;
+			}
+		}
+		
+		public void consumeCommand() {
 			this.availableCommands--;
 		}
 		
@@ -54,45 +61,57 @@ public class Renderer implements Runnable {
 			return this.availableCommands;
 		}
 		
-		public synchronized void queueRender(Composition comp, int frame, int frameCount) {
-			this.commands.add(RCMD_RENDER_FRAME);
-			this.commands.add(comp);
-			this.commands.add(frame);
-			this.commands.add(frameCount);
-			
-			this.pushCommand();
+		public void queueRender(Composition comp, int frame, int frameCount) {
+			synchronized(this.commands) {
+				this.commands.add(RCMD_RENDER_FRAME);
+				this.commands.add(comp);
+				this.commands.add(frame);
+				this.commands.add(frameCount);
+				
+				this.pushCommand();
+			}
 		}
 		
-		public synchronized void queueEffectLoad(TrackEffect fx) {
-			this.commands.add(RCMD_LOAD_EFFECT);
-			this.commands.add(fx);
-
-			this.pushCommand();
+		public void queueEffectLoad(TrackEffect fx) {
+			synchronized(this.commands) {
+				this.commands.add(RCMD_LOAD_EFFECT);
+				this.commands.add(fx);
+	
+				this.pushCommand();
+			}
 		}
 		
-		public synchronized void queueEffectUnload(TrackEffect fx) {
-			this.commands.add(RCMD_UNLOAD_EFFECT);
-			this.commands.add(fx);
-
-			this.pushCommand();
+		public void queueEffectUnload(TrackEffect fx) {
+			synchronized(this.commands) {
+				this.commands.add(RCMD_UNLOAD_EFFECT);
+				this.commands.add(fx);
+	
+				this.pushCommand();
+			}
 		}
 		
-		public synchronized void queueEffectInstanceUnload(TrackEffectInstance fx) {
-			this.commands.add(RCMD_UNLOAD_EFFECT_INSTANCE);
-			this.commands.add(fx);
-
-			this.pushCommand();
+		public void queueEffectInstanceUnload(TrackEffectInstance fx) {
+			synchronized(this.commands) {
+				this.commands.add(RCMD_UNLOAD_EFFECT_INSTANCE);
+				this.commands.add(fx);
+	
+				this.pushCommand();
+			}
 		}
 		
-		public synchronized void queueTrackDispose(Track t) {
-			this.commands.add(RCMD_UNLOAD_TRACK);
-			this.commands.add(t);
-
-			this.pushCommand();
+		public void queueTrackDispose(Track t) {
+			synchronized(this.commands) {
+				this.commands.add(RCMD_UNLOAD_TRACK);
+				this.commands.add(t);
+	
+				this.pushCommand();
+			}
 		}
 		
-		public synchronized Object pop() {
-			return this.commands.remove(0);
+		public Object pop() {
+			synchronized(this.commands) {
+				return this.commands.remove(0);
+			}
 		}
 	}
 	
@@ -147,7 +166,7 @@ public class Renderer implements Runnable {
 		try {
 			synchronized(this.renderLock) {
 				while(true) {
-					while(this.renderQueue.getAvailableCommands() == 0){
+					while(this.renderQueue.getAvailableCommands() == 0) {
 						this.renderingThreadIdle = true;
 						this.renderLock.wait();
 						this.renderingThreadIdle = false;
@@ -215,17 +234,20 @@ public class Renderer implements Runnable {
 		this.renderQueue.queueRender(comp, frameStart, frameCount);
 	}
 	
-	public void queueFrameIfNeeded(Composition comp, int frame) {
+	public void queueFrameASAP(Composition comp, int frame) {
 		int cache = this.getCacheFor(comp, frame);
 		if(cache != -1) {
 			this.notifyFrameReady(comp, frame);
 			return;
 		}
 		
+		this.renderQueue.clearAllCommands();
 		this.queueFrameRange(comp, frame, 1);
 	}
 	
 	private void doFrame(Composition comp, int frame) {
+		// -- ( runs on the rendering thread ) --
+		
 		int cache = this.getCacheFor(comp, frame);
 		
 		// If there's no cached frame, do the render
@@ -281,7 +303,20 @@ public class Renderer implements Runnable {
 		this.glRenderer.makeCompositionDirty(comp);
 		
 		if(needUpdate)
-			this.queueFrameIfNeeded(comp, UrmusicModel.getFrameCursor());
+			this.queueFrameASAP(comp, UrmusicModel.getFrameCursor());
+	}
+	
+	public int getLastCacheFor(Composition comp, int frame) {
+		int lastCache = -1;
+		
+		for(int i = 0; i < this.gpuCache.length; i++) {
+			if(this.gpuCache[i].comp == comp && !this.gpuCache[i].dirty) {
+				if(this.gpuCache[i].frame_id == frame) return i;
+				if(this.gpuCache[i].frame_id < frame && (lastCache == -1 || this.gpuCache[i].frame_id > this.gpuCache[lastCache].frame_id)) lastCache = i;
+			}
+		}
+		
+		return lastCache;
 	}
 	
 	public int getCacheFor(Composition comp, int frame) {

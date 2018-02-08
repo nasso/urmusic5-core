@@ -61,12 +61,13 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 			CachedFrame f = renderedFrames[i];
 			
 			int x = Math.round(f.frame_id * this.view.getHorizontalScale() + hscroll);
+			int w = Math.round((f.frame_id + 1) * this.view.getHorizontalScale() + hscroll) - x;
 			
 			if(x < -hscalei || x > c.getWidth()) continue;
 			
 			if(f.dirty) continue;
 			
-			g2d.fillRect(x, 0, hscalei, TimelineView.FRAME_CARET_HEADER_HEIGHT);
+			g2d.fillRect(x, 0, w, TimelineView.FRAME_CARET_HEADER_HEIGHT);
 		}
 		
 		EffectParam<?> param = UrmusicModel.getFocusedEffectParameter();
