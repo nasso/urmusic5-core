@@ -124,6 +124,8 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		if(this.controlui != null) this.controlui.updateControl(frame);
 		
 		if(this.param.getKeyFrameAt(frame) != null)
+			this.keyframeIconLabel.setIcon(UrmusicUIRes.KEY_FRAME_ICON_RED);
+		else if(this.param.getKeyFrameCount() != 0)
 			this.keyframeIconLabel.setIcon(UrmusicUIRes.KEY_FRAME_ICON_BLUE);
 		else
 			this.keyframeIconLabel.setIcon(UrmusicUIRes.KEY_FRAME_ICON);
