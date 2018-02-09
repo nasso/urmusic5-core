@@ -1,7 +1,7 @@
 package io.github.nasso.urmusic.common.easing;
 
 public class FramesEasing implements EasingFunction {
-	public final int number_of_frames;
+	public int number_of_frames;
 	
 	public FramesEasing(int number_of_frames) {
 		this.number_of_frames = number_of_frames;

@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 
+/**
+ * A wave format loader, originally made for <a href="https://github.com/nasso/nhengine">nhengine</a>.
+ * @author nasso
+ */
 public class WaveFormatLoader {
 	private static final int CHUNKID_RIFF = 0x52494646; // = "RIFF"
 	private static final int CHUNKID_RIFX = 0x52494658; // = "RIFX"

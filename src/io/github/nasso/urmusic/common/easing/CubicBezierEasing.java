@@ -5,7 +5,7 @@ import static io.github.nasso.urmusic.common.MathUtils.*;
 public class CubicBezierEasing implements EasingFunction {
 	public static final int PRECISION = 30;
 	
-	public final float x1, y1, x2, y2;
+	public float x1, y1, x2, y2;
 	
 	public CubicBezierEasing(float x1, float y1, float x2, float y2) {
 		this.x1 = clamp(x1, 0, 1);

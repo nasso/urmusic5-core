@@ -5,8 +5,8 @@ public class StepEasing implements EasingFunction {
 		START, END
 	}
 	
-	public final int number_of_steps;
-	public final Direction direction;
+	public int number_of_steps;
+	public Direction direction;
 	
 	public StepEasing(int number_of_steps) {
 		this(number_of_steps, Direction.END);
