@@ -7,6 +7,7 @@ import java.util.List;
 
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
+import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.common.event.RendererListener;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
 import io.github.nasso.urmusic.model.playback.PlaybackThread;
@@ -31,7 +32,6 @@ public class UrmusicModel {
 	private static Renderer renderer;
 	private static PlaybackThread playbackThread;
 	
-	private static List<FrameCursorListener> frameCursorListeners = new ArrayList<>();
 	private static int frameCursor = 0;
 	
 	private static List<TrackEffect> loadedEffects = new ArrayList<>();
@@ -114,14 +114,18 @@ public class UrmusicModel {
 	}
 	
 	public static void loadProject(File f) {
+		// TODO: project management
 		if(project != null) {
-			// TODO: unload project
+			project.getMainComposition().dispose();
+			notifyProjectUnloaded(project);
 		}
 		
 		if(f == null) {
 			project = new Project();
 			focusComposition(project.getMainComposition());
 			renderer.queueFrameASAP(focusedComposition, 0);
+
+			notifyProjectLoaded(project);
 		}
 	}
 	
@@ -137,14 +141,6 @@ public class UrmusicModel {
 		renderer.makeCompositionDirty(comp);
 	}
 	
-	public static void addFrameCursorListener(FrameCursorListener l) {
-		frameCursorListeners.add(l);
-	}
-	
-	public static void removeFrameCursorListener(FrameCursorListener l) {
-		frameCursorListeners.remove(l);
-	}
-
 	public static int getFrameCursor() {
 		return frameCursor;
 	}
@@ -168,13 +164,7 @@ public class UrmusicModel {
 	public static void stopPlayback() {
 		playbackThread.stopPlayback();
 	}
-	
-	private static void notifyFrameCursorChange(int before, int after) {
-		for(FrameCursorListener l : frameCursorListeners) {
-			l.frameChanged(before, after);
-		}
-	}
-	
+
 	public static void disposeTrack(Track track) {
 		renderer.disposeTrack(track);
 	}
@@ -203,7 +193,44 @@ public class UrmusicModel {
 		disposeTrack(t);
 	}
 	
-	// -- Focus Listeners --
+	// -- Listeners --
+	private static List<ProjectLoadingListener> projectLoadingListeners = new ArrayList<>();
+	public static void addProjectLoadingListener(ProjectLoadingListener l) {
+		projectLoadingListeners.add(l);
+	}
+	
+	public static void removeProjectLoadingListener(ProjectLoadingListener l) {
+		projectLoadingListeners.remove(l);
+	}
+
+	private static void notifyProjectLoaded(Project p) {
+		for(ProjectLoadingListener l : projectLoadingListeners) {
+			l.projectLoaded(p);
+		}
+	}
+
+	private static void notifyProjectUnloaded(Project p) {
+		for(ProjectLoadingListener l : projectLoadingListeners) {
+			l.projectUnloaded(p);
+		}
+	}
+	
+	private static List<FrameCursorListener> frameCursorListeners = new ArrayList<>();
+	public static void addFrameCursorListener(FrameCursorListener l) {
+		frameCursorListeners.add(l);
+	}
+	
+	public static void removeFrameCursorListener(FrameCursorListener l) {
+		frameCursorListeners.remove(l);
+	}
+
+	private static void notifyFrameCursorChange(int before, int after) {
+		for(FrameCursorListener l : frameCursorListeners) {
+			l.frameChanged(before, after);
+		}
+	}
+	
+	// -- Focus
 	// Composition
 	private static Composition focusedComposition;
 	private static List<FocusListener<Composition>> compFocusListeners = new ArrayList<>();

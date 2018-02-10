@@ -18,8 +18,13 @@
 		"frame.multiCloseWarning.closeAll": "Close all",
 		"frame.multiCloseWarning.cancel": "Cancel",
 		
-		"view.project.name": "Project",
 		"view.preview.name": "Preview",
+		
+		"view.project.name": "Project",
+		"view.project.menu.add": "Add",
+		"view.project.menu.add.importFile": "Import File",
+		"view.project.menu.add.newDirectory": "New Folder",
+		"view.project.dialog.importFile.title": "Import File",
 		
 		"view.timeline.name": "Timeline",
 		"view.timeline.menu.add": "Add",

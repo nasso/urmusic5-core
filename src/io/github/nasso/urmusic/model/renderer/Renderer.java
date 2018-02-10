@@ -173,7 +173,7 @@ public class Renderer implements Runnable {
 					}
 					
 					// Get stuff from the render queue
-					synchronized(this.renderQueue) {
+					synchronized(this.renderQueue.commands) {
 						cmd = (int) this.renderQueue.pop();
 						
 						switch(cmd) {

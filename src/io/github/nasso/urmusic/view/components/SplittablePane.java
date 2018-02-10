@@ -24,8 +24,8 @@ import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.panes.effectlist.EffectListView;
-import io.github.nasso.urmusic.view.panes.info.ProjectView;
 import io.github.nasso.urmusic.view.panes.preview.PreviewView;
+import io.github.nasso.urmusic.view.panes.project.ProjectView;
 import io.github.nasso.urmusic.view.panes.timeline.TimelineView;
 
 public class SplittablePane extends JPanel {

@@ -7,10 +7,58 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 public class DataUtils {
 	private DataUtils() { }
 
+	/**
+	 * Normalizes a path (aka removes unecessary ".." and ".")
+	 * @param path
+	 * @return
+	 */
+	public static String normalizePath(String path) {
+		String[] elems = path.split("\\\\|\\/");
+		
+		Deque<String> pathElements = new ArrayDeque<>();
+		
+		boolean isInDir = false;
+		
+		for(int i = 0; i < elems.length; i++) {
+			String e = elems[i];
+			
+			if(e.isEmpty() || ".".equals(e)) continue;
+			
+			if(!pathElements.isEmpty() && "..".equals(e) && !"..".equals(pathElements.peek())) {
+				pathElements.pop();
+				isInDir = true;
+			} else {
+				isInDir = false;
+				pathElements.push(e);
+			}
+		}
+		
+		StringBuilder b = new StringBuilder();
+		
+		while(!pathElements.isEmpty()) {
+			String e = pathElements.pollLast();
+			b.append(e);
+			
+			if(pathElements.size() >= 1) b.append('/');
+		}
+		
+		if(isInDir || path.endsWith("/") || path.endsWith("/.")) b.append("/");
+		
+		return b.toString();
+	}
+	
+	public static String getPathName(String path) {
+		String[] e = normalizePath(path).split("/");
+		if(e.length <= 0) return "";
+		return e[e.length - 1];
+	}
+	
 	public static InputStream getFileInputStream(String filePath, boolean inJar) throws IOException {
 		if(inJar) return DataUtils.class.getClassLoader().getResourceAsStream(filePath);
 		else return new BufferedInputStream(new FileInputStream(filePath));

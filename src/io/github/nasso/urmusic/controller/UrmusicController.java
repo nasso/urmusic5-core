@@ -4,6 +4,7 @@ import java.util.List;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
+import io.github.nasso.urmusic.model.project.ProjectFileSystem;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
@@ -70,6 +71,17 @@ public class UrmusicController {
 	public static void playPause() {
 		if(UrmusicModel.isPlayingBack()) UrmusicModel.stopPlayback();
 		else UrmusicModel.startPlayback();
+	}
+	
+	// -- Project --
+	public static void importFile(String absoluteFilePath) {
+		ProjectFileSystem fs = UrmusicModel.getCurrentProject().getFileSystem();
+		fs.root().add(fs.createFile(absoluteFilePath));
+	}
+	
+	public static void newDirectory(String dirName) {
+		ProjectFileSystem fs = UrmusicModel.getCurrentProject().getFileSystem();
+		fs.root().add(fs.createDirectory(dirName));
 	}
 	
 	// -- Edit --
