@@ -1,7 +1,6 @@
 bin/*
 .settings/*
 ignore/*
-appdata/
 
 *.war
 *.ear

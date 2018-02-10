@@ -11,6 +11,8 @@ import java.util.Map;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
+import io.github.nasso.urmusic.common.DataUtils;
+
 public class UrmusicStrings {
 	private static final Gson gson = new Gson();
 	
@@ -21,13 +23,12 @@ public class UrmusicStrings {
 	public static final void init(Locale loc) {
 		currentLangTag = loc.toLanguageTag();
 		
-		File f = new File("lang/" + currentLangTag + ".json");
+		File f = DataUtils.localFile("lang/" + currentLangTag + ".json");
 		
 		if(!f.exists()) {
 			currentLangTag = "en";
-			f = new File("lang/en.json");
+			f = DataUtils.localFile("lang/en.json");
 		}
-		
 		
 		try {
 			JsonObject root = gson.fromJson(new BufferedReader(new FileReader(f)), JsonObject.class);

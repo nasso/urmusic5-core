@@ -1,5 +1,12 @@
 package io.github.nasso.urmusic;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.List;
+
+import io.github.nasso.urmusic.common.DataUtils;
 import io.github.nasso.urmusic.common.MutableRGBA32;
 import io.github.nasso.urmusic.common.easing.penner.easing.Elastic;
 import io.github.nasso.urmusic.controller.UrmusicController;
@@ -14,7 +21,41 @@ import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 public class Urmusic {
-	public Urmusic() {
+	public static final boolean URM_FORCE_RES_EXPORT = false;
+	public static final File URM_HOME = new File(System.getProperty("user.home") + File.separatorChar + ".urmusic");
+	
+	private Urmusic() {
+	}
+	
+	@SuppressWarnings("unused")
+	private static final void setupFiles() {
+		if(!URM_HOME.exists()) URM_HOME.mkdirs();
+		
+		try {
+			String internalAppdataFolder = "res/appdata";
+			List<Path> appdata = DataUtils.listFilesInResource(internalAppdataFolder);
+			
+			for(Path p : appdata) {
+				String parentStr = URM_HOME.getAbsolutePath() + File.separator;
+				
+				Path parent = p.getParent();
+				if(parent != null) parentStr += parent.toString().replace('\\', '/');
+				
+				File f = new File(parentStr, p.getFileName().toString());
+				
+				if(URM_FORCE_RES_EXPORT || !f.exists())
+					DataUtils.exportResource(internalAppdataFolder + File.separatorChar + p.toString(), f.getAbsolutePath());
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+		} catch(URISyntaxException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static final void init() {
+		Urmusic.setupFiles();
+		
 		UrmusicModel.init();
 		UrmusicView.init();
 		UrmusicController.init();
@@ -61,6 +102,6 @@ public class Urmusic {
 	}
 	
 	public static void main(String[] args) {
-		new Urmusic();
+		Urmusic.init();
 	}
 }

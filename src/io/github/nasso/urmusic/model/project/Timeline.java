@@ -14,7 +14,7 @@ public class Timeline {
 	private List<TimelineListener> timelineListeners = new ArrayList<>();
 	
 	private int length = 2400; // 1:20 @ 30fps
-	private int framerate = 30;
+	private int framerate = 60;
 	
 	public Timeline() {
 	}
@@ -38,7 +38,6 @@ public class Timeline {
 		this.framerate = framerate;
 		this.notifyFramerateChanged();
 	}
-	
 	
 	public void addTracklistListener(TimelineListener l) {
 		this.timelineListeners.add(l);

@@ -26,6 +26,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+import io.github.nasso.urmusic.common.DataUtils;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.view.components.SplittablePane;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
@@ -153,10 +154,10 @@ public class UrmusicView {
 	}
 	
 	public static void loadViewState() {
-		File viewStateFile = new File("appdata/view-state.dat");
+		File viewStateFile = DataUtils.localFile("view-state.dat");
 		
 		if(!viewStateFile.exists()) {
-			viewStateFile = new File("appdata/default-view-state.dat");
+			viewStateFile = DataUtils.localFile("default-view-state.dat");
 			if(!viewStateFile.exists()) return;
 		}
 		
@@ -168,7 +169,7 @@ public class UrmusicView {
 	}
 	
 	public static void saveViewState() {
-		File viewStateFile = new File("appdata/view-state.dat");
+		File viewStateFile = DataUtils.localFile("view-state.dat");
 		if(!viewStateFile.getParentFile().exists()) viewStateFile.getParentFile().mkdirs();
 		
 		UrmusicSplittedPaneState[] paneStates = new UrmusicSplittedPaneState[frames.size()];

@@ -58,11 +58,9 @@ public class UrmusicModel {
 			}
 		});
 		
-		// -- EFFECTS
 		for(TrackEffect fx : STOCK_EFFECTS) {
 			loadEffect(fx);
 		}
-		// -- EFFECTS END
 		
 		addFrameCursorListener((oldPosition, newPosition)  -> {
 			renderer.queueFrameASAP(focusedComposition, newPosition);
