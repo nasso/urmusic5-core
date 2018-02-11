@@ -16,10 +16,24 @@ public class ProjectFileSystem {
 		}
 		
 		private ProjectElement(String name) {
-			this.name = name;
+			this.name = this.ensureNameValid(name);
+		}
+		
+		private String ensureNameValid(String name) {
+			if(name.equals(this.name)) return name;
+			
+			String validName = name;
+			if(this.parent != null) {
+				for(int i = 1; this.parent.hasChildren(validName); i++) {
+					validName = name + " (" + i + ")";
+				}
+			}
+			
+			return validName;
 		}
 
 		public void setName(String name) {
+			name = this.ensureNameValid(name);
 			if(name.equals(this.name)) return;
 			
 			this.name = name;
@@ -100,12 +114,10 @@ public class ProjectFileSystem {
 			
 			if(path.isEmpty()) return this;
 			
-			boolean isDir = path.endsWith("/");
-			
 			String[] elems = path.split("/");
 			
 			boolean nextIsLast = elems.length == 1;
-			String nextElem = (!nextIsLast || isDir) ? elems[0] + "/" : elems[0];
+			String nextElem = elems[0];
 			
 			if(nextIsLast) {
 				// -- Next is the last one
@@ -124,8 +136,12 @@ public class ProjectFileSystem {
 			return null;
 		}
 		
-		public String getName() {
-			return super.getName() + "/";
+		public boolean hasChildren(String childName) {
+			for(ProjectElement e : this.content) {
+				if(e.getName().equals(childName)) return true;
+			}
+			
+			return false;
 		}
 		
 		private void generateDescription(StringBuilder builder, int tabs) {
