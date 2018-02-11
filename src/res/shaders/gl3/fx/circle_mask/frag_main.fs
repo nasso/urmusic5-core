@@ -4,6 +4,8 @@ struct Parameters {
 	vec4 color;
 	vec4 originInOutRadius;
 	vec2 inOutFade;
+	
+	bool invert;
 };
 
 #define u_color params.color
@@ -12,6 +14,7 @@ struct Parameters {
 #define u_outerRadius params.originInOutRadius.w
 #define u_innerFade params.inOutFade.x
 #define u_outerFade params.inOutFade.y
+#define u_invert params.invert
 
 uniform sampler2D inputTex;
 uniform vec2 colorSize;
@@ -47,7 +50,9 @@ float doMask() {
 }
 
 void main() {
-	float maskvalue = doMask() * u_color.a;
+	float maskvalue = doMask();
+	if(u_invert) maskvalue = 1.0 - maskvalue;
+	maskvalue *= u_color.a;
 	
 	if(maskvalue >= 1.0) out_color = u_color;
 	else {

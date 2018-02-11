@@ -23,6 +23,6 @@ public class BooleanParam extends EffectParam<BoolValue> {
 	}
 	
 	public BoolValue ramp(BoolValue s, BoolValue e, float t) {
-		return t < 0.5f ? s : e;
+		return t < 1.0f ? s : e;
 	}
 }

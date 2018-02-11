@@ -21,7 +21,7 @@ import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 public class Urmusic {
-	public static final boolean URM_FORCE_RES_EXPORT = false;
+	public static final boolean URM_FORCE_RES_EXPORT = true;
 	public static final File URM_HOME = new File(System.getProperty("user.home") + File.separatorChar + ".urmusic");
 	
 	private Urmusic() {
@@ -76,7 +76,7 @@ public class Urmusic {
 		FloatParam radius = (FloatParam) vignette.getParamByName("outerRadius");
 		FloatParam outerFade = (FloatParam) vignette.getParamByName("outerFade");
 		radius.addKeyFrame(0, 0.0f);
-		outerFade.addKeyFrame(0, 0.0f);
+		outerFade.addKeyFrame(0, 1.0f);
 		radius.addKeyFrame(fps * 2, 400.0f, Elastic::easeOut);
 		outerFade.addKeyFrame(fps * 2, 5.0f);
 		radius.addKeyFrame(fps * 3, 200.0f);
@@ -89,7 +89,7 @@ public class Urmusic {
 		FloatParam outerFade2 = (FloatParam) vignette2.getParamByName("outerFade");
 		radius2.addKeyFrame(0, 0.0f);
 		radius2.addKeyFrame(fps * 1, 300.0f);
-		outerFade2.addKeyFrame(fps * 1, 0.0f);
+		outerFade2.addKeyFrame(fps * 1, 1.0f);
 		radius2.addKeyFrame(fps * 2, 300.0f);
 		outerFade2.addKeyFrame(fps * 2, 20.0f);
 		outerFade2.addKeyFrame(fps * 3, 0.0f);

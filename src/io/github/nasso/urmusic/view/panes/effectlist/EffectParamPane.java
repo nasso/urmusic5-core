@@ -23,16 +23,10 @@ import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.control.EffectParam;
-import io.github.nasso.urmusic.model.project.control.FloatParam;
 import io.github.nasso.urmusic.model.project.control.KeyFrame;
-import io.github.nasso.urmusic.model.project.control.Point2DParam;
-import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.panes.effectlist.controls.EffectParamUI;
-import io.github.nasso.urmusic.view.panes.effectlist.controls.FloatParamUI;
-import io.github.nasso.urmusic.view.panes.effectlist.controls.Point2DParamUI;
-import io.github.nasso.urmusic.view.panes.effectlist.controls.RGBA32ParamUI;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class EffectParamPane extends JPanel implements FrameCursorListener, EffectParamListener, MouseListener, FocusListener<EffectParam<?>>, KeyFrameListener {
@@ -74,14 +68,9 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		this.add(controlName);
 		this.add(Box.createHorizontalStrut(64));
 		this.add(Box.createHorizontalGlue());
-		
-		if(this.param instanceof FloatParam) {
-			this.add(this.controlui = new FloatParamUI((FloatParam) this.param));
-		} else if(this.param instanceof RGBA32Param) {
-			this.add(this.controlui = new RGBA32ParamUI((RGBA32Param) this.param));
-		} else if(this.param instanceof Point2DParam) {
-			this.add(this.controlui = new Point2DParamUI((Point2DParam) this.param));
-		}
+	
+		this.controlui = EffectParamUI.getParamUI(this.param);
+		if(this.controlui != null) this.add(this.controlui);
 		
 		this.addMouseListener(this);
 		this.param.addEffectParamListener(this);
