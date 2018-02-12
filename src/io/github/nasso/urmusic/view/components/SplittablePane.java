@@ -17,6 +17,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import io.github.nasso.urmusic.view.UrmusicView;
@@ -268,17 +269,21 @@ public class SplittablePane extends JPanel {
 			this.bodyContainer.add(entry.viewInstance, BorderLayout.CENTER);
 			this.menuBarContainer.add(entry.viewInstance.getMenuBar(), BorderLayout.CENTER);
 			
-			this.bodyContainer.revalidate();
-			this.bodyContainer.repaint();
+			SwingUtilities.invokeLater(() -> {
+				this.bodyContainer.revalidate();
+				this.bodyContainer.repaint();
+			});
 		} else if(event.getStateChange() == ItemEvent.DESELECTED) {
 			ViewPaneEntry entry = (ViewPaneEntry) event.getItem();
 			
 			if(entry.viewInstance != null) {
 				this.bodyContainer.remove(entry.viewInstance);
 				this.menuBarContainer.remove(entry.viewInstance.getMenuBar());
-				
-				this.bodyContainer.revalidate();
-				this.bodyContainer.repaint();
+
+				SwingUtilities.invokeLater(() -> {
+					this.bodyContainer.revalidate();
+					this.bodyContainer.repaint();
+				});
 			}
 		}
 	}

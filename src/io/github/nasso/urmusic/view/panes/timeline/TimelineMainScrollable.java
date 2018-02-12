@@ -182,9 +182,7 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 	}
 	
 	private void moveFrameCursorClick(int clickX, int clickY) {
-		if(clickX >= TimelineView.CHANNEL_WIDTH) {
-			UrmusicController.setFramePosition(this.pixelToFrames(clickX + (int) (this.view.getHorizontalScale() / 2)));
-		}
+		UrmusicController.setFramePosition(this.pixelToFrames(clickX + (int) (this.view.getHorizontalScale() / 2)));
 	}
 	
 	public void mouseDragged(MouseEvent e) {
@@ -249,5 +247,4 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		
 		TimelineMainScrollable.this.repaint();
 	}
-
 }

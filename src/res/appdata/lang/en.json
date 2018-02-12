@@ -42,6 +42,10 @@
 		"effect.circle_mask.param.outerRadius.name": "Outer Radius",
 		"effect.circle_mask.param.innerFade.name": "Inner Fade",
 		"effect.circle_mask.param.outerFade.name": "Outer Fade",
-		"effect.circle_mask.param.invert.name": "Invert"
+		"effect.circle_mask.param.invert.name": "Invert",
+		
+		"effect.affine_transform.name": "Affine Transform",
+		"effect.affine_transform.param.translation.name": "Translate",
+		"effect.affine_transform.param.opacity.name": "Opacity"
 	}
 }

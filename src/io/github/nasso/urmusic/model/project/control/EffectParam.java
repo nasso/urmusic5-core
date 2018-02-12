@@ -13,21 +13,30 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	private List<KeyFrame<T>> keyFrames = new ArrayList<>();
 	private String name;
 	
+	private final boolean canAnimate;
+
 	public EffectParam(String name) {
+		this(name, true);
+	}
+	
+	public EffectParam(String name, boolean canAnimate) {
 		this.name = name;
+		this.canAnimate = canAnimate;
 		
-		this.addEffectParamListener(new EffectParamListener<T>() {
-			public void valueChanged(EffectParam<T> source, T newVal) {
-			}
-
-			public void keyFrameAdded(EffectParam<T> source, KeyFrame<T> kf) {
-				kf.addKeyFrameListener(EffectParam.this);
-			}
-
-			public void keyFrameRemoved(EffectParam<T> source, KeyFrame<T> kf) {
-				kf.removeKeyFrameListener(EffectParam.this);
-			}
-		});
+		if(this.canAnimate) {
+			this.addEffectParamListener(new EffectParamListener<T>() {
+				public void valueChanged(EffectParam<T> source, T newVal) {
+				}
+	
+				public void keyFrameAdded(EffectParam<T> source, KeyFrame<T> kf) {
+					kf.addKeyFrameListener(EffectParam.this);
+				}
+	
+				public void keyFrameRemoved(EffectParam<T> source, KeyFrame<T> kf) {
+					kf.removeKeyFrameListener(EffectParam.this);
+				}
+			});
+		}
 	}
 	
 	public String getName() {
@@ -35,14 +44,20 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	}
 	
 	public KeyFrame<T> addKeyFrame(int frame) {
+		if(!this.canAnimate) return null;
+		
 		return this.addKeyFrame(frame, this.getValue(frame));
 	}
 	
 	public KeyFrame<T> addKeyFrame(int frame, T val) {
+		if(!this.canAnimate) return null;
+		
 		return this.addKeyFrame(frame, val, EasingFunction.EASE);
 	}
 	
 	public KeyFrame<T> addKeyFrame(int frame, T val, EasingFunction func) {
+		if(!this.canAnimate) return null;
+		
 		T valClone = this.cloneValue(val);
 		
 		int i;
@@ -65,6 +80,8 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	}
 	
 	public KeyFrame<T> getKeyFrameAt(int frame) {
+		if(!this.canAnimate) return null;
+		
 		for(KeyFrame<T> kf : this.keyFrames) {
 			if(kf.getFrame() == frame) return kf;
 		}
@@ -73,6 +90,8 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	}
 
 	public KeyFrame<T> getKeyFrameBefore(int frame) {
+		if(!this.canAnimate) return null;
+		
 		int i;
 		for(i = 0; i < this.keyFrames.size(); i++) {
 			if(this.keyFrames.get(i).getFrame() >= frame) break;
@@ -82,6 +101,8 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	}
 	
 	public KeyFrame<T> getKeyFrameAfter(int frame) {
+		if(!this.canAnimate) return null;
+		
 		int i;
 		for(i = 0; i < this.keyFrames.size(); i++) {
 			if(this.keyFrames.get(i).getFrame() > frame) break;
@@ -95,10 +116,14 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	}
 	
 	public KeyFrame<T> getKeyFrame(int index) {
+		if(!this.canAnimate) return null;
+		
 		return this.keyFrames.get(index);
 	}
 	
 	public void removeKeyFrame(KeyFrame<T> kf) {
+		if(!this.canAnimate) return;
+		
 		this.keyFrames.remove(kf);
 		this.notifyKeyFrameRemoved(kf);
 	}
@@ -140,7 +165,7 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	 * @param frame
 	 */
 	public void setValue(T val, int frame) {
-		if(this.keyFrames.isEmpty()) {
+		if(!this.canAnimate || this.keyFrames.isEmpty()) {
 			this.setStaticValue(val);
 			this.notifyValueChanged(val);
 			
@@ -151,7 +176,7 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	}
 	
 	public T getValue(int frame) {
-		if(this.keyFrames.isEmpty()) {
+		if(!this.canAnimate || this.keyFrames.isEmpty()) {
 			return this.getStaticValue();
 		}
 		
@@ -215,7 +240,9 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	
 	/**
 	 * Returns a copy of the given value. Used when adding key frames to prevent unexpected modifications to the value.<br>
-	 * So if <code>val</code> is already immutable (e.g. {@link Float}), this method should be able to just return it with no problem.
+	 * So if <code>val</code> is already immutable (e.g. {@link Float}), this method should be able to just return it with no problem.<br>
+	 * 
+	 * No need to implement if this parameter isn't animatable, so you can just return <code>null</code> in this case, since this will never be called.
 	 * @param val
 	 * @return
 	 */
@@ -224,7 +251,9 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	/**
 	 * Linearly interpolates between <code>s</code> and <code>e</code>, <code>t</code> being the factor (usually in the range 0.0..1.0 but not limited to).<br>
 	 * For <code>t == 0.0</code>, <code>s</code> should be returned, and for <code>t == 1.0</code>, <code>e</code> should be returned.<br>
-	 * The implementation can make modification to some local mutable object instance and return it to use less memory.
+	 * The implementation can make modification to some local mutable object instance and return it to use less memory.<br>
+	 * 
+	 * No need to implement if this parameter isn't animatable, so you can just return <code>null</code> in this case, since this will never be called.
 	 * 
 	 * @param s Begin value
 	 * @param e End value

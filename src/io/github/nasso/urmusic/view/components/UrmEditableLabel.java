@@ -159,8 +159,6 @@ public class UrmEditableLabel extends JPanel  {
 	}
 
 	public void setValue(String val) {
-		if(this.lastValue != null && this.lastValue.equals(val)) return;
-		
 		this.lastValue = val;
 		
 		this.valueLabel.setText(val);

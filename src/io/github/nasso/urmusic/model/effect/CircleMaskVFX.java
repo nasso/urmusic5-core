@@ -17,20 +17,18 @@ import io.github.nasso.urmusic.model.renderer.EffectArgs;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
 
 public class CircleMaskVFX extends TrackEffect {
-	public static final CircleMaskVFX FX = new CircleMaskVFX();
-	
 	private GLUtils glu = new GLUtils();
 	
-	private int quadProg, quadVAO;
+	private int prog, quadVAO;
 	private int loc_inputTex, loc_size, loc_color, loc_originInOutRadius, loc_inOutFade, loc_invert;
 	
 	public class CircleMaskVFXInstance extends TrackEffectInstance {
 		private Point2DParam position = new Point2DParam("position", 0, 0);
 		private RGBA32Param color = new RGBA32Param("color", 0xFFFFFFFF);
 		private FloatParam innerRadius = new FloatParam("innerRadius", 0.0f, 1.0f);
-		private FloatParam outerRadius = new FloatParam("outerRadius", 400.0f, 1.0f);
+		private FloatParam outerRadius = new FloatParam("outerRadius", 200.0f, 1.0f);
 		private FloatParam innerFade = new FloatParam("innerFade", 0.0f, 1.0f);
-		private FloatParam outerFade = new FloatParam("outerFade", 400.0f, 1.0f);
+		private FloatParam outerFade = new FloatParam("outerFade", 1.0f, 1.0f);
 		private BooleanParam invert = new BooleanParam("invert", BoolValue.FALSE);
 		
 		public CircleMaskVFXInstance() {
@@ -57,7 +55,7 @@ public class CircleMaskVFX extends TrackEffect {
 			float outerFade = this.outerFade.getValue(args.frame);
 			BoolValue invert = this.invert.getValue(args.frame);
 			
-			gl.glUseProgram(CircleMaskVFX.this.quadProg);
+			gl.glUseProgram(CircleMaskVFX.this.prog);
 			CircleMaskVFX.this.glu.uniformTexture(gl, CircleMaskVFX.this.loc_inputTex, args.texInput, 0);
 			
 			gl.glUniform2f(CircleMaskVFX.this.loc_size, args.width, args.height);
@@ -83,14 +81,15 @@ public class CircleMaskVFX extends TrackEffect {
 	}
 	
 	public void globalVideoSetup(GL3 gl) {
-		this.quadProg = this.glu.createProgram(gl, "fx/circle_mask/vert_main.vs", "fx/circle_mask/frag_main.fs");
-		this.loc_inputTex = gl.glGetUniformLocation(this.quadProg, "inputTex");
-		this.loc_size = gl.glGetUniformLocation(this.quadProg, "colorSize");
+		this.prog = this.glu.createProgram(gl, "fx/circle_mask/vert_main.vs", "fx/circle_mask/frag_main.fs");
 		
-		this.loc_color = gl.glGetUniformLocation(this.quadProg, "params.color");
-		this.loc_originInOutRadius = gl.glGetUniformLocation(this.quadProg, "params.originInOutRadius");
-		this.loc_inOutFade = gl.glGetUniformLocation(this.quadProg, "params.inOutFade");
-		this.loc_invert = gl.glGetUniformLocation(this.quadProg, "params.invert");
+		this.loc_inputTex = gl.glGetUniformLocation(this.prog, "inputTex");
+		this.loc_size = gl.glGetUniformLocation(this.prog, "colorSize");
+		
+		this.loc_color = gl.glGetUniformLocation(this.prog, "params.color");
+		this.loc_originInOutRadius = gl.glGetUniformLocation(this.prog, "params.originInOutRadius");
+		this.loc_inOutFade = gl.glGetUniformLocation(this.prog, "params.inOutFade");
+		this.loc_invert = gl.glGetUniformLocation(this.prog, "params.invert");
 		
 		this.quadVAO = this.glu.genFullQuadVAO(gl);
 	}
@@ -104,7 +103,7 @@ public class CircleMaskVFX extends TrackEffect {
 	}
 
 	public void effectMain() {
-		this.setVideoEffect();
+		this.enableVideoEffect();
 	}
 
 	public String getEffectClassName() {

@@ -46,11 +46,39 @@ public class Renderer implements Runnable {
 			if(Renderer.this.renderingThreadIdle) this.notifyLock();
 		}
 		
-		public void clearAllCommands() {
+		private void clearCommandsOfType(int cmd) {
 			synchronized(this.commands) {
-				this.commands.clear();
-				this.availableCommands = 0;
+				for(int i = 0; i < this.commands.size(); i++) {
+					int c = (int) this.commands.get(i);
+					int s = 0;
+					
+					switch(c) {
+						case RCMD_RENDER_FRAME:
+							s = 3;
+							break;
+						case RCMD_LOAD_EFFECT:
+						case RCMD_UNLOAD_EFFECT:
+						case RCMD_UNLOAD_EFFECT_INSTANCE:
+						case RCMD_UNLOAD_TRACK:
+							s = 1;
+							break;
+					}
+					
+					if(c == cmd) {
+						for(int j = 0; j <= s; j++)
+							this.commands.remove(i);
+						
+						i--;
+						this.availableCommands--;
+					} else {
+						i += s;
+					}
+				}
 			}
+		}
+		
+		public void clearAllCommands() {
+			this.clearCommandsOfType(RCMD_RENDER_FRAME);
 		}
 		
 		public void consumeCommand() {
@@ -76,7 +104,7 @@ public class Renderer implements Runnable {
 			synchronized(this.commands) {
 				this.commands.add(RCMD_LOAD_EFFECT);
 				this.commands.add(fx);
-	
+				
 				this.pushCommand();
 			}
 		}
@@ -164,65 +192,68 @@ public class Renderer implements Runnable {
 		
 		// Wait for frames to render now
 		try {
-			synchronized(this.renderLock) {
-				while(true) {
-					while(this.renderQueue.getAvailableCommands() == 0) {
+			while(true) {
+				while(this.renderQueue.getAvailableCommands() == 0) {
+					synchronized(this.renderLock) {
 						this.renderingThreadIdle = true;
 						this.renderLock.wait();
 						this.renderingThreadIdle = false;
 					}
+				}
+				
+				// Get stuff from the render queue
+				synchronized(this.renderQueue.commands) {
+					// Check again for commands
+					if(this.renderQueue.getAvailableCommands() == 0) continue;
 					
-					// Get stuff from the render queue
-					synchronized(this.renderQueue.commands) {
-						cmd = (int) this.renderQueue.pop();
-						
-						switch(cmd) {
-							case RCMD_RENDER_FRAME:
-								comp = (Composition) this.renderQueue.pop();
-								frame = (int) this.renderQueue.pop();
-								frameCount = (int) this.renderQueue.pop();
-								break;
-							case RCMD_LOAD_EFFECT:
-							case RCMD_UNLOAD_EFFECT:
-								fx = (TrackEffect) this.renderQueue.pop();
-								break;
-							case RCMD_UNLOAD_EFFECT_INSTANCE:
-								fxi = (TrackEffectInstance) this.renderQueue.pop();
-								break;
-							case RCMD_UNLOAD_TRACK:
-								track = (Track) this.renderQueue.pop();
-								break;
-						}
-						
-						this.renderQueue.consumeCommand();
-					}
+					cmd = (int) this.renderQueue.pop();
 					
 					switch(cmd) {
 						case RCMD_RENDER_FRAME:
-							for(int i = 0; i < frameCount; i++) {
-								this.doFrame(comp, frame + i);
-							}
-							comp = null; // gc free
+							comp = (Composition) this.renderQueue.pop();
+							frame = (int) this.renderQueue.pop();
+							frameCount = (int) this.renderQueue.pop();
 							break;
 						case RCMD_LOAD_EFFECT:
-							this.glRenderer.initEffect(fx);
-							this.notifyEffectLoaded(fx);
-							fx = null; // gc free
-							break;
 						case RCMD_UNLOAD_EFFECT:
-							this.glRenderer.disposeEffect(fx);
-							this.notifyEffectUnloaded(fx);
-							fx = null; // gc free
+							fx = (TrackEffect) this.renderQueue.pop();
 							break;
 						case RCMD_UNLOAD_EFFECT_INSTANCE:
-							this.glRenderer.disposeEffectInstance(fxi);
-							fxi = null; // gc free
+							fxi = (TrackEffectInstance) this.renderQueue.pop();
 							break;
 						case RCMD_UNLOAD_TRACK:
-							this.glRenderer.disposeTrack(track);
-							track = null; // gc free
+							track = (Track) this.renderQueue.pop();
 							break;
 					}
+					
+					this.renderQueue.consumeCommand();
+				}
+				
+				switch(cmd) {
+					case RCMD_RENDER_FRAME:
+						for(int i = 0; i < frameCount; i++) {
+							this.doFrame(comp, frame + i);
+						}
+						comp = null; // gc free
+						break;
+					case RCMD_LOAD_EFFECT:
+						this.glRenderer.initEffect(fx);
+						this.notifyEffectLoaded(fx);
+						fx = null; // gc free
+						break;
+					case RCMD_UNLOAD_EFFECT:
+						this.glRenderer.disposeEffect(fx);
+						this.notifyEffectUnloaded(fx);
+						fx = null; // gc free
+						break;
+					case RCMD_UNLOAD_EFFECT_INSTANCE:
+						this.glRenderer.disposeEffectInstance(fxi);
+						fxi = null; // gc free
+						break;
+					case RCMD_UNLOAD_TRACK:
+						this.glRenderer.disposeTrack(track);
+						track = null; // gc free
+						break;
 				}
 			}
 		} catch(InterruptedException e) {

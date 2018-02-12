@@ -9,6 +9,7 @@ import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.common.event.RendererListener;
+import io.github.nasso.urmusic.model.effect.AffineTransformVFX;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
 import io.github.nasso.urmusic.model.playback.PlaybackThread;
 import io.github.nasso.urmusic.model.project.Composition;
@@ -23,7 +24,8 @@ import io.github.nasso.urmusic.view.UrmusicView;
 
 public class UrmusicModel {
 	public static final TrackEffect[] STOCK_EFFECTS = new TrackEffect[] {
-		CircleMaskVFX.FX,
+		new CircleMaskVFX(),
+		new AffineTransformVFX(),
 	};
 	
 	private UrmusicModel() { }
@@ -122,7 +124,7 @@ public class UrmusicModel {
 			project = new Project();
 			focusComposition(project.getMainComposition());
 			renderer.queueFrameASAP(focusedComposition, 0);
-
+			
 			notifyProjectLoaded(project);
 		}
 	}

@@ -87,7 +87,9 @@ public class Track implements EffectInstanceListener {
 	
 	private String name = "Unnamed";
 	private boolean enabled = true;
+	
 	private List<TrackEffectInstance> effects = new ArrayList<>();
+	private List<TrackEffectInstance> effectsUnmodifiable = Collections.unmodifiableList(this.effects);
 	
 	/**
 	 * @see Track#getActivityRangesLengths()
@@ -130,6 +132,10 @@ public class Track implements EffectInstanceListener {
 	
 	public TrackEffectInstance getEffect(int i) {
 		return this.effects.get(i);
+	}
+	
+	public List<TrackEffectInstance> getEffects() {
+		return this.effectsUnmodifiable;
 	}
 	
 	public void addEffect(TrackEffectInstance e) {

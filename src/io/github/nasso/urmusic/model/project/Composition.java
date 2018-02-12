@@ -55,7 +55,7 @@ public class Composition implements TimelineListener, TrackListener {
 		this.notifyResized();
 	}
 
-	public MutableRGBA32 getClearColor() {
+	public RGBA32 getClearColor() {
 		return this.clearColor;
 	}
 

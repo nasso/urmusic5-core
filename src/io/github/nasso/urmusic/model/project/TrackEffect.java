@@ -161,11 +161,14 @@ public abstract class TrackEffect {
 	
 	private boolean audioEffect = false, videoEffect = false;
 	
-	public void setAudioEffect() {
+	public TrackEffect() {
+	}
+	
+	public void enableAudioEffect() {
 		this.audioEffect = true;
 	}
 	
-	public void setVideoEffect() {
+	public void enableVideoEffect() {
 		this.videoEffect = true;
 	}
 	

@@ -53,8 +53,10 @@ public class PreviewView extends UrmViewPane implements RendererListener, FocusL
 	public void frameRendered(Composition comp, int frame) {
 		if(frame != UrmusicModel.getFrameCursor()) return;
 		
-		SwingUtilities.invokeLater(this.controlPane::update);
-		SwingUtilities.invokeLater(this::repaint);
+		SwingUtilities.invokeLater(() -> {
+			this.controlPane.update();
+			this.repaint();
+		});
 	}
 
 	public void effectLoaded(TrackEffect fx) {

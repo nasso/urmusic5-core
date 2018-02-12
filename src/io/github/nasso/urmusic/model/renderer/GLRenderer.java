@@ -15,7 +15,6 @@ import com.jogamp.opengl.GLEventListener;
 import com.jogamp.opengl.GLProfile;
 
 import io.github.nasso.urmusic.common.event.CompositionListener;
-import io.github.nasso.urmusic.model.project.CompositeTrack;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect;
@@ -205,26 +204,43 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		
 		int destFBO = dest.fbo[cacheIndex];
 		
+		
 		// Bind framebuffer
 		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, destFBO);
 		this.gl.glViewport(0, 0, dest.width, dest.height);
 		
-		this.gl.glClearColor(
-			comp.getClearColor().getRedf(),
-			comp.getClearColor().getGreenf(),
-			comp.getClearColor().getBluef(),
-			comp.getClearColor().getAlphaf()
-		);
-		this.gl.glClear(GL_COLOR_BUFFER_BIT);
-		
-		
 		// -- Composition --
 		List<Track> tracks = comp.getTimeline().getTracks();
+		
+		int lastTrackIndex = -1;
 		for(int i = 0; i < tracks.size(); i++) {
+			Track t = tracks.get(i);
+			
+			if(t.isEnabled() && t.isActiveAt(frame_id)) lastTrackIndex = i;
+		}
+		
+		if(lastTrackIndex == -1) {
+			this.gl.glClearColor(
+				comp.getClearColor().getRedf(),
+				comp.getClearColor().getGreenf(),
+				comp.getClearColor().getBluef(),
+				comp.getClearColor().getAlphaf()
+			);
+			this.gl.glClear(GL_COLOR_BUFFER_BIT);
+			
+			return;
+		}
+		
+		this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		this.gl.glClear(GL_COLOR_BUFFER_BIT);
+		
+		for(int i = 0; i <= lastTrackIndex; i++) {
 			Track t = tracks.get(i);
 			
 			if(!t.isEnabled() || !t.isActiveAt(frame_id)) continue;
 			
+			/*
+			TODO: CompositeTrack rendering
 			// We only care about video tracks
 			if(t instanceof CompositeTrack) {
 				this.renderComposition(((CompositeTrack) t).getComposition(), frame_id, cacheIndex);
@@ -233,14 +249,51 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, destFBO);
 				this.gl.glViewport(0, 0, dest.width, dest.height);
 			}
+			*/
 			
+			int lastEffectIndex = -1;
 			for(int j = 0; j < t.getEffectCount(); j++) {
+				TrackEffectInstance fx = t.getEffect(j);
+				
+				if(fx.isEnabled() && fx.getEffectClass().isVideoEffect()) lastEffectIndex = j;
+			}
+			
+			boolean isLastTrack = lastTrackIndex == i;
+			boolean noEffect = lastEffectIndex == -1;
+			
+			if(isLastTrack && noEffect) {
+				this.gl.glClearColor(
+					comp.getClearColor().getRedf(),
+					comp.getClearColor().getGreenf(),
+					comp.getClearColor().getBluef(),
+					comp.getClearColor().getAlphaf()
+				);
+				
+				this.gl.glClear(GL_COLOR_BUFFER_BIT);
+			}
+			
+			for(int j = 0; j <= lastEffectIndex; j++) {
 				TrackEffectInstance fx = t.getEffect(j);
 				
 				// We only care about video effects
 				if(!fx.isEnabled() || !fx.getEffectClass().isVideoEffect()) continue;
 				
 				dest.swapAlt(this.gl, cacheIndex);
+				
+				if(isLastTrack && j == lastEffectIndex) // if last track and last effect (aka next is final comp)
+					this.gl.glClearColor(
+						comp.getClearColor().getRedf(),
+						comp.getClearColor().getGreenf(),
+						comp.getClearColor().getBluef(),
+						comp.getClearColor().getAlphaf()
+					);
+				else
+					this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+				
+				this.gl.glClear(GL_COLOR_BUFFER_BIT);
+				
+				this.gl.glEnable(GL_BLEND);
+				this.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				
 				this.fxArgs.clear();
 				this.fxArgs.width = dest.width;

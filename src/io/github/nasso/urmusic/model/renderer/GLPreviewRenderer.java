@@ -60,6 +60,8 @@ public class GLPreviewRenderer implements GLEventListener {
 		float s = Math.min(sw / rw, sh / rh);
 		float w = rw * s, h = rh * s;
 		
+		gl.glViewport(0, 0, (int) sw, (int) sh);
+		
 		gl.glUniform2f(this.quadProgScaleLocation, w / sw, h / sh);
 		this.glu.uniformTexture(gl, this.quadProgTextureLocation, tex, 0);
 		

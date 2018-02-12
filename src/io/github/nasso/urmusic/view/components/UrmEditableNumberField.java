@@ -212,8 +212,6 @@ public class UrmEditableNumberField extends JPanel {
 	}
 
 	public void setValue(Number val) {
-		if(val != null && val.floatValue() == this.lastValue) return;
-		
 		this.lastValue = Math.round(val.floatValue() * 100.0f) / 100.0f;
 		
 		this.valueLabel.setText(String.valueOf(this.lastValue));
