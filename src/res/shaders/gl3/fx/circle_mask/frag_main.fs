@@ -34,17 +34,12 @@ float doMask() {
 	
 	float dist = distance(pixelCoords, u_originPoint);
 	
-	float outerRadius = max(u_outerRadius, 0.0);
-	float innerRadius = max(u_innerRadius, 0.0);
-	float innerFade = max(u_innerFade, 0.0);
-	float outerFade = max(u_outerFade, 0.0);
+	if(u_outerRadius == 0.0 && u_outerFade == 0.0) return 0.0;
 	
-	if(outerRadius == 0.0 && outerFade == 0.0) return 0.0;
+	float outerMask = __smoothstep(u_outerRadius + u_outerFade, u_outerRadius, dist);
+	if(u_innerRadius == 0) return outerMask;
 	
-	float outerMask = __smoothstep(outerRadius + outerFade, outerRadius, dist);
-	if(innerRadius == 0) return outerMask;
-	
-	float innerMask = __smoothstep(innerRadius - innerFade, innerRadius, dist);
+	float innerMask = __smoothstep(u_innerRadius - u_innerFade, u_innerRadius, dist);
 	
 	return outerMask * innerMask;
 }
