@@ -7,8 +7,6 @@ import io.github.nasso.urmusic.model.project.control.FloatParam;
 import io.github.nasso.urmusic.view.components.UrmEditableNumberField;
 
 public class FloatParamUI extends EffectParamUI<FloatParam> {
-	private static final long serialVersionUID = 8290439490941369516L;
-	
 	private UrmEditableNumberField field;
 	
 	public FloatParamUI(FloatParam param) {

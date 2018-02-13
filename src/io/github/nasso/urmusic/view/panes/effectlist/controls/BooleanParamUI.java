@@ -11,16 +11,12 @@ import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.control.BooleanParam;
 
 public class BooleanParamUI extends EffectParamUI<BooleanParam> {
-	private static final long serialVersionUID = -8300159978938206819L;
-	
 	private JCheckBox box;
 	
 	public BooleanParamUI(BooleanParam param) {
 		super(param);
 		
 		this.box = new JCheckBox(new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-
 			public void actionPerformed(ActionEvent e) {
 				int frame = UrmusicModel.getFrameCursor();
 				

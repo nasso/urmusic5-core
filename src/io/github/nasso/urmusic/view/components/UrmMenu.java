@@ -15,7 +15,6 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 public class UrmMenu extends JPanel implements MouseListener {
-	private static final long serialVersionUID = -4589860633748681474L;
 	private static final Color MENU_BACKGROUND = Color.LIGHT_GRAY;
 	private static final Color MENU_HOVER_BACKGROUND = new Color(0xAAAAAA);
 	

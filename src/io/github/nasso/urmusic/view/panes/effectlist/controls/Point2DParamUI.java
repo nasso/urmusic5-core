@@ -14,8 +14,6 @@ import io.github.nasso.urmusic.model.project.control.Point2DParam;
 import io.github.nasso.urmusic.view.components.UrmEditableNumberField;
 
 public class Point2DParamUI extends EffectParamUI<Point2DParam> {
-	private static final long serialVersionUID = -7232967232115752212L;
-
 	private Vector2f _vec2 = new Vector2f();
 	private UrmEditableNumberField xField, yField;
 	

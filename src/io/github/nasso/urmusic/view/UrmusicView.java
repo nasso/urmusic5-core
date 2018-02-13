@@ -120,16 +120,12 @@ public class UrmusicView {
 	
 	private static void setupActions() {
 		menuExitAction = new AbstractAction(getString("menu.file.quit")) {
-			private static final long serialVersionUID = -3394065489480828001L;
-
 			public void actionPerformed(ActionEvent e) {
 				UrmusicController.requestExit();
 			}
 		};
 		
 		menuAboutAction = new AbstractAction(getString("menu.help.about")) {
-			private static final long serialVersionUID = -48007517019376751L;
-			
 			private final UrmusicAboutDialog aboutDialog = new UrmusicAboutDialog();
 			
 			public void actionPerformed(ActionEvent e) {

@@ -27,8 +27,6 @@ import io.github.nasso.urmusic.model.project.control.EffectParam;
 import io.github.nasso.urmusic.model.project.control.Point2DParam;
 
 public class PreviewParameterControlsPane extends JComponent {
-	private static final long serialVersionUID = -6814038302072686626L;
-	
 	private static final Stroke POINT_BORDER_STROKE = new BasicStroke(3);
 	private static final Stroke POINT_INNER_STROKE = new BasicStroke(1);
 	private static final Color POINT_BORDER_COLOR = new Color(0x990000);
@@ -72,8 +70,6 @@ public class PreviewParameterControlsPane extends JComponent {
 	}
 	
 	private class Point2DControl extends JComponent implements MouseListener, MouseMotionListener {
-		private static final long serialVersionUID = -7243820735887468939L;
-		
 		private Vector2f _vec2 = new Vector2f();
 		
 		private Point2DParam param;

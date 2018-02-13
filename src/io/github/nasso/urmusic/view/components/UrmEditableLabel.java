@@ -22,7 +22,6 @@ import javax.swing.event.DocumentListener;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 public class UrmEditableLabel extends JPanel  {
-	private static final long serialVersionUID = -5147668762265296043L;
 	private static final String CARD_LABEL = "label";
 	private static final String CARD_FIELD = "field";
 	

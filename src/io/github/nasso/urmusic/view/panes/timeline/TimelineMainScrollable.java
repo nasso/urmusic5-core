@@ -32,8 +32,6 @@ import io.github.nasso.urmusic.view.layout.VListLayout;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class TimelineMainScrollable extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, TimelineListener, FrameCursorListener, RendererListener, FocusListener {
-	private static final long serialVersionUID = 1008513031790674759L;
-	
 	private TimelineView view;
 	private JPanel infoPane, timelinePane;
 	private TimelineCaretLayer caretPane;

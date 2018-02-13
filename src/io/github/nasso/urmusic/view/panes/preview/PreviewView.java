@@ -39,7 +39,6 @@ public class PreviewView extends UrmViewPane implements
 													MouseListener,
 													MouseMotionListener,
 													MouseWheelListener {
-	private static final long serialVersionUID = -761158235222787214L;
 	public static final String VIEW_NAME = "preview";
 
 	private PreviewParameterControlsPane controlPane;

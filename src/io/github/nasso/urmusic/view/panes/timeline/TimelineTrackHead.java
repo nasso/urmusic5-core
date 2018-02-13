@@ -21,8 +21,6 @@ import io.github.nasso.urmusic.view.components.UrmIconButton;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 
 public class TimelineTrackHead extends JPanel implements TrackListener {
-	private static final long serialVersionUID = -7262310150252521358L;
-
 	private Track track;
 	
 	private UrmEditableLabel nameLabel;

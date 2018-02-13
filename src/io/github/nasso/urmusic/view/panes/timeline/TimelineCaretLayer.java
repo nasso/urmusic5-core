@@ -16,7 +16,6 @@ import io.github.nasso.urmusic.model.project.control.KeyFrame;
 import io.github.nasso.urmusic.model.renderer.CachedFrame;
 
 public class TimelineCaretLayer extends LayerUI<JPanel> {
-	private static final long serialVersionUID = 8643950564372365882L;
 	private static final Color KEY_FRAME_COLOR = new Color(0x0099FF);
 
 	private TimelineView view;

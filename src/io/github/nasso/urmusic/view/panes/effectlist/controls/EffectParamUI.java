@@ -10,8 +10,6 @@ import io.github.nasso.urmusic.model.project.control.Point2DParam;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 
 public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
-	private static final long serialVersionUID = 4381903239053495291L;
-
 	private final T param;
 	
 	public EffectParamUI(T param) {

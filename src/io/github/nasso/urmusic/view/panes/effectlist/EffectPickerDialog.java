@@ -31,10 +31,7 @@ import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
 public class EffectPickerDialog extends JDialog {
-	private static final long serialVersionUID = 7759020018952537259L;
-	
 	private static class TrackEffectListCellRenderer extends JLabel implements ListCellRenderer<TrackEffect> {
-		private static final long serialVersionUID = 3180055032499103444L;
 		private static Color BACKGROUND_SELECTED = new Color(0x99b0d0f2, true);
 		private static Color BACKGROUND_SELECTED_FOCUSED = new Color(0xAAb0d0f2, true);
 		private static Border UNFOCUS_BORDER = BorderFactory.createEmptyBorder(3, 4, 3, 4);
@@ -137,16 +134,12 @@ public class EffectPickerDialog extends JDialog {
 		controlPane.setLayout(new BoxLayout(controlPane, BoxLayout.X_AXIS));
 		
 		controlPane.add(new JButton(new AbstractAction(UrmusicStrings.getString("dialog.global.cancel")) {
-			private static final long serialVersionUID = 1L;
-
 			public void actionPerformed(ActionEvent e) {
 				EffectPickerDialog.this.setVisible(false);
 			}
 		}));
 		controlPane.add(Box.createHorizontalGlue());
 		controlPane.add(new JButton(new AbstractAction(UrmusicStrings.getString("dialog.global.ok")) {
-			private static final long serialVersionUID = 1L;
-
 			public void actionPerformed(ActionEvent e) {
 				EffectPickerDialog.this.sendResults();
 			}

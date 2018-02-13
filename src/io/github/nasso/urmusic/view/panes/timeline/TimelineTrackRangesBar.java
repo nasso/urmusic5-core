@@ -30,7 +30,6 @@ public class TimelineTrackRangesBar extends JPanel implements
 														MouseListener,
 														MouseMotionListener,
 														KeyListener {
-	private static final long serialVersionUID = -1959492010632451757L;
 	private static final Color COMP_BACKGROUND = new Color(0xcccccc);
 	private static final Color COMP_FOCUSED_BACKGROUND = new Color(0xbbbbbb);
 	private static final Color TRACK_BACKGROUND = new Color(0xffffff);

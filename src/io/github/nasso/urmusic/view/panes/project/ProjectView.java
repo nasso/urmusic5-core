@@ -25,7 +25,6 @@ import io.github.nasso.urmusic.view.components.UrmViewPane;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
 public class ProjectView extends UrmViewPane {
-	private static final long serialVersionUID = -3682043125082048403L;
 	public static final String VIEW_NAME = "project";
 
 	private ProjectFileTreeModel treeModel;
@@ -34,8 +33,6 @@ public class ProjectView extends UrmViewPane {
 	public ProjectView() {
 		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add"),
 			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add.importFile")) {
-				private static final long serialVersionUID = 1L;
-				
 				private JFileChooser chooser;
 				
 				public void actionPerformed(ActionEvent e) {
@@ -63,8 +60,6 @@ public class ProjectView extends UrmViewPane {
 				}
 			}),
 			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add.newDirectory")) {
-				private static final long serialVersionUID = 1L;
-				
 				public void actionPerformed(ActionEvent e) {
 					UrmusicController.newDirectory("New Directory");
 				}

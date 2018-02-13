@@ -30,8 +30,6 @@ import io.github.nasso.urmusic.view.panes.project.ProjectView;
 import io.github.nasso.urmusic.view.panes.timeline.TimelineView;
 
 public class SplittablePane extends JPanel {
-	private static final long serialVersionUID = 2803211023410018498L;
-
 	private static final Color CONTROL_BAR_BG = Color.LIGHT_GRAY;
 	private static final String CARD_MAIN = "main";
 	private static final String CARD_SPLIT = "split";

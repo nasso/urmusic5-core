@@ -27,7 +27,6 @@ import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 public class UrmEditableNumberField extends JPanel {
-	private static final long serialVersionUID = -63508914364230123L;
 	private static final String CARD_LABEL = "label";
 	private static final String CARD_FIELD = "field";
 	

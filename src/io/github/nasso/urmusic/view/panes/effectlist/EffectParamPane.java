@@ -30,7 +30,6 @@ import io.github.nasso.urmusic.view.panes.effectlist.controls.EffectParamUI;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class EffectParamPane extends JPanel implements FrameCursorListener, EffectParamListener, MouseListener, FocusListener<EffectParam<?>>, KeyFrameListener {
-	private static final long serialVersionUID = -6007745267301626934L;
 	private static final Color PARAM_LINE_COLOR = new Color(0xffffff);
 	private static final Color PARAM_LINE_SELECTED_COLOR = new Color(0xeeeeee);
 

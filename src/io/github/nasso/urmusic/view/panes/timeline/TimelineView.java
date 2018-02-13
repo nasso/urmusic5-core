@@ -14,7 +14,6 @@ import io.github.nasso.urmusic.view.components.UrmViewPane;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
 public class TimelineView extends UrmViewPane {
-	private static final long serialVersionUID = -5890250765481685754L;
 	public static final String VIEW_NAME = "timeline";
 	
 	public static final int FRAME_CARET_HEADER_HEIGHT = 12;
@@ -31,8 +30,6 @@ public class TimelineView extends UrmViewPane {
 		// Add
 		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add"),
 			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add.track")) {
-				private static final long serialVersionUID = 1L;
-
 				public void actionPerformed(ActionEvent e) {
 					UrmusicController.addTrack();
 				}

@@ -23,7 +23,6 @@ import io.github.nasso.urmusic.view.components.UrmViewPane;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
 public class EffectListView extends UrmViewPane implements TimelineListener, FocusListener<Track> {
-	private static final long serialVersionUID = -896247777042870529L;
 	public static final String VIEW_NAME = "effectList";
 
 	private Map<Track, TrackEffectListPane> listPanes = new HashMap<>();
@@ -40,8 +39,6 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 		// Add
 		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add"),
 			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add.effect")) {
-				private static final long serialVersionUID = 1L;
-
 				public void actionPerformed(ActionEvent e) {
 					EffectListView.this.showAddEffectDialog();
 				}

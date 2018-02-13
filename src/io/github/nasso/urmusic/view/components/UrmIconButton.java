@@ -7,8 +7,6 @@ import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 
 public class UrmIconButton extends JButton {
-	private static final long serialVersionUID = 6402968032608825624L;
-
 	public UrmIconButton(ImageIcon icon) {
 		super(icon);
 		

@@ -18,11 +18,7 @@ import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 
 public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
-	private static final long serialVersionUID = 8290439490941369516L;
-	
 	private static class ColorButton extends JComponent implements MouseListener {
-		private static final long serialVersionUID = -1557230386392972285L;
-		
 		private Color color = Color.RED;
 		
 		private Runnable onClick;

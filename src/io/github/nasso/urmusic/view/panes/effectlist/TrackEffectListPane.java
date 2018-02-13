@@ -11,7 +11,6 @@ import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
 public class TrackEffectListPane extends JPanel implements TrackListener {
-	private static final long serialVersionUID = 1958148055900114629L;
 	private static int global_counter = Integer.MIN_VALUE;
 
 	private Track track;

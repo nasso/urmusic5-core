@@ -21,8 +21,6 @@ import io.github.nasso.urmusic.common.DataUtils;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
 public class UrmusicAboutDialog extends JDialog {
-	private static final long serialVersionUID = -1450901720085825932L;
-
 	public UrmusicAboutDialog() {
 		JPanel container = new JPanel(new BorderLayout(4, 4));
 		container.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));

@@ -25,8 +25,6 @@ import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
 public class TrackEffectPane extends JPanel implements EffectInstanceListener {
-	private static final long serialVersionUID = -6215719147611637543L;
-
 	private TrackEffectInstance fx;
 	
 	private boolean expanded = false;
