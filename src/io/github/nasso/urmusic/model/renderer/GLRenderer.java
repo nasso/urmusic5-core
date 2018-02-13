@@ -340,10 +340,6 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		return this.getFramebufferFor(comp).texture[index];
 	}
 	
-	public GLEventListener createPreviewRenderer() {
-		return new GLPreviewRenderer(this);
-	}
-	
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) { }
 
 	public void clearColorChanged(Composition comp) {

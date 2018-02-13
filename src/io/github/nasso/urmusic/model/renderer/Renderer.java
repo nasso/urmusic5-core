@@ -386,25 +386,33 @@ public class Renderer implements Runnable {
 		this.drawable.destroy();
 	}
 	
-	public GLJPanel createGLJPanelPreview() {
+	public GLPreviewer createGLJPanelPreview() {
+		GLPreviewer previewer = new GLPreviewer(this.glRenderer);
+		
 		GLJPanel gljp = new GLJPanel(this.glCapsPreview);
 		gljp.setSkipGLOrientationVerticalFlip(true);
 		gljp.setSharedAutoDrawable(this.drawable);
-		gljp.addGLEventListener(this.glRenderer.createPreviewRenderer());
+		gljp.addGLEventListener(previewer.renderer);
 		
 		gljp.display();
 		
-		return gljp;
+		previewer.panel = gljp;
+		
+		return previewer;
 	}
 	
-	public GLCanvas createGLCanvasPreview() {
+	public GLPreviewer createGLCanvasPreview() {
+		GLPreviewer previewer = new GLPreviewer(this.glRenderer);
+		
 		GLCanvas glcvs = new GLCanvas(this.glCapsPreview);
 		glcvs.setSharedAutoDrawable(this.drawable);
-		glcvs.addGLEventListener(this.glRenderer.createPreviewRenderer());
+		glcvs.addGLEventListener(previewer.renderer);
 		
 		glcvs.display();
+
+		previewer.panel = glcvs;
 		
-		return glcvs;
+		return previewer;
 	}
 	
 	public void addRendererListener(RendererListener l) {

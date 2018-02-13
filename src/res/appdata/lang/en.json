@@ -19,6 +19,11 @@
 		"frame.multiCloseWarning.cancel": "Cancel",
 		
 		"view.preview.name": "Preview",
+		"view.preview.menu.view": "View",
+		"view.preview.menu.view.fit": "Fit",
+		"view.preview.menu.view.fitMax": "Fit up to 100%",
+		"view.preview.menu.view.original": "Original (100%)",
+		"view.preview.menu.view.center": "Center",
 		
 		"view.project.name": "Project",
 		"view.project.menu.add": "Add",

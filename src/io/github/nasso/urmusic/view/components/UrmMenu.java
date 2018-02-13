@@ -6,8 +6,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
@@ -24,7 +24,7 @@ public class UrmMenu extends JPanel implements MouseListener {
 	
 	private JPopupMenu popup;
 	
-	public UrmMenu(String label, JMenuItem... items) {
+	public UrmMenu(String label, JComponent... items) {
 		this.popup = new JPopupMenu();
 		for(int i = items.length - 1; i >= 0; i--)
 			this.popup.add(items[i]);

@@ -60,8 +60,8 @@ public class PreviewParameterControlsPane extends JComponent {
 				if(c instanceof Point2DControl) {
 					Vector2fc p = ((Point2DControl) c).param.getValue(frame);
 					
-					int x = PreviewParameterControlsPane.this.xPosToUI(p.x());
-					int y = PreviewParameterControlsPane.this.yPosToUI(p.y());
+					int x = PreviewParameterControlsPane.this.view.xPosToUI(p.x());
+					int y = PreviewParameterControlsPane.this.view.yPosToUI(p.y());
 					
 					Dimension size = c.getPreferredSize();
 					c.setLocation(x - size.width / 2, y - size.height / 2);
@@ -137,8 +137,8 @@ public class PreviewParameterControlsPane extends JComponent {
 
 		public void mouseDragged(MouseEvent e) {
 			if(this.pressed) {
-				float x = PreviewParameterControlsPane.this.xUIToPos(e.getX() + this.getX());
-				float y = PreviewParameterControlsPane.this.yUIToPos(e.getY() + this.getY());
+				float x = PreviewParameterControlsPane.this.view.xUIToPos(e.getX() + this.getX());
+				float y = PreviewParameterControlsPane.this.view.yUIToPos(e.getY() + this.getY());
 				
 				this.param.setValue(this._vec2.set(x, y), UrmusicModel.getFrameCursor());
 			}
@@ -148,9 +148,12 @@ public class PreviewParameterControlsPane extends JComponent {
 		}
 	}
 	
+	private final PreviewView view;
 	private List<Point2DControl> points = new ArrayList<>();
 	
-	public PreviewParameterControlsPane() {
+	public PreviewParameterControlsPane(PreviewView view) {
+		this.view = view;
+		
 		this.setOpaque(false);
 		
 		this.setLayout(new ControlsLayout());
@@ -193,54 +196,6 @@ public class PreviewParameterControlsPane extends JComponent {
 		}
 		
 		return null;
-	}
-	
-	private int xPosToUI(float x) {
-		float sw = this.getWidth();
-		float sh = this.getHeight();
-		float rw = UrmusicModel.getFocusedComposition().getWidth();
-		float rh = UrmusicModel.getFocusedComposition().getHeight();
-		float s = Math.min(sw / rw, sh / rh);
-		float w = rw * s;
-		float bx = (sw - w) / 2f;
-		
-		return (int) (bx + (x / rw + 0.5f) * w);
-	}
-	
-	private int yPosToUI(float y) {
-		float sw = this.getWidth();
-		float sh = this.getHeight();
-		float rw = UrmusicModel.getFocusedComposition().getWidth();
-		float rh = UrmusicModel.getFocusedComposition().getHeight();
-		float s = Math.min(sw / rw, sh / rh);
-		float h = rh * s;
-		float by = (sh - h) / 2f;
-		
-		return (int) (by + (-y / rh + 0.5f) * h);
-	}
-	
-	private float xUIToPos(int x) {
-		float sw = this.getWidth();
-		float sh = this.getHeight();
-		float rw = UrmusicModel.getFocusedComposition().getWidth();
-		float rh = UrmusicModel.getFocusedComposition().getHeight();
-		float s = Math.min(sw / rw, sh / rh);
-		float w = rw * s;
-		float bx = (sw - w) / 2f;
-		
-		return ((x - bx) / w - 0.5f) * rw;
-	}
-	
-	private float yUIToPos(int y) {
-		float sw = this.getWidth();
-		float sh = this.getHeight();
-		float rw = UrmusicModel.getFocusedComposition().getWidth();
-		float rh = UrmusicModel.getFocusedComposition().getHeight();
-		float s = Math.min(sw / rw, sh / rh);
-		float h = rh * s;
-		float by = (sh - h) / 2f;
-		
-		return -((y - by) / h - 0.5f) * rh;
 	}
 	
 	public void dispose() {
