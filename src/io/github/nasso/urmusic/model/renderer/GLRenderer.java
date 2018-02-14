@@ -279,21 +279,18 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				if(!fx.isEnabled() || !fx.getEffectClass().isVideoEffect()) continue;
 				
 				dest.swapAlt(this.gl, cacheIndex);
-				
-				if(isLastTrack && j == lastEffectIndex) // if last track and last effect (aka next is final comp)
+
+				if(isLastTrack && j == lastEffectIndex) { // if last track and last effect (aka next is final comp)
 					this.gl.glClearColor(
 						comp.getClearColor().getRedf(),
 						comp.getClearColor().getGreenf(),
 						comp.getClearColor().getBluef(),
 						comp.getClearColor().getAlphaf()
 					);
-				else
+				} else
 					this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 				
 				this.gl.glClear(GL_COLOR_BUFFER_BIT);
-				
-				this.gl.glEnable(GL_BLEND);
-				this.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				
 				this.fxArgs.clear();
 				this.fxArgs.width = dest.width;

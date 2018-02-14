@@ -1,9 +1,86 @@
 #version 330 core
 
+#define BLEND_SRC_OVER 0
+#define BLEND_DST_OVER 1
+#define BLEND_SRC_IN 2
+#define BLEND_DST_IN 3
+#define BLEND_SRC_OUT 4
+#define BLEND_DST_OUT 5
+#define BLEND_SRC_ATOP 6
+#define BLEND_DST_ATOP 7
+#define BLEND_COPY 8
+#define BLEND_ADD 9
+#define BLEND_XOR 10
+
+// blends and compose the given colours using the given porter duff operator and normal alpha blending
+// see https://www.w3.org/TR/compositing-1/
+vec4 porterDuff(vec4 src, vec4 dst, int op) {
+	// BLEND
+	vec4 cs = src;
+	vec4 cb = dst;
+	
+	float as = cs.a;
+	float ab = cb.a;
+	
+	// COMPOSE
+	float fa = 0.0, fb = 0.0;
+	
+	switch(op) {	
+		case BLEND_SRC_OVER:
+			fa = 1.0;
+			fb = 1.0 - as;
+			break;
+		case BLEND_DST_OVER:
+			fa = 1.0 - ab;
+			fb = 1.0;
+			break;
+		case BLEND_SRC_IN:
+			fa = ab;
+			fb = 0.0;
+			break;
+		case BLEND_DST_IN:
+			fa = 0.0;
+			fb = as;
+			break;
+		case BLEND_SRC_OUT:
+			fa = 1.0 - ab;
+			fb = 0.0;
+			break;
+		case BLEND_DST_OUT:
+			fa = 0.0;
+			fb = 1.0 - as;
+			break;
+		case BLEND_SRC_ATOP:
+			fa = ab;
+			fb = 1.0 - as;
+			break;
+		case BLEND_DST_ATOP:
+			fa = 1.0 - ab;
+			fb = as;
+			break;
+		case BLEND_COPY:
+			fa = 1.0;
+			fb = 0.0;
+			break;
+		case BLEND_ADD:
+			fa = 1.0;
+			fb = 1.0;
+			break;
+		case BLEND_XOR:
+			fa = 1.0 - ab;
+			fb = 1.0 - as;
+			break;
+	}
+	
+	return as * fa * cs + ab * fb * cb;
+}
+
 struct Parameters {
 	vec4 color;
 	vec4 originInOutRadius;
 	vec2 inOutFade;
+	
+	int blending;
 	
 	bool invert;
 };
@@ -14,6 +91,7 @@ struct Parameters {
 #define u_outerRadius params.originInOutRadius.w
 #define u_innerFade params.inOutFade.x
 #define u_outerFade params.inOutFade.y
+#define u_blending params.blending
 #define u_invert params.invert
 
 uniform sampler2D inputTex;
@@ -47,11 +125,9 @@ float doMask() {
 void main() {
 	float maskvalue = doMask();
 	if(u_invert) maskvalue = 1.0 - maskvalue;
-	maskvalue *= u_color.a;
 	
-	if(maskvalue >= 1.0) out_color = u_color;
-	else {
-		vec4 texValue = texture(inputTex, pass_quad_uv);
-		out_color = vec4(mix(texValue.xyz, u_color.xyz, maskvalue), clamp(texValue.w + maskvalue, 0.0, 1.0));
-	}
+	vec4 a = u_color * vec4(1.0, 1.0, 1.0, maskvalue);
+	vec4 b = texture(inputTex, pass_quad_uv);
+	
+	out_color = porterDuff(a, b, u_blending);
 }

@@ -1,8 +1,7 @@
 package io.github.nasso.urmusic.view.panes.effectlist.controls;
 
-import java.awt.BorderLayout;
-
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -10,6 +9,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.control.Point2DParam;
 import io.github.nasso.urmusic.view.components.UrmEditableNumberField;
 
@@ -17,9 +17,18 @@ public class Point2DParamUI extends EffectParamUI<Point2DParam> {
 	private Vector2f _vec2 = new Vector2f();
 	private UrmEditableNumberField xField, yField;
 	
-	public Point2DParamUI(Point2DParam param) {
-		super(param);
+	public Point2DParamUI(TrackEffectInstance fx, Point2DParam param) {
+		super(fx, param);
+	}
+
+	public void updateControl(int frame) {
+		Vector2fc val = this.getParam().getValue(frame);
 		
+		this.xField.setValue(val.x());
+		this.yField.setValue(val.y());
+	}
+
+	public JComponent buildUI() {
 		JPanel fieldsPane = new JPanel();
 		fieldsPane.setOpaque(false);
 		
@@ -45,15 +54,6 @@ public class Point2DParamUI extends EffectParamUI<Point2DParam> {
 		fieldsPane.add(new JLabel(" , "));
 		fieldsPane.add(this.yField);
 		
-		this.setLayout(new BorderLayout());
-		this.add(fieldsPane, BorderLayout.EAST);
-	}
-	
-
-	public void updateControl(int frame) {
-		Vector2fc val = this.getParam().getValue(frame);
-		
-		this.xField.setValue(val.x());
-		this.yField.setValue(val.y());
+		return fieldsPane;
 	}
 }

@@ -67,8 +67,8 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		this.add(controlName);
 		this.add(Box.createHorizontalStrut(64));
 		this.add(Box.createHorizontalGlue());
-	
-		this.controlui = EffectParamUI.getParamUI(this.param);
+		
+		this.controlui = EffectParamUI.createParamUI(fx, this.param);
 		if(this.controlui != null) this.add(this.controlui);
 		
 		this.addMouseListener(this);

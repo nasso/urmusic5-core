@@ -1,6 +1,5 @@
 package io.github.nasso.urmusic.view.panes.effectlist.controls;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -15,6 +14,7 @@ import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.MutableRGBA32;
 import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.control.RGBA32Param;
 
 public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
@@ -88,9 +88,15 @@ public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 	
 	private ColorButton colorButton;
 	
-	public RGBA32ParamUI(RGBA32Param param) {
-		super(param);
-		
+	public RGBA32ParamUI(TrackEffectInstance fx, RGBA32Param param) {
+		super(fx, param);
+	}
+
+	public void updateControl(int frame) {
+		this.colorButton.setColor(this.getParam().getValue(frame));
+	}
+
+	public JComponent buildUI() {
 		this.colorButton = new ColorButton(() -> {
 			Color c = JColorChooser.showDialog(this, "Pick a color", this.colorButton.color);
 			
@@ -100,13 +106,8 @@ public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 				this.updateControl(UrmusicModel.getFrameCursor());
 			}
 		});
-
-		this.setLayout(new BorderLayout());
-		this.add(this.colorButton, BorderLayout.EAST);
-	}
-
-	public void updateControl(int frame) {
-		this.colorButton.setColor(this.getParam().getValue(frame));
+		
+		return this.colorButton;
 	}
 }
 
