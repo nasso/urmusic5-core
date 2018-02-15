@@ -42,8 +42,7 @@ public class Urmusic {
 				
 				File f = new File(parentStr, p.getFileName().toString());
 				
-				if(URM_FORCE_RES_EXPORT || !f.exists())
-					DataUtils.exportResource(internalAppdataFolder + File.separatorChar + p.toString(), f.getAbsolutePath());
+				if(URM_FORCE_RES_EXPORT || !f.exists()) DataUtils.exportResource(internalAppdataFolder + File.separatorChar + p.toString(), f.getAbsolutePath());
 			}
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -71,7 +70,7 @@ public class Urmusic {
 		
 		TrackEffectInstance vignette = UrmusicModel.STOCK_EFFECTS[0].instance();
 		RGBA32Param color1 = (RGBA32Param) vignette.getParamByName("color");
-		color1.setValue(new MutableRGBA32(0x0077ffff), 0);
+		color1.setValue(new MutableRGBA32(0xffffffff), 0);
 		FloatParam radius = (FloatParam) vignette.getParamByName("outerRadius");
 		FloatParam outerFade = (FloatParam) vignette.getParamByName("outerFade");
 		radius.addKeyFrame(0, 50.0f);
