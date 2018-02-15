@@ -65,7 +65,7 @@ public class AffineTransformVFX extends TrackEffect {
 	}
 	
 	public void globalVideoSetup(GL3 gl) {
-		this.prog = this.glu.createProgram(gl, "fx/affine_transform/vert_main.vs", "fx/affine_transform/frag_main.fs");
+		this.prog = this.glu.createProgram(gl, "fx/affine_transform/", "vert_main.vs", "frag_main.fs");
 
 		this.loc_inputTex = gl.glGetUniformLocation(this.prog, "inputTex");
 		this.loc_xform = gl.glGetUniformLocation(this.prog, "xform");

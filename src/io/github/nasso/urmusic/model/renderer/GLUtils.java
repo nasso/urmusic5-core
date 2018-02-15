@@ -4,9 +4,13 @@ package io.github.nasso.urmusic.model.renderer;
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.GL2ES2.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.List;
 
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.util.glsl.ShaderUtil;
@@ -14,8 +18,38 @@ import com.jogamp.opengl.util.glsl.ShaderUtil;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
 import io.github.nasso.urmusic.common.DataUtils;
+import io.github.nasso.urmusic.common.parsing.Token;
+import io.github.nasso.urmusic.common.parsing.Tokenizer;
 
 public class GLUtils {
+	private static enum GLSLPreprocessorToken {
+		PRE_INCLUDE,
+		PRE_INCLUDE_LOCAL_PATH,
+		PRE_INCLUDE_GLOBAL_PATH
+	}
+	
+	private static final Tokenizer<GLSLPreprocessorToken> glslTokenizer = new Tokenizer<>();
+	private static final String[] GLSL_FILE_EXTENSIONS = {
+		"frag",
+		"fs",
+		"fshader",
+		
+		"gl",
+		"glsl",
+		
+		"vert",
+		"vs",
+		"vshader",
+	};
+	
+	static {
+		glslTokenizer.ignore("\\s");
+		
+		glslTokenizer.addToken("#include", GLSLPreprocessorToken.PRE_INCLUDE);
+		glslTokenizer.addToken("<.*>", GLSLPreprocessorToken.PRE_INCLUDE_GLOBAL_PATH);
+		glslTokenizer.addToken("\".*\"", GLSLPreprocessorToken.PRE_INCLUDE_LOCAL_PATH);
+	}
+	
 	private final IntBuffer buf1a = IntBuffer.allocate(1);
 	private final IntBuffer buf1b = IntBuffer.allocate(1);
 	
@@ -93,17 +127,79 @@ public class GLUtils {
 		gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	
+	private final void readGLSLSourceLines(String wdir, String shaderPath, StringBuilder lines) throws IOException {
+		String filePath = wdir + shaderPath;
+		
+		InputStream in = DataUtils.getFileInputStream(filePath.toString(), true);
+		
+		// If it's still null, try to guess the missing extension
+		for(int i = 0; i < GLSL_FILE_EXTENSIONS.length && in == null; i++)
+			in = DataUtils.getFileInputStream(filePath.toString() + "." + GLSL_FILE_EXTENSIONS[i], true);
+		
+		// If we couldn't guess the extension, welp rip m8 guess ur file doesn't exist or u have some weird extension
+		if(in == null) {
+			System.err.println("Can't find shader source: " + filePath);
+			return;
+		}
+		
+		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+		
+		String line;
+		while((line = reader.readLine()) != null) {
+			if(line.startsWith("#include ")) {
+				List<Token<GLSLPreprocessorToken>> tokens = glslTokenizer.tokenize(line);
+				
+				if(tokens.size() >= 2 && tokens.get(0).getType() == GLSLPreprocessorToken.PRE_INCLUDE) {
+					Token<GLSLPreprocessorToken> val = tokens.get(1);
+					
+					String dir = wdir;
+					if(val.getType() == GLSLPreprocessorToken.PRE_INCLUDE_GLOBAL_PATH) dir = "res/shaders/gl3/include/";
+					
+					String path = val.getValue();
+					path = path.substring(1, path.length() - 1);
+					
+					this.readGLSLSourceLines(dir, path, lines);
+					continue;
+				}
+			}
+			
+			lines.append(line).append('\n');
+		}
+		
+		reader.close();
+		in.close();
+	}
+	
+	public final String loadGLSLSource(String wdir, String shaderName) throws IOException {
+		StringBuilder builder = new StringBuilder();
+		
+		this.readGLSLSourceLines("res/shaders/gl3/" + wdir, shaderName, builder);
+		
+		return builder.toString();
+	}
+	
 	public final int createProgram(GL3 gl, String vsName, String fsName) {
+		return this.createProgram(gl, "", vsName, fsName);
+	}
+	
+	/**
+	 * @param gl
+	 * @param dir Sub-directory where the shaders are. <strong>Must end with a slash ("<tt>/</tt>")</strong>.
+	 * @param vsName
+	 * @param fsName
+	 * @return
+	 */
+	public final int createProgram(GL3 gl, String dir, String vsName, String fsName) {
 		int vs = gl.glCreateShader(GL_VERTEX_SHADER);
 		int fs = gl.glCreateShader(GL_FRAGMENT_SHADER);
 		
 		try {
 			gl.glShaderSource(vs, 1, new String[] {
-				DataUtils.readFile("res/shaders/gl3/" + vsName, true)
+				this.loadGLSLSource(dir, vsName)
 			}, null);
 			
 			gl.glShaderSource(fs, 1, new String[] {
-				DataUtils.readFile("res/shaders/gl3/" + fsName, true)
+				this.loadGLSLSource(dir, fsName)
 			}, null);
 		} catch(IOException e) {
 			e.printStackTrace();
