@@ -209,6 +209,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, destFBO);
 		this.gl.glViewport(0, 0, dest.width, dest.height);
 		
+		this.gl.glDisable(GL_BLEND);
+		this.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
 		// -- Composition --
 		List<Track> tracks = comp.getTimeline().getTracks();
 		
@@ -216,10 +219,10 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		for(int i = 0; i < tracks.size(); i++) {
 			Track t = tracks.get(i);
 			
-			if(t.isEnabled() && t.isActiveAt(frame_id)) lastTrackIndex = i;
+			if(t.isEnabled() && t.isActiveAt(frame_id) && t.getEffectCount() != 0) lastTrackIndex = i;
 		}
 		
-		if(lastTrackIndex == -1) {
+		if(lastTrackIndex == -1) { // if no track
 			this.gl.glClearColor(
 				comp.getClearColor().getRedf(),
 				comp.getClearColor().getGreenf(),
@@ -259,18 +262,6 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			}
 			
 			boolean isLastTrack = lastTrackIndex == i;
-			boolean noEffect = lastEffectIndex == -1;
-			
-			if(isLastTrack && noEffect) {
-				this.gl.glClearColor(
-					comp.getClearColor().getRedf(),
-					comp.getClearColor().getGreenf(),
-					comp.getClearColor().getBluef(),
-					comp.getClearColor().getAlphaf()
-				);
-				
-				this.gl.glClear(GL_COLOR_BUFFER_BIT);
-			}
 			
 			for(int j = 0; j <= lastEffectIndex; j++) {
 				TrackEffectInstance fx = t.getEffect(j);
@@ -279,8 +270,10 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				if(!fx.isEnabled() || !fx.getEffectClass().isVideoEffect()) continue;
 				
 				dest.swapAlt(this.gl, cacheIndex);
-
+				
 				if(isLastTrack && j == lastEffectIndex) { // if last track and last effect (aka next is final comp)
+					this.gl.glEnable(GL_BLEND);
+					
 					this.gl.glClearColor(
 						comp.getClearColor().getRedf(),
 						comp.getClearColor().getGreenf(),

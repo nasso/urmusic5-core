@@ -16,11 +16,11 @@
 // see https://www.w3.org/TR/compositing-1/
 vec4 porterDuff(vec4 src, vec4 dst, int op) {
 	// BLEND
-	vec4 cs = src;
-	vec4 cb = dst;
+	vec3 cs = src.rgb;
+	vec3 cb = dst.rgb;
 	
-	float as = cs.a;
-	float ab = cb.a;
+	float as = src.a;
+	float ab = dst.a;
 	
 	// COMPOSE
 	float fa = 0.0, fb = 0.0;
@@ -72,7 +72,10 @@ vec4 porterDuff(vec4 src, vec4 dst, int op) {
 			break;
 	}
 	
-	return as * fa * cs + ab * fb * cb;
+	float ao = fa * as + fb * ab;
+	vec3 co = (as * fa * cs + ab * fb * cb) / ao;
+	
+	return vec4(co, ao);
 }
 
 struct Parameters {
