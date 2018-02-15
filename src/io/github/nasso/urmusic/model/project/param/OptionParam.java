@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.model.project.control;
+package io.github.nasso.urmusic.model.project.param;
 
 public class OptionParam extends EffectParam<Integer> {
 	private String[] options;

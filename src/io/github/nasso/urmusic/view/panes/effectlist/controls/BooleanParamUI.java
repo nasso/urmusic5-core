@@ -10,7 +10,7 @@ import javax.swing.JComponent;
 import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.BooleanParam;
+import io.github.nasso.urmusic.model.project.param.BooleanParam;
 
 public class BooleanParamUI extends EffectParamUI<BooleanParam> {
 	private JCheckBox box;

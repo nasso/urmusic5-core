@@ -23,8 +23,8 @@ import org.joml.Vector2fc;
 
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.project.control.EffectParam;
-import io.github.nasso.urmusic.model.project.control.Point2DParam;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
+import io.github.nasso.urmusic.model.project.param.Point2DParam;
 
 public class PreviewParameterControlsPane extends JComponent {
 	private static final Stroke POINT_BORDER_STROKE = new BasicStroke(3);

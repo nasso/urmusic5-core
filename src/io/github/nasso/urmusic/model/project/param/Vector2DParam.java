@@ -1,21 +1,30 @@
-package io.github.nasso.urmusic.model.project.control;
+package io.github.nasso.urmusic.model.project.param;
 
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
-public class Point2DParam extends EffectParam<Vector2fc> {
+public class Vector2DParam extends EffectParam<Vector2fc> {
 	private Vector2f value = new Vector2f();
+	private Vector2f step = new Vector2f();
 	
-	public Point2DParam(String name) {
+	public Vector2DParam(String name) {
 		super(name);
 	}
 	
-	public Point2DParam(String name, float x, float y) {
+	public Vector2DParam(String name, float x, float y) {
+		this(name, x, y, 1, 1);
+	}
+	
+	public Vector2DParam(String name, float x, float y, float stepX, float stepY) {
 		super(name);
 		this.value.set(x, y);
+		this.step.set(stepX, stepY);
 	}
 	
-
+	public Vector2fc getStep() {
+		return this.step;
+	}
+	
 	protected void setStaticValue(Vector2fc val) {
 		this.value.set(val);
 	}

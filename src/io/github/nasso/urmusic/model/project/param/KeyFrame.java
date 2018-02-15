@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.model.project.control;
+package io.github.nasso.urmusic.model.project.param;
 
 import java.util.ArrayList;
 import java.util.List;

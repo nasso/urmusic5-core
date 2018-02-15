@@ -1,7 +1,7 @@
 package io.github.nasso.urmusic.common.event;
 
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.EffectParam;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
 
 public interface EffectInstanceListener {
 	public void dirtyFlagged(TrackEffectInstance source);

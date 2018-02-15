@@ -11,8 +11,8 @@ import io.github.nasso.urmusic.common.event.EffectInstanceListener;
 import io.github.nasso.urmusic.common.event.EffectParamListener;
 import io.github.nasso.urmusic.common.event.KeyFrameListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.project.control.EffectParam;
-import io.github.nasso.urmusic.model.project.control.KeyFrame;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
+import io.github.nasso.urmusic.model.project.param.KeyFrame;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
 
 public abstract class TrackEffect {

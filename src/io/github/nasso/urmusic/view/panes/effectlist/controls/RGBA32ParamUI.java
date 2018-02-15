@@ -15,7 +15,7 @@ import io.github.nasso.urmusic.common.MutableRGBA32;
 import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.RGBA32Param;
+import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 
 public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 	private static class ColorButton extends JComponent implements MouseListener {

@@ -4,7 +4,7 @@ import javax.swing.JComponent;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.FloatParam;
+import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.view.components.UrmEditableNumberField;
 
 public class FloatParamUI extends EffectParamUI<FloatParam> {

@@ -7,12 +7,12 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.BooleanParam;
-import io.github.nasso.urmusic.model.project.control.EffectParam;
-import io.github.nasso.urmusic.model.project.control.FloatParam;
-import io.github.nasso.urmusic.model.project.control.OptionParam;
-import io.github.nasso.urmusic.model.project.control.Point2DParam;
-import io.github.nasso.urmusic.model.project.control.RGBA32Param;
+import io.github.nasso.urmusic.model.project.param.BooleanParam;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
+import io.github.nasso.urmusic.model.project.param.FloatParam;
+import io.github.nasso.urmusic.model.project.param.OptionParam;
+import io.github.nasso.urmusic.model.project.param.RGBA32Param;
+import io.github.nasso.urmusic.model.project.param.Vector2DParam;
 
 public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
 	private final T param;
@@ -49,8 +49,8 @@ public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
 			return new FloatParamUI(fx, (FloatParam) param);
 		} else if(param instanceof RGBA32Param) {
 			return new RGBA32ParamUI(fx, (RGBA32Param) param);
-		} else if(param instanceof Point2DParam) {
-			return new Point2DParamUI(fx, (Point2DParam) param);
+		} else if(param instanceof Vector2DParam) {
+			return new Vector2DParamUI(fx, (Vector2DParam) param);
 		} else if(param instanceof BooleanParam) {
 			return new BooleanParamUI(fx, (BooleanParam) param);
 		} else if(param instanceof OptionParam) {

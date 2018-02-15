@@ -10,14 +10,14 @@ import org.joml.Vector2fc;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.Point2DParam;
+import io.github.nasso.urmusic.model.project.param.Vector2DParam;
 import io.github.nasso.urmusic.view.components.UrmEditableNumberField;
 
-public class Point2DParamUI extends EffectParamUI<Point2DParam> {
+public class Vector2DParamUI extends EffectParamUI<Vector2DParam> {
 	private Vector2f _vec2 = new Vector2f();
 	private UrmEditableNumberField xField, yField;
 	
-	public Point2DParamUI(TrackEffectInstance fx, Point2DParam param) {
+	public Vector2DParamUI(TrackEffectInstance fx, Vector2DParam param) {
 		super(fx, param);
 	}
 
@@ -46,6 +46,9 @@ public class Point2DParamUI extends EffectParamUI<Point2DParam> {
 			
 			this.getParam().setValue(this._vec2.set(val.x(), f.getValue().floatValue()), frame);
 		});
+		
+		this.xField.setStep(this.getParam().getStep().x());
+		this.yField.setStep(this.getParam().getStep().y());
 		
 		BoxLayout bl = new BoxLayout(fieldsPane, BoxLayout.X_AXIS);
 		

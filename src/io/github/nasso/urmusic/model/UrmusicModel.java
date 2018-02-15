@@ -18,7 +18,7 @@ import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.EffectParam;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.renderer.Renderer;
 import io.github.nasso.urmusic.view.UrmusicView;
 

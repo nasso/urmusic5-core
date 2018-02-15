@@ -1,7 +1,7 @@
 package io.github.nasso.urmusic.common.event;
 
-import io.github.nasso.urmusic.model.project.control.EffectParam;
-import io.github.nasso.urmusic.model.project.control.KeyFrame;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
+import io.github.nasso.urmusic.model.project.param.KeyFrame;
 
 public interface EffectParamListener<T> {
 	public void valueChanged(EffectParam<T> source, T newVal);

@@ -7,9 +7,9 @@ import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.ProjectFileSystem;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
+import io.github.nasso.urmusic.model.project.param.KeyFrame;
 import io.github.nasso.urmusic.model.project.TrackEffect;
-import io.github.nasso.urmusic.model.project.control.EffectParam;
-import io.github.nasso.urmusic.model.project.control.KeyFrame;
 
 public class UrmusicController {
 	private UrmusicController() { }

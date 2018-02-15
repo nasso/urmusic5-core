@@ -8,7 +8,7 @@ import javax.swing.JComponent;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.OptionParam;
+import io.github.nasso.urmusic.model.project.param.OptionParam;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
 public class OptionParamUI extends EffectParamUI<OptionParam> {

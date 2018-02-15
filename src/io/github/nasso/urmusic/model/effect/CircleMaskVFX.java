@@ -9,11 +9,11 @@ import com.jogamp.opengl.GL3;
 import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.project.TrackEffect;
-import io.github.nasso.urmusic.model.project.control.BooleanParam;
-import io.github.nasso.urmusic.model.project.control.FloatParam;
-import io.github.nasso.urmusic.model.project.control.OptionParam;
-import io.github.nasso.urmusic.model.project.control.Point2DParam;
-import io.github.nasso.urmusic.model.project.control.RGBA32Param;
+import io.github.nasso.urmusic.model.project.param.BooleanParam;
+import io.github.nasso.urmusic.model.project.param.FloatParam;
+import io.github.nasso.urmusic.model.project.param.OptionParam;
+import io.github.nasso.urmusic.model.project.param.Point2DParam;
+import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
 

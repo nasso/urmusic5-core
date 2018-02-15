@@ -11,8 +11,8 @@ import javax.swing.plaf.LayerUI;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
-import io.github.nasso.urmusic.model.project.control.EffectParam;
-import io.github.nasso.urmusic.model.project.control.KeyFrame;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
+import io.github.nasso.urmusic.model.project.param.KeyFrame;
 import io.github.nasso.urmusic.model.renderer.CachedFrame;
 
 public class TimelineCaretLayer extends LayerUI<JPanel> {

@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.model.project.control;
+package io.github.nasso.urmusic.model.project.param;
 
 import io.github.nasso.urmusic.common.MutableRGBA32;
 import io.github.nasso.urmusic.common.RGBA32;

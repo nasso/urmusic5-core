@@ -15,8 +15,8 @@ import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.control.FloatParam;
-import io.github.nasso.urmusic.model.project.control.RGBA32Param;
+import io.github.nasso.urmusic.model.project.param.FloatParam;
+import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 public class Urmusic {

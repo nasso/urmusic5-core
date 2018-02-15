@@ -11,8 +11,9 @@ import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.model.project.TrackEffect;
-import io.github.nasso.urmusic.model.project.control.FloatParam;
-import io.github.nasso.urmusic.model.project.control.Point2DParam;
+import io.github.nasso.urmusic.model.project.param.FloatParam;
+import io.github.nasso.urmusic.model.project.param.Point2DParam;
+import io.github.nasso.urmusic.model.project.param.Vector2DParam;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
 
@@ -24,6 +25,7 @@ public class AffineTransformVFX extends TrackEffect {
 	
 	public class AffineTransformVFXInstance extends TrackEffectInstance {
 		private Point2DParam translation = new Point2DParam("translation", 0, 0);
+		private Vector2DParam scale = new Vector2DParam("scale", 1.0f, 1.0f, 0.01f, 0.01f);
 		private FloatParam opacity = new FloatParam("opacity", 1.0f, 0.01f, 0.0f, 1.0f);
 		
 		private FloatBuffer _mat4Buf = Buffers.newDirectFloatBuffer(4 * 4);
@@ -31,6 +33,7 @@ public class AffineTransformVFX extends TrackEffect {
 		
 		public AffineTransformVFXInstance() {
 			this.addParameter(this.translation);
+			this.addParameter(this.scale);
 			this.addParameter(this.opacity);
 		}
 		
@@ -39,10 +42,13 @@ public class AffineTransformVFX extends TrackEffect {
 
 		public void applyVideo(GL3 gl, EffectArgs args) {		
 			Vector2fc translation = this.translation.getValue(args.frame);
+			Vector2fc scale = this.scale.getValue(args.frame);
 			float opacity = this.opacity.getValue(args.frame);
 			
 			this._mat4.identity();
 			this._mat4.translate(translation.x() / args.width * 2f, -translation.y() / args.height * 2f, 0.0f);
+			// (rot here)
+			this._mat4.scale(scale.x(), scale.y(), 1.0f);
 			this._mat4.get(this._mat4Buf);
 			
 			gl.glUseProgram(AffineTransformVFX.this.prog);
