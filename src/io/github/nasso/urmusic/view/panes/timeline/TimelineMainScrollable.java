@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
+import io.github.nasso.urmusic.common.event.MultiFocusListener;
 import io.github.nasso.urmusic.common.event.RendererListener;
 import io.github.nasso.urmusic.common.event.TimelineListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
@@ -30,8 +31,7 @@ import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public class TimelineMainScrollable extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, TimelineListener, FrameCursorListener, RendererListener, FocusListener {
+public class TimelineMainScrollable extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, TimelineListener, FrameCursorListener, RendererListener, FocusListener<Composition>, MultiFocusListener<EffectParam<?>> {
 	private TimelineView view;
 	private JPanel infoPane, timelinePane;
 	private TimelineCaretLayer caretPane;
@@ -91,16 +91,20 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		}
 	}
 	
-	public void focusChanged(Object oldFocus, Object newFocus) {
-		if(oldFocus instanceof Composition || newFocus instanceof Composition) {
-			Composition oldFocusComp = (Composition) oldFocus;
-			Composition newFocusComp = (Composition) newFocus;
-			
-			if(oldFocusComp != null) oldFocusComp.getTimeline().removeTracklistListener(this);
-			if(newFocusComp != null) newFocusComp.getTimeline().addTracklistListener(this);
-		} else if(oldFocus instanceof EffectParam<?> || newFocus instanceof EffectParam<?>) {
-			SwingUtilities.invokeLater(this.timelineLayer::repaint);
-		}
+	public void focusChanged(Composition oldFocus, Composition newFocus) {
+		Composition oldFocusComp = oldFocus;
+		Composition newFocusComp = newFocus;
+		
+		if(oldFocusComp != null) oldFocusComp.getTimeline().removeTracklistListener(this);
+		if(newFocusComp != null) newFocusComp.getTimeline().addTracklistListener(this);
+	}
+	
+	public void focused(EffectParam<?> o) {
+		SwingUtilities.invokeLater(this.timelineLayer::repaint);
+	}
+	
+	public void unfocused(EffectParam<?> o) {
+		SwingUtilities.invokeLater(this.timelineLayer::repaint);
 	}
 	
 	public Dimension getPreferredScrollableViewportSize() {
@@ -245,4 +249,5 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		
 		TimelineMainScrollable.this.repaint();
 	}
+
 }

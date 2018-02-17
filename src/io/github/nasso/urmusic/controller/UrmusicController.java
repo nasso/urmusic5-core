@@ -1,15 +1,18 @@
 package io.github.nasso.urmusic.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.github.nasso.urmusic.common.event.FocusListener;
+import io.github.nasso.urmusic.common.event.MultiFocusListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.ProjectFileSystem;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
+import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
 
@@ -21,6 +24,18 @@ public class UrmusicController {
 		
 		UrmusicModel.addFrameCursorListener((oldPosition, newPosition)  -> {
 			UrmusicModel.getRenderer().queueFrameASAP(getFocusedComposition(), newPosition);
+		});
+		
+		addTrackEffectInstanceFocusListener(new FocusListener<TrackEffect.TrackEffectInstance>() {
+			public void focusChanged(TrackEffectInstance oldFocus, TrackEffectInstance newFocus) {
+				toggleFocusEffectParameter(null, false);
+				
+				if(newFocus == null) return;
+				
+				for(EffectParam<?> param : newFocus.getParameterListUnmodifiable()) {
+					toggleFocusEffectParameter(param, true);
+				}
+			}
 		});
 	}
 	
@@ -44,19 +59,39 @@ public class UrmusicController {
 	}
 
 	public static void goToNextKeyFrame() {
-		EffectParam<?> param = getFocusedEffectParameter();
-		if(param == null) return;
+		if(getFocusedEffectParameters().isEmpty()) return;
+		
+		int f = Integer.MAX_VALUE;
+		boolean set = false;
+		
+		for(EffectParam<?> param : getFocusedEffectParameters()) {
+			if(param == null) return;
 
-		KeyFrame<?> kf = param.getKeyFrameAfter(UrmusicModel.getFrameCursor());
-		if(kf != null) setFramePosition(kf.getFrame());
+			KeyFrame<?> kf = param.getKeyFrameAfter(UrmusicModel.getFrameCursor());
+			if(kf != null) f = Math.min(f, kf.getFrame());
+			
+			set |= kf != null;
+		}
+		
+		if(set) setFramePosition(f);
 	}
 	
 	public static void goToPreviousKeyFrame() {
-		EffectParam<?> param = getFocusedEffectParameter();
-		if(param == null) return;
+		if(getFocusedEffectParameters().isEmpty()) return;
+		
+		int f = Integer.MIN_VALUE;
+		boolean set = false;
+		
+		for(EffectParam<?> param : getFocusedEffectParameters()) {
+			if(param == null) return;
 
-		KeyFrame<?> kf = param.getKeyFrameBefore(UrmusicModel.getFrameCursor());
-		if(kf != null) setFramePosition(kf.getFrame());
+			KeyFrame<?> kf = param.getKeyFrameBefore(UrmusicModel.getFrameCursor());
+			if(kf != null) f = Math.max(f, kf.getFrame());
+			
+			set |= kf != null;
+		}
+		
+		if(set) setFramePosition(f);
 	}
 	
 	public static void playPause() {
@@ -225,30 +260,88 @@ public class UrmusicController {
 		return focusedTrackRange;
 	}
 	
-	// Control parameter
-	private static EffectParam<?> focusedParam = null;
-	private static List<FocusListener<EffectParam<?>>> controlParamFocusListeners = new ArrayList<>();
+	// Track Effect Instance
+	private static TrackEffectInstance focusedEffect = null;
+	private static List<FocusListener<TrackEffectInstance>> trackEffectFocusListeners = new ArrayList<>();
 	
-	public static void addEffectParameterFocusListener(FocusListener<EffectParam<?>> l) {
-		controlParamFocusListeners.add(l);
+	public static void addTrackEffectInstanceFocusListener(FocusListener<TrackEffectInstance> l) {
+		trackEffectFocusListeners.add(l);
 	}
 	
-	public static void removeEffectParameterFocusListener(FocusListener<EffectParam<?>> l) {
-		controlParamFocusListeners.remove(l);
+	public static void removeTrackEffectInstanceFocusListener(FocusListener<TrackEffectInstance> l) {
+		trackEffectFocusListeners.remove(l);
 	}
 	
-	public static void focusEffectParameter(EffectParam<?> newFocus) {
-		if(focusedParam == newFocus) return;
+	public static void focusTrackEffectInstance(TrackEffectInstance newFocus) {
+		if(focusedEffect == newFocus) return;
 		
-		EffectParam<?> oldFocus = focusedParam;
-		focusedParam = newFocus;
+		TrackEffectInstance oldFocus = focusedEffect;
+		focusedEffect = newFocus;
 		
-		for(FocusListener<EffectParam<?>> l : controlParamFocusListeners) {
+		for(FocusListener<TrackEffectInstance> l : trackEffectFocusListeners) {
 			l.focusChanged(oldFocus, newFocus);
 		}
 	}
 	
-	public static EffectParam<?> getFocusedEffectParameter() {
-		return focusedParam;
+	public static TrackEffectInstance getFocusedTrackEffectInstance() {
+		return focusedEffect;
+	}
+	
+	
+	// Control parameters
+	private static List<EffectParam<?>> focusedParams = new ArrayList<>();
+	private static List<EffectParam<?>> focusedParamsUnmodifiable = Collections.unmodifiableList(focusedParams);
+	private static List<MultiFocusListener<EffectParam<?>>> controlParamFocusListeners = new ArrayList<>();
+	
+	public static void addEffectParameterFocusListener(MultiFocusListener<EffectParam<?>> l) {
+		controlParamFocusListeners.add(l);
+	}
+	
+	public static void removeEffectParameterFocusListener(MultiFocusListener<EffectParam<?>> l) {
+		controlParamFocusListeners.remove(l);
+	}
+	
+	/**
+	 * calling this with null and false effectively unselects everything
+	 * 
+	 * @param p
+	 * @param multifocus If false, unfocuses the previously focused parameter
+	 */
+	public static void toggleFocusEffectParameter(EffectParam<?> p, boolean multifocus) {
+		boolean willHaveFocus = !(p != null && focusedParams.contains(p) && focusedParams.size() > 1);
+		
+		if(!multifocus) {
+			while(!focusedParams.isEmpty()) {
+				EffectParam<?> param = focusedParams.remove(0);
+				
+				for(MultiFocusListener<EffectParam<?>> l : controlParamFocusListeners) {
+					l.unfocused(param);
+				}
+			}
+		}
+		
+		if(p == null) return;
+		
+		if(willHaveFocus) {
+			focusedParams.add(p);
+			
+			for(MultiFocusListener<EffectParam<?>> l : controlParamFocusListeners) {
+				l.focused(p);
+			}
+		} else if(multifocus) {
+			focusedParams.remove(p);
+			
+			for(MultiFocusListener<EffectParam<?>> l : controlParamFocusListeners) {
+				l.unfocused(p);
+			}
+		}
+	}
+	
+	public static boolean isFocused(EffectParam<?> param) {
+		return focusedParams.contains(param);
+	}
+	
+	public static List<EffectParam<?>> getFocusedEffectParameters() {
+		return focusedParamsUnmodifiable;
 	}
 }

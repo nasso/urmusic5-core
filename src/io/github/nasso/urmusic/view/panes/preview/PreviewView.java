@@ -18,7 +18,7 @@ import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.event.EffectParamListener;
-import io.github.nasso.urmusic.common.event.FocusListener;
+import io.github.nasso.urmusic.common.event.MultiFocusListener;
 import io.github.nasso.urmusic.common.event.RendererListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
@@ -35,7 +35,7 @@ import io.github.nasso.urmusic.view.data.UrmusicStrings;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class PreviewView extends UrmViewPane implements
 													RendererListener,
-													FocusListener<EffectParam<?>>,
+													MultiFocusListener<EffectParam<?>>,
 													EffectParamListener,
 													MouseListener,
 													MouseMotionListener,
@@ -90,8 +90,9 @@ public class PreviewView extends UrmViewPane implements
 		UrmusicModel.getRenderer().addRendererListener(this);
 		UrmusicController.addEffectParameterFocusListener(this);
 		
-		if(UrmusicController.getFocusedEffectParameter() != null)
-			UrmusicController.getFocusedEffectParameter().addEffectParamListener(this);
+		for(EffectParam<?> param : UrmusicController.getFocusedEffectParameters()) {
+			param.addEffectParamListener(this);
+		}
 	}
 	
 	public void dispose() {
@@ -116,20 +117,20 @@ public class PreviewView extends UrmViewPane implements
 	public void effectUnloaded(TrackEffect fx) {
 	}
 
-	public void focusChanged(EffectParam<?> oldFocus, EffectParam<?> newFocus) {
+	public void focused(EffectParam<?> o) {
 		SwingUtilities.invokeLater(() -> {
-			if(oldFocus != null) {
-				oldFocus.removeEffectParamListener(this);
-				this.controlPane.removeParameter(oldFocus);
-			}
-			
-			if(newFocus != null) {
-				newFocus.addEffectParamListener(this);
-				this.controlPane.addParameter(newFocus);
-			}
+			o.addEffectParamListener(this);
+			this.controlPane.addParameter(o);
 		});
 	}
 
+	public void unfocused(EffectParam<?> o) {
+		SwingUtilities.invokeLater(() -> {
+			o.removeEffectParamListener(this);
+			this.controlPane.removeParameter(o);
+		});
+	}
+	
 	public void valueChanged(EffectParam source, Object newVal) {
 		SwingUtilities.invokeLater(this.controlPane::update);
 	}

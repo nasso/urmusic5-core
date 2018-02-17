@@ -16,9 +16,9 @@ import javax.swing.SwingUtilities;
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.easing.EasingFunction;
 import io.github.nasso.urmusic.common.event.EffectParamListener;
-import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.KeyFrameListener;
+import io.github.nasso.urmusic.common.event.MultiFocusListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
@@ -29,27 +29,30 @@ import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.panes.effectlist.controls.EffectParamUI;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class EffectParamPane extends JPanel implements FrameCursorListener, EffectParamListener, MouseListener, FocusListener<EffectParam<?>>, KeyFrameListener {
+public class EffectParamPane extends JPanel implements FrameCursorListener, EffectParamListener, MouseListener, MultiFocusListener<EffectParam<?>>, KeyFrameListener {
 	private static final Color PARAM_LINE_COLOR = new Color(0xffffff);
-	private static final Color PARAM_LINE_SELECTED_COLOR = new Color(0xeeeeee);
+	private static final Color PARAM_LINE_SELECTED_COLOR = new Color(0xdddddd);
 
 	private EffectParam<?> param;
 	private EffectParamUI<?> controlui = null;
 	
-	private JLabel keyframeIconLabel;
+	private JLabel keyframeIconLabel, controlNameLabel;
 	
 	public EffectParamPane(TrackEffectInstance fx, EffectParam<?> param, int i) {
 		this.param = param;
 		
-		this.setBackground(UrmusicController.getFocusedEffectParameter() == param ? PARAM_LINE_SELECTED_COLOR : PARAM_LINE_COLOR);
+		this.setBackground(UrmusicController.isFocused(param) ? PARAM_LINE_SELECTED_COLOR : PARAM_LINE_COLOR);
 		this.setBorder(BorderFactory.createCompoundBorder(
 			BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY),
 			BorderFactory.createEmptyBorder(4, 4, 4, 4)
 		));
 		
-		JLabel controlName = new JLabel();
-		controlName.setText(UrmusicStrings.getString("effect." + fx.getEffectClass().getEffectClassName() + ".param." + param.getName() + ".name"));
-		controlName.setFont(controlName.getFont().deriveFont(Font.PLAIN, 12));
+		this.controlNameLabel = new JLabel();
+		this.controlNameLabel.setText(UrmusicStrings.getString("effect." + fx.getEffectClass().getEffectClassName() + ".param." + param.getName() + ".name"));
+		this.controlNameLabel.setFont(this.controlNameLabel.getFont().deriveFont(Font.PLAIN, 12));
+		this.controlNameLabel.setBackground(PARAM_LINE_SELECTED_COLOR);
+		this.controlNameLabel.setBorder(BorderFactory.createEmptyBorder(1, 3, 1, 3));
+		this.controlNameLabel.setOpaque(false);
 		
 		this.keyframeIconLabel = new JLabel(UrmusicUIRes.KEY_FRAME_ICON);
 		this.keyframeIconLabel.addMouseListener(new MouseAdapter() {
@@ -64,7 +67,7 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		
 		this.add(this.keyframeIconLabel);
 		this.add(Box.createHorizontalStrut(4));
-		this.add(controlName);
+		this.add(this.controlNameLabel);
 		this.add(Box.createHorizontalStrut(64));
 		this.add(Box.createHorizontalGlue());
 		
@@ -95,17 +98,28 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 	}
 	
 	public void focusChanged(EffectParam<?> oldFocus, EffectParam<?> newFocus) {
+		if(this.param != newFocus && this.param != oldFocus) return;
+		
 		SwingUtilities.invokeLater(() -> {
-			if(this.param == oldFocus) {
-				this.setBackground(PARAM_LINE_COLOR);
-				this.repaint();
-			}
-			
-			if(this.param == newFocus) {
-				this.setBackground(PARAM_LINE_SELECTED_COLOR);
-				this.repaint();
-			}
+			this.controlNameLabel.setOpaque(this.param == newFocus);
+			this.controlNameLabel.repaint();
 		});
+	}
+	
+	public void focused(EffectParam<?> o) {
+		if(this.param == o)
+			SwingUtilities.invokeLater(() -> {
+				this.controlNameLabel.setOpaque(true);
+				this.controlNameLabel.repaint();
+			});
+	}
+
+	public void unfocused(EffectParam<?> o) {
+		if(this.param == o)
+			SwingUtilities.invokeLater(() -> {
+				this.controlNameLabel.setOpaque(false);
+				this.controlNameLabel.repaint();
+			});
 	}
 	
 	private void update(int frame) {
@@ -119,8 +133,9 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 			this.keyframeIconLabel.setIcon(UrmusicUIRes.KEY_FRAME_ICON);
 	}
 	
-	public void focusParam() {
-		UrmusicController.focusEffectParameter(this.param);
+	public void focusParam(boolean multiselect) {
+		UrmusicController.focusTrackEffectInstance(null);
+		UrmusicController.toggleFocusEffectParameter(this.param, multiselect);
 	}
 	
 	public void dispose() {
@@ -167,7 +182,7 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 	}
 	
 	public void mousePressed(MouseEvent e) {
-		this.focusParam();
+		this.focusParam(e.isControlDown());
 	}
 	
 	public void mouseReleased(MouseEvent e) {
@@ -178,5 +193,4 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 	
 	public void mouseExited(MouseEvent e) {
 	}
-
 }

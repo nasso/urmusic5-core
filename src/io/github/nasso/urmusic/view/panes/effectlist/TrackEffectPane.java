@@ -1,8 +1,10 @@
 package io.github.nasso.urmusic.view.panes.effectlist;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -18,6 +20,8 @@ import javax.swing.border.BevelBorder;
 
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.event.EffectInstanceListener;
+import io.github.nasso.urmusic.common.event.FocusListener;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
@@ -25,7 +29,7 @@ import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
-public class TrackEffectPane extends JPanel implements EffectInstanceListener {
+public class TrackEffectPane extends JPanel implements EffectInstanceListener, FocusListener<TrackEffectInstance> {
 	private Track track;
 	private TrackEffectInstance fx;
 	
@@ -48,23 +52,11 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener {
 		this.setEffectInstance(fx);
 	}
 	
-	private MouseListener labelClickListener(int clickCount, Runnable action) {
-		return new MouseListener() {
+	private MouseListener createClickListener(int clickCount, Runnable action) {
+		return new MouseAdapter() {
 			public void mouseReleased(MouseEvent e) {
-				if(MathUtils.boxContains(e.getX(), e.getY(), 0, 0, e.getComponent().getWidth(), e.getComponent().getHeight()) && e.getClickCount() == clickCount)
+				if(MathUtils.boxContains(e.getX(), e.getY(), 0, 0, e.getComponent().getWidth(), e.getComponent().getHeight()) && e.getClickCount() >= clickCount)
 					action.run();
-			}
-			
-			public void mousePressed(MouseEvent e) {
-			}
-			
-			public void mouseExited(MouseEvent e) {
-			}
-			
-			public void mouseEntered(MouseEvent e) {
-			}
-			
-			public void mouseClicked(MouseEvent e) {
 			}
 		};
 	}
@@ -72,11 +64,15 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener {
 	private void buildUI() {
 		this.setLayout(new BorderLayout());
 		
-		MouseListener expandOnClick = this.labelClickListener(1, this::toggleExpand);
-		MouseListener expandOnDoubleClick = this.labelClickListener(2, this::toggleExpand);
+		MouseListener expandOnClick = this.createClickListener(1, this::toggleExpand);
+		MouseListener expandOnDoubleClick = this.createClickListener(2, this::toggleExpand);
+		MouseListener focusEffectOnClick = this.createClickListener(1, () -> {
+			if(this.expanded) UrmusicController.focusTrackEffectInstance(this.fx);
+		});
 		
 		this.headerPane = new JPanel();
 		this.headerPane.addMouseListener(expandOnDoubleClick);
+		this.headerPane.addMouseListener(focusEffectOnClick);
 		this.headerPane.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		
 		this.labelExpand = new JLabel(UrmusicUIRes.TRI_RIGHT_ICON);
@@ -89,17 +85,20 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener {
 		
 		this.labelName = new JLabel();
 		this.labelName.addMouseListener(expandOnDoubleClick);
+		this.labelName.addMouseListener(focusEffectOnClick);
+		this.labelName.setBorder(BorderFactory.createEmptyBorder(1, 4, 1, 4));
 		this.labelName.setFont(this.labelName.getFont().deriveFont(Font.BOLD, 12));
 		this.labelName.setHorizontalAlignment(SwingConstants.LEFT);
+		this.labelName.setBackground(new Color(0xcccccc));
 		
 		this.labelMoveUp = new JLabel(UrmusicUIRes.SORT_UP_ICON);
-		this.labelMoveUp.addMouseListener(this.labelClickListener(1, this::moveUp));
+		this.labelMoveUp.addMouseListener(this.createClickListener(1, this::moveUp));
 		
 		this.labelMoveDown = new JLabel(UrmusicUIRes.SORT_DOWN_ICON);
-		this.labelMoveDown.addMouseListener(this.labelClickListener(1, this::moveDown));
+		this.labelMoveDown.addMouseListener(this.createClickListener(1, this::moveDown));
 		
 		this.labelDelete = new JLabel(UrmusicUIRes.DELETE_ICON);
-		this.labelDelete.addMouseListener(this.labelClickListener(1, this::delete));
+		this.labelDelete.addMouseListener(this.createClickListener(1, this::delete));
 		
 		BoxLayout headerbl = new BoxLayout(this.headerPane, BoxLayout.X_AXIS);
 		this.headerPane.setLayout(headerbl);
@@ -184,6 +183,7 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener {
 			}
 			
 			this.fx.removeEffectInstanceListener(this);
+			UrmusicController.removeTrackEffectInstanceFocusListener(this);
 		}
 		
 		this.fx = newFx;
@@ -194,6 +194,7 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener {
 			}
 			
 			this.fx.addEffectInstanceListener(this);
+			UrmusicController.addTrackEffectInstanceFocusListener(this);
 			
 			this.labelName.setText(UrmusicStrings.getString("effect." + this.fx.getEffectClass().getEffectClassName() + ".name"));
 			this.chbxEnabled.setSelected(this.fx.isEnabled());
@@ -213,5 +214,15 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener {
 	}
 
 	public void dirtyFlagged(TrackEffectInstance source) {
+	}
+	
+
+	public void focusChanged(TrackEffectInstance oldFocus, TrackEffectInstance newFocus) {
+		if(this.fx != newFocus && this.fx != oldFocus) return;
+		
+		SwingUtilities.invokeLater(() -> {
+			this.labelName.setOpaque(newFocus == this.fx);
+			this.labelName.repaint();
+		});
 	}
 }

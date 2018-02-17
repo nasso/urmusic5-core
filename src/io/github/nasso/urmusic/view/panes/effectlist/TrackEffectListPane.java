@@ -1,11 +1,15 @@
 package io.github.nasso.urmusic.view.panes.effectlist;
 
 import java.awt.Component;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.event.TrackListener;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.view.layout.VListLayout;
@@ -21,6 +25,15 @@ public class TrackEffectListPane extends JPanel implements TrackListener {
 		this.setLayout(new VListLayout(0));
 		
 		this.setTrack(t);
+		
+		this.addMouseListener(new MouseAdapter() {
+			public void mouseReleased(MouseEvent e) {
+				if(MathUtils.boxContains(e.getX(), e.getY(), 0, 0, e.getComponent().getWidth(), e.getComponent().getHeight())) {
+					UrmusicController.focusTrackEffectInstance(null);
+					UrmusicController.toggleFocusEffectParameter(null, false);
+				}
+			}
+		});
 	}
 
 	private void addEffectPane(TrackEffectInstance e, int pos) {

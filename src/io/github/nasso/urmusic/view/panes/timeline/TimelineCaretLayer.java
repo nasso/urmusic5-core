@@ -70,8 +70,7 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 			g2d.fillRect(x, 0, w, TimelineView.FRAME_CARET_HEADER_HEIGHT);
 		}
 		
-		EffectParam<?> param = UrmusicController.getFocusedEffectParameter();
-		if(param != null) {
+		for(EffectParam<?> param : UrmusicController.getFocusedEffectParameters()) {
 			int keyframesCount = param.getKeyFrameCount();
 			
 			g2d.setColor(KEY_FRAME_COLOR);
