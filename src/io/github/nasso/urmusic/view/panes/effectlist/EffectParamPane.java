@@ -41,7 +41,7 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 	public EffectParamPane(TrackEffectInstance fx, EffectParam<?> param, int i) {
 		this.param = param;
 		
-		this.setBackground(UrmusicModel.getFocusedEffectParameter() == param ? PARAM_LINE_SELECTED_COLOR : PARAM_LINE_COLOR);
+		this.setBackground(UrmusicController.getFocusedEffectParameter() == param ? PARAM_LINE_SELECTED_COLOR : PARAM_LINE_COLOR);
 		this.setBorder(BorderFactory.createCompoundBorder(
 			BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY),
 			BorderFactory.createEmptyBorder(4, 4, 4, 4)
@@ -74,7 +74,7 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		this.addMouseListener(this);
 		this.param.addEffectParamListener(this);
 		UrmusicModel.addFrameCursorListener(this);
-		UrmusicModel.addEffectParameterFocusListener(this);
+		UrmusicController.addEffectParameterFocusListener(this);
 		
 		for(int j = 0; j < this.param.getKeyFrameCount(); j++) {
 			this.param.getKeyFrame(j).addKeyFrameListener(this);
@@ -130,7 +130,7 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		
 		this.param.removeEffectParamListener(this);
 		UrmusicModel.removeFrameCursorListener(this);
-		UrmusicModel.removeEffectParameterFocusListener(this);
+		UrmusicController.removeEffectParameterFocusListener(this);
 	}
 	
 	public void frameChanged(int oldPosition, int newPosition) {

@@ -59,7 +59,7 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		this.add(this.infoPane, BorderLayout.WEST);
 		this.add(this.timelineLayer = new JLayer<>(this.timelinePane, this.caretPane), BorderLayout.CENTER);
 		
-		List<Track> tracks = UrmusicModel.getFocusedComposition().getTimeline().getTracks();
+		List<Track> tracks = UrmusicController.getFocusedComposition().getTimeline().getTracks();
 		for(int i = 0; i < tracks.size(); i++) {
 			this.addTrack(i, tracks.get(i));
 		}
@@ -68,19 +68,19 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		this.addMouseMotionListener(this);
 		this.addMouseWheelListener(this);
 		
-		UrmusicModel.getFocusedComposition().getTimeline().addTracklistListener(this);
+		UrmusicController.getFocusedComposition().getTimeline().addTracklistListener(this);
 		UrmusicModel.addFrameCursorListener(this);
 		UrmusicModel.getRenderer().addRendererListener(this);
-		UrmusicModel.addCompositionFocusListener(this);
-		UrmusicModel.addEffectParameterFocusListener(this);
+		UrmusicController.addCompositionFocusListener(this);
+		UrmusicController.addEffectParameterFocusListener(this);
 	}
 	
 	public void dispose() {
-		UrmusicModel.getFocusedComposition().getTimeline().removeTracklistListener(this);
+		UrmusicController.getFocusedComposition().getTimeline().removeTracklistListener(this);
 		UrmusicModel.removeFrameCursorListener(this);
 		UrmusicModel.getRenderer().removeRendererListener(this);
-		UrmusicModel.removeCompositionFocusListener(this);
-		UrmusicModel.removeEffectParameterFocusListener(this);
+		UrmusicController.removeCompositionFocusListener(this);
+		UrmusicController.removeEffectParameterFocusListener(this);
 		
 		for(Component c : this.infoPane.getComponents()) {
 			if(c instanceof TimelineTrackHead) ((TimelineTrackHead) c).dispose();

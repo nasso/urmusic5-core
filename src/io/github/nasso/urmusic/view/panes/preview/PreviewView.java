@@ -20,6 +20,7 @@ import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.event.EffectParamListener;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.RendererListener;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.TrackEffect;
@@ -87,15 +88,15 @@ public class PreviewView extends UrmViewPane implements
 		this.addMouseMotionListener(this);
 		
 		UrmusicModel.getRenderer().addRendererListener(this);
-		UrmusicModel.addEffectParameterFocusListener(this);
+		UrmusicController.addEffectParameterFocusListener(this);
 		
-		if(UrmusicModel.getFocusedEffectParameter() != null)
-			UrmusicModel.getFocusedEffectParameter().addEffectParamListener(this);
+		if(UrmusicController.getFocusedEffectParameter() != null)
+			UrmusicController.getFocusedEffectParameter().addEffectParamListener(this);
 	}
 	
 	public void dispose() {
 		UrmusicModel.getRenderer().removeRendererListener(this);
-		UrmusicModel.removeEffectParameterFocusListener(this);
+		UrmusicController.removeEffectParameterFocusListener(this);
 		
 		this.controlPane.dispose();
 	}
@@ -144,8 +145,8 @@ public class PreviewView extends UrmViewPane implements
 	public int xPosToUI(float x) {
 		float sw = this.getWidth();
 		float sh = this.getHeight();
-		float rw = UrmusicModel.getFocusedComposition().getWidth();
-		float rh = UrmusicModel.getFocusedComposition().getHeight();
+		float rw = UrmusicController.getFocusedComposition().getWidth();
+		float rh = UrmusicController.getFocusedComposition().getHeight();
 		
 		float s = Math.min(sw / rw, sh / rh);
 		float w = rw * s;
@@ -163,8 +164,8 @@ public class PreviewView extends UrmViewPane implements
 	public int yPosToUI(float y) {
 		float sw = this.getWidth();
 		float sh = this.getHeight();
-		float rw = UrmusicModel.getFocusedComposition().getWidth();
-		float rh = UrmusicModel.getFocusedComposition().getHeight();
+		float rw = UrmusicController.getFocusedComposition().getWidth();
+		float rh = UrmusicController.getFocusedComposition().getHeight();
 		
 		float s = Math.min(sw / rw, sh / rh);
 		float h = rh * s;
@@ -182,8 +183,8 @@ public class PreviewView extends UrmViewPane implements
 	public float xUIToPos(int x) {
 		float sw = this.getWidth();
 		float sh = this.getHeight();
-		float rw = UrmusicModel.getFocusedComposition().getWidth();
-		float rh = UrmusicModel.getFocusedComposition().getHeight();
+		float rw = UrmusicController.getFocusedComposition().getWidth();
+		float rh = UrmusicController.getFocusedComposition().getHeight();
 		
 		float s = Math.min(sw / rw, sh / rh);
 		float w = rw * s;
@@ -200,8 +201,8 @@ public class PreviewView extends UrmViewPane implements
 	public float yUIToPos(int y) {
 		float sw = this.getWidth();
 		float sh = this.getHeight();
-		float rw = UrmusicModel.getFocusedComposition().getWidth();
-		float rh = UrmusicModel.getFocusedComposition().getHeight();
+		float rw = UrmusicController.getFocusedComposition().getWidth();
+		float rh = UrmusicController.getFocusedComposition().getHeight();
 		
 		float s = Math.min(sw / rw, sh / rh);
 		float h = rh * s;

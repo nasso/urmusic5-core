@@ -20,7 +20,6 @@ import javax.swing.SwingUtilities;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.TrackListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
-import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
@@ -68,8 +67,8 @@ public class TimelineTrackRangesBar extends JPanel implements
 	public void dispose() {
 		if(this.track != null) {
 			this.track.removeTrackListener(this);
-			UrmusicModel.removeTrackActivityRangeFocusListener(this.rangesFocusListener);
-			UrmusicModel.removeTrackFocusListener(this.trackFocusListener);
+			UrmusicController.removeTrackActivityRangeFocusListener(this.rangesFocusListener);
+			UrmusicController.removeTrackFocusListener(this.trackFocusListener);
 		}
 	}
 	
@@ -80,12 +79,12 @@ public class TimelineTrackRangesBar extends JPanel implements
 		
 		int w = this.getWidth();
 		int h = this.getHeight();
-		int workingWidth = this.framesToPixels(UrmusicModel.getFocusedComposition().getTimeline().getLength());
+		int workingWidth = this.framesToPixels(UrmusicController.getFocusedComposition().getTimeline().getLength());
 		
-		g2d.setColor(UrmusicModel.getFocusedTrack() == this.getTrack() ? COMP_FOCUSED_BACKGROUND : COMP_BACKGROUND);
+		g2d.setColor(UrmusicController.getFocusedTrack() == this.getTrack() ? COMP_FOCUSED_BACKGROUND : COMP_BACKGROUND);
 		g2d.fillRect(0, 0, w, h);
 		
-		g2d.setColor(UrmusicModel.getFocusedTrack() == this.getTrack() ? TRACK_FOCUSED_BACKGROUND : TRACK_BACKGROUND);
+		g2d.setColor(UrmusicController.getFocusedTrack() == this.getTrack() ? TRACK_FOCUSED_BACKGROUND : TRACK_BACKGROUND);
 		g2d.fillRect(0, 0, Math.min(workingWidth, w), h);
 		
 		if(this.track != null) {
@@ -99,7 +98,7 @@ public class TimelineTrackRangesBar extends JPanel implements
 			for(int i = 0; i < ranges.size(); i++) {
 				TrackActivityRange r = ranges.get(i);
 
-				g2d.setColor(UrmusicModel.getFocusedTrackActivityRange() == r ? RANGE_FOCUS_COLOR : RANGE_COLOR);
+				g2d.setColor(UrmusicController.getFocusedTrackActivityRange() == r ? RANGE_FOCUS_COLOR : RANGE_COLOR);
 				g2d.fillRect(
 					(int) (r.getStart() * s) + 1,
 					1,
@@ -127,16 +126,16 @@ public class TimelineTrackRangesBar extends JPanel implements
 	public void setTrack(Track track) {
 		if(this.track != null) {
 			this.track.removeTrackListener(this);
-			UrmusicModel.removeTrackActivityRangeFocusListener(this.rangesFocusListener);
-			UrmusicModel.removeTrackFocusListener(this.trackFocusListener);
+			UrmusicController.removeTrackActivityRangeFocusListener(this.rangesFocusListener);
+			UrmusicController.removeTrackFocusListener(this.trackFocusListener);
 		}
 		
 		this.track = track;
 		
 		if(this.track != null) {
 			this.track.addTrackListener(this);
-			UrmusicModel.addTrackActivityRangeFocusListener(this.rangesFocusListener);
-			UrmusicModel.addTrackFocusListener(this.trackFocusListener);
+			UrmusicController.addTrackActivityRangeFocusListener(this.rangesFocusListener);
+			UrmusicController.addTrackFocusListener(this.trackFocusListener);
 		}
 	}
 

@@ -77,14 +77,14 @@ public class GLPreviewRenderer implements GLEventListener {
 	public void display(GLAutoDrawable drawable) {
 		GL3 gl = drawable.getGL().getGL3();
 		
-		int tex = this.parent.getLastTextureFor(UrmusicModel.getFocusedComposition(), UrmusicModel.getFrameCursor());
+		int tex = this.parent.getLastTextureFor(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicModel.getFrameCursor());
 		if(!gl.glIsTexture(tex)) return;
 		
 		// Calc ratio
 		float sw = drawable.getSurfaceWidth();
 		float sh = drawable.getSurfaceHeight();
-		float rw = UrmusicModel.getFocusedComposition().getWidth();
-		float rh = UrmusicModel.getFocusedComposition().getHeight();
+		float rw = UrmusicModel.getCurrentProject().getMainComposition().getWidth();
+		float rh = UrmusicModel.getCurrentProject().getMainComposition().getHeight();
 		float s;
 		
 		if(this.viewMode == ViewMode.FIT_MAX) s = Math.min(Math.min(sw / rw, sh / rh), 1.0f);

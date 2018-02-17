@@ -9,6 +9,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.plaf.LayerUI;
 
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
@@ -27,7 +28,7 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 	public void paint(Graphics g, JComponent c) {
 		super.paint(g, c);
 
-		Composition comp = UrmusicModel.getFocusedComposition();
+		Composition comp = UrmusicController.getFocusedComposition();
 
 		int hscroll = Math.round(this.view.getHorizontalScroll());
 		int hscalei = Math.round(this.view.getHorizontalScale());
@@ -69,7 +70,7 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 			g2d.fillRect(x, 0, w, TimelineView.FRAME_CARET_HEADER_HEIGHT);
 		}
 		
-		EffectParam<?> param = UrmusicModel.getFocusedEffectParameter();
+		EffectParam<?> param = UrmusicController.getFocusedEffectParameter();
 		if(param != null) {
 			int keyframesCount = param.getKeyFrameCount();
 			

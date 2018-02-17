@@ -15,7 +15,6 @@ import javax.swing.SwingUtilities;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.TimelineListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
-import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Timeline;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.view.components.UrmMenu;
@@ -50,11 +49,11 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 		
 		this.buildUI();
 		
-		Track t = UrmusicModel.getFocusedTrack();
+		Track t = UrmusicController.getFocusedTrack();
 		if(t != null)
 			this.effectListCards.show(this.effectListContainer, this.getPaneFor(t).getName());
 		
-		UrmusicModel.addTrackFocusListener(this);
+		UrmusicController.addTrackFocusListener(this);
 	}
 	
 	private void showAddEffectDialog() {
@@ -89,7 +88,7 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 	}
 	
 	public void dispose() {
-		UrmusicModel.removeTrackFocusListener(this);
+		UrmusicController.removeTrackFocusListener(this);
 		
 		for(Track t : this.listPanes.keySet()) {
 			this.listPanes.get(t).dispose();

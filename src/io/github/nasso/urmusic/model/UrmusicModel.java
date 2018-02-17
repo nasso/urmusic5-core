@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.common.event.RendererListener;
@@ -19,7 +18,6 @@ import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.renderer.Renderer;
 import io.github.nasso.urmusic.view.UrmusicView;
 
@@ -66,18 +64,10 @@ public class UrmusicModel {
 			loadEffect(fx);
 		}
 		
-		addFrameCursorListener((oldPosition, newPosition)  -> {
-			renderer.queueFrameASAP(focusedComposition, newPosition);
-		});
-		
 		loadProject(null);
 		
 		playbackThread = new PlaybackThread();
-		playbackThread.setFPS(getFocusedComposition().getTimeline().getFramerate());
-		
-		addCompositionFocusListener((oldComp, newComp) -> {
-			playbackThread.setFPS(newComp.getTimeline().getFramerate());
-		});
+		playbackThread.setFPS(project.getMainComposition().getTimeline().getFramerate());
 	}
 	
 	public static void exit() {
@@ -124,8 +114,7 @@ public class UrmusicModel {
 		
 		if(f == null) {
 			project = new Project();
-			focusComposition(project.getMainComposition());
-			renderer.queueFrameASAP(focusedComposition, 0);
+			renderer.queueFrameASAP(project.getMainComposition(), 0);
 			
 			notifyProjectLoaded(project);
 		}
@@ -148,7 +137,7 @@ public class UrmusicModel {
 	}
 
 	public static void setFrameCursor(int frameCursor) {
-		frameCursor = Math.min(getFocusedComposition().getTimeline().getLength() - 1, Math.max(frameCursor, 0));
+		frameCursor = Math.min(getCurrentProject().getMainComposition().getTimeline().getLength() - 1, Math.max(frameCursor, 0));
 		
 		if(UrmusicModel.frameCursor == frameCursor) return;
 		int before = UrmusicModel.frameCursor;
@@ -180,7 +169,6 @@ public class UrmusicModel {
 	// -- Edit --
 	public static void deleteTrackActivityRange(TrackActivityRange range) {
 		if(range == null) return;
-		if(focusedTrackRange == range) focusTrackActivityRange(null);
 		
 		range.getTrack().removeActiveRange(range);
 	}
@@ -189,7 +177,6 @@ public class UrmusicModel {
 		if(comp == null || trackIndex < 0 || trackIndex >= comp.getTimeline().getTracks().size()) return;
 		
 		Track t = comp.getTimeline().getTracks().get(trackIndex);
-		if(focusedTrack == t) focusTrack(null);
 		
 		comp.getTimeline().removeTrack(trackIndex);
 		disposeTrack(t);
@@ -230,122 +217,5 @@ public class UrmusicModel {
 		for(FrameCursorListener l : frameCursorListeners) {
 			l.frameChanged(before, after);
 		}
-	}
-	
-	// -- Focus
-	// Composition
-	private static Composition focusedComposition;
-	private static List<FocusListener<Composition>> compFocusListeners = new ArrayList<>();
-	
-	public static void addCompositionFocusListener(FocusListener<Composition> l) {
-		compFocusListeners.add(l);
-	}
-	
-	public static void removeCompositionFocusListener(FocusListener<Composition> l) {
-		compFocusListeners.remove(l);
-	}
-	
-	public static void focusComposition(Composition newFocus) {
-		if(focusedComposition == newFocus) return;
-		
-		Composition oldFocus = focusedComposition;
-		focusedComposition = newFocus;
-		
-		for(FocusListener<Composition> l : compFocusListeners) {
-			l.focusChanged(oldFocus, newFocus);
-		}
-	}
-	
-	public static Composition getFocusedComposition() {
-		return focusedComposition;
-	}
-	
-	// Track
-	private static Track focusedTrack = null;
-	private static List<FocusListener<Track>> trackFocusListeners = new ArrayList<>();
-	
-	public static void addTrackFocusListener(FocusListener<Track> l) {
-		trackFocusListeners.add(l);
-	}
-	
-	public static void removeTrackFocusListener(FocusListener<Track> l) {
-		trackFocusListeners.remove(l);
-	}
-	
-	public static void focusTrack(Track newFocus) {
-		if(focusedTrack == newFocus) return;
-		
-		Track oldFocus = focusedTrack;
-		focusedTrack = newFocus;
-		
-		if(focusedTrackRange != null && focusedTrackRange.getTrack() != newFocus) {
-			focusTrackActivityRange(null);
-		}
-		
-		for(FocusListener<Track> l : trackFocusListeners) {
-			l.focusChanged(oldFocus, newFocus);
-		}
-	}
-	
-	public static Track getFocusedTrack() {
-		return focusedTrack;
-	}
-	
-	// Track Activity Range
-	private static TrackActivityRange focusedTrackRange = null;
-	private static List<FocusListener<TrackActivityRange>> trackRangesFocusListeners = new ArrayList<>();
-	
-	public static void addTrackActivityRangeFocusListener(FocusListener<TrackActivityRange> l) {
-		trackRangesFocusListeners.add(l);
-	}
-	
-	public static void removeTrackActivityRangeFocusListener(FocusListener<TrackActivityRange> l) {
-		trackRangesFocusListeners.remove(l);
-	}
-	
-	public static void focusTrackActivityRange(TrackActivityRange newFocus) {
-		if(focusedTrackRange == newFocus) return;
-		
-		TrackActivityRange oldFocus = focusedTrackRange;
-		focusedTrackRange = newFocus;
-		
-		if(newFocus != null && focusedTrack != newFocus.getTrack()) {
-			focusTrack(newFocus.getTrack());
-		}
-		
-		for(FocusListener<TrackActivityRange> l : trackRangesFocusListeners) {
-			l.focusChanged(oldFocus, newFocus);
-		}
-	}
-	
-	public static TrackActivityRange getFocusedTrackActivityRange() {
-		return focusedTrackRange;
-	}
-	
-	// Control parameter
-	private static EffectParam<?> focusedParam = null;
-	private static List<FocusListener<EffectParam<?>>> controlParamFocusListeners = new ArrayList<>();
-	
-	public static void addEffectParameterFocusListener(FocusListener<EffectParam<?>> l) {
-		controlParamFocusListeners.add(l);
-	}
-	
-	public static void removeEffectParameterFocusListener(FocusListener<EffectParam<?>> l) {
-		controlParamFocusListeners.remove(l);
-	}
-	
-	public static void focusEffectParameter(EffectParam<?> newFocus) {
-		if(focusedParam == newFocus) return;
-		
-		EffectParam<?> oldFocus = focusedParam;
-		focusedParam = newFocus;
-		
-		for(FocusListener<EffectParam<?>> l : controlParamFocusListeners) {
-			l.focusChanged(oldFocus, newFocus);
-		}
-	}
-	
-	public static EffectParam<?> getFocusedEffectParameter() {
-		return focusedParam;
 	}
 }

@@ -30,7 +30,7 @@ public class PlaybackThread extends Thread {
 					int playbackStartFrame = UrmusicModel.getFrameCursor();
 					int cacheSize = UrmusicModel.getRenderer().getCacheSize();
 					int cacheSizeFifth = cacheSize / 5;
-					UrmusicModel.getRenderer().queueFrameRange(UrmusicModel.getFocusedComposition(), playbackStartFrame, cacheSize);
+					UrmusicModel.getRenderer().queueFrameRange(UrmusicModel.getCurrentProject().getMainComposition(), playbackStartFrame, cacheSize);
 					
 					int cacheForNext = -1;
 					while(this.isPlayingBack()) {
@@ -38,12 +38,12 @@ public class PlaybackThread extends Thread {
 						idealFrameTime = SECOND_NANO / this.fps;
 						
 						// Advance cursor
-						if((cacheForNext = UrmusicModel.getRenderer().getCacheFor(UrmusicModel.getFocusedComposition(), UrmusicModel.getFrameCursor() + 1)) >= 0
+						if((cacheForNext = UrmusicModel.getRenderer().getCacheFor(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicModel.getFrameCursor() + 1)) >= 0
 								&& !UrmusicModel.getRenderer().getCachedFrames()[cacheForNext].dirty)
 							UrmusicModel.setFrameCursor(UrmusicModel.getFrameCursor() + 1);
 						
 						if(UrmusicModel.getFrameCursor() - playbackStartFrame > cacheSizeFifth) {
-							UrmusicModel.getRenderer().queueFrameRange(UrmusicModel.getFocusedComposition(), playbackStartFrame + cacheSize, cacheSizeFifth);
+							UrmusicModel.getRenderer().queueFrameRange(UrmusicModel.getCurrentProject().getMainComposition(), playbackStartFrame + cacheSize, cacheSizeFifth);
 							playbackStartFrame += cacheSizeFifth;
 						}
 						

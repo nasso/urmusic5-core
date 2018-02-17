@@ -55,8 +55,8 @@ public class Urmusic {
 		Urmusic.setupFiles();
 		
 		UrmusicModel.init();
-		UrmusicView.init();
 		UrmusicController.init();
+		UrmusicView.init();
 		
 		Project prj = UrmusicModel.getCurrentProject();
 		
