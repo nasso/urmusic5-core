@@ -12,6 +12,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.util.glsl.ShaderUtil;
 
@@ -50,8 +51,8 @@ public class GLUtils {
 		glslTokenizer.addToken("\".*\"", GLSLPreprocessorToken.PRE_INCLUDE_LOCAL_PATH);
 	}
 	
-	private final IntBuffer buf1a = IntBuffer.allocate(1);
-	private final IntBuffer buf1b = IntBuffer.allocate(1);
+	private final IntBuffer buf1a = Buffers.newDirectIntBuffer(1);
+	private final IntBuffer buf1b = Buffers.newDirectIntBuffer(1);
 	
 	private final TIntList buffers = new TIntArrayList();
 	private final TIntList vaos = new TIntArrayList();

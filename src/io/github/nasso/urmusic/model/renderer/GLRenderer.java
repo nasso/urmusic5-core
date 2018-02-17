@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
@@ -28,22 +29,18 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	private static final class CachedFramebuffer {
 		private static int cacheSize;
 		private static IntBuffer bufTex;
-		private static IntBuffer bufFBO;
 		
 		private int width, height;
 		
+		public int fbo;
 		public int textureAlt;
 		
-		public int[] texture, fbo;
+		public int[] texture;
 		public boolean[] dirty;
 		
-		private GLUtils glu;
-		
 		public CachedFramebuffer(GL3 gl, GLUtils glu, Composition comp) {
-			this.glu = glu;
-			
+			this.fbo = glu.genFramebuffer(gl);
 			this.texture = new int[cacheSize];
-			this.fbo = new int[cacheSize];
 			this.dirty = new boolean[cacheSize];
 			
 			this.makeAllDirty(true);
@@ -51,20 +48,22 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			this.width = comp.getWidth();
 			this.height = comp.getHeight();
 			
-			gl.glBindTexture(GL_TEXTURE_2D, this.textureAlt = glu.genTexture(gl));
-			gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
-			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			this.textureAlt = glu.genTexture(gl);
+			glu.genTextures(gl, cacheSize, bufTex);
 			
-			this.glu.createFramebuffers(gl, cacheSize, this.width, this.height, bufTex, bufFBO);
+			for(int i = 0; i <= cacheSize; i++) {
+				int t = i == cacheSize ? this.textureAlt : bufTex.get(i);
+
+				gl.glBindTexture(GL_TEXTURE_2D, t);
+				gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			}
 			
 			bufTex.get(this.texture);
-			bufFBO.get(this.fbo);
-
 			bufTex.flip();
-			bufFBO.flip();
 		}
 		
 		public void makeAllDirty(boolean dirty) {
@@ -73,8 +72,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		
 		public static void setCacheSize(int size) {
 			cacheSize = size;
-			bufTex = IntBuffer.allocate(size);
-			bufFBO = IntBuffer.allocate(size);
+			bufTex = Buffers.newDirectIntBuffer(size);
 		}
 
 		public CachedFramebuffer update(GL3 gl, Composition comp) {
@@ -91,17 +89,80 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			return this;
 		}
 		
+		/**
+		 * Swap the texture at the given index with the alt texture
+		 * @param gl
+		 * @param i
+		 */
 		public void swapAlt(GL3 gl, int i) {
 			int alt = this.textureAlt;
 			this.textureAlt = this.texture[i];
 			this.texture[i] = alt;
 
-			gl.glBindFramebuffer(GL_FRAMEBUFFER, this.fbo[i]);
+			gl.glBindFramebuffer(GL_FRAMEBUFFER, this.fbo);
 			gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this.texture[i], 0);
 		}
 	}
 	
+	private final class TrackRenderTexture {
+		public Composition comp;
+		
+		public int tex_id[] = new int[2];
+		public int width, height;
+		
+		public TrackRenderTexture(Composition comp) {
+			this.comp = comp;
+		}
+		
+		public void swapBuffers() {
+			int temp = this.tex_id[0];
+			
+			for(int i = 0; i < this.tex_id.length - 1; i++)
+				this.tex_id[i] = this.tex_id[i + 1];
+			
+			this.tex_id[this.tex_id.length - 1] = temp;
+		}
+		
+		/**
+		 * @return The dest buffer, aka where we're rendering stuff. You write to this one.
+		 */
+		public int getDestBuffer() {
+			return this.tex_id[0];
+		}
+		
+		/**
+		 * @return The back buffer, aka the previous dest buffer, where we just rendered the previous stuff. You read from this one.
+		 */
+		public int getBackBuffer() {
+			return this.tex_id[this.tex_id.length - 1];
+		}
+		
+		public TrackRenderTexture update() {
+			for(int i = 0; i < this.tex_id.length; i++) {
+				if(this.tex_id[i] != 0 && this.width == this.comp.getWidth() && this.height == this.comp.getHeight()) continue;
+				
+				if(this.tex_id[i] == 0) {
+					this.tex_id[i] = GLRenderer.this.glu.genTexture(GLRenderer.this.gl);
+					
+					GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, this.tex_id[i]);
+					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				} else GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, this.tex_id[i]);
+				
+				GLRenderer.this.gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.comp.getWidth(), this.comp.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+			}
+			
+			this.width = this.comp.getWidth();
+			this.height = this.comp.getHeight();
+			
+			return this;
+		}
+	}
+	
 	private Map<Composition, CachedFramebuffer> compFBOs = new HashMap<>();
+	private Map<Track, TrackRenderTexture> tracksTextures = new HashMap<>();
 	public final Renderer mainRenderer;
 	private GL3 gl;
 	private GLUtils glu;
@@ -109,6 +170,12 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	private EffectArgs fxArgs = new EffectArgs();
 	
 	private List<Composition> disposedCompositions = new ArrayList<>();
+	
+	private int trackRenderingFBO;
+	private List<Track> trackRenderList = new ArrayList<>();
+
+	private int compose_prog, compose_quadVAO;
+	private int compose_loc_inputTex, compose_loc_inputComp;
 	
 	public GLRenderer(Renderer renderer) {
 		this.mainRenderer = renderer;
@@ -119,46 +186,62 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		return GLProfile.getGL2GL3();
 	}
 	
-	public void initEffect(TrackEffect vfx) {
+	public void initEffect(TrackEffect fx) {
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
 		this.gl = ctx.getGL().getGL3();
 		
-		vfx.globalVideoSetup(this.gl);
+		fx.globalVideoSetup(this.gl);
 		
 		ctx.release();
 	}
 	
-	public void disposeEffect(TrackEffect vfx) {
+	public void disposeEffect(TrackEffect fx) {
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
 		this.gl = ctx.getGL().getGL3();
 		
-		vfx.globalVideoDispose(this.gl);
+		fx.globalVideoDispose(this.gl);
 		
 		ctx.release();
 	}
 	
-	public void disposeTrack(Track vt) {
+	public void disposeTrack(Track t) {
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
 		this.gl = ctx.getGL().getGL3();
 		
-		for(int i = 0; i < vt.getEffectCount(); i++) {
-			TrackEffectInstance vfx = vt.getEffect(i);
+		for(int i = 0; i < t.getEffectCount(); i++) {
+			TrackEffectInstance vfx = t.getEffect(i);
 			
 			vfx.disposeVideo(this.gl);
+		}
+		
+		TrackRenderTexture tex = this.tracksTextures.get(t);
+		
+		if(tex != null) {
+			for(int i = 0; i < tex.tex_id.length; i++)
+				this.glu.deleteTexture(this.gl, tex.tex_id[i]);
 		}
 		
 		ctx.release();
 	}
 	
-	public void disposeEffectInstance(TrackEffectInstance vfx) {
+	public TrackRenderTexture getTrackTexture(Composition comp, Track t) {
+		TrackRenderTexture tex = this.tracksTextures.get(t);
+		
+		if(tex == null)
+			this.tracksTextures.put(t, tex = new TrackRenderTexture(comp));
+		
+		return tex.update();
+	}
+	
+	public void disposeEffectInstance(TrackEffectInstance fx) {
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
 		this.gl = ctx.getGL().getGL3();
 		
-		vfx.disposeVideo(this.gl);
+		fx.disposeVideo(this.gl);
 		
 		ctx.release();
 	}
@@ -173,6 +256,17 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		this.gl = drawable.getGL().getGL3();
 		
 		CachedFramebuffer.setCacheSize(this.mainRenderer.getCachedFrames().length);
+		
+		this.trackRenderingFBO = this.glu.genFramebuffer(this.gl);
+		
+		this.compose_prog = this.glu.createProgram(this.gl, "track_composer.vs", "track_composer.fs");
+		this.compose_loc_inputTex = this.gl.glGetUniformLocation(this.compose_prog, "trackInput");
+		this.compose_loc_inputComp = this.gl.glGetUniformLocation(this.compose_prog, "compOutput");
+		
+		this.compose_quadVAO = this.glu.genFullQuadVAO(this.gl);
+		
+		this.gl.glBindVertexArray(0);
+		this.gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	
 	public void dispose(GLAutoDrawable drawable) {
@@ -185,11 +279,84 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		this.gl = drawable.getGL().getGL3();
 		
 		CachedFrame dest = this.mainRenderer.getCurrentDestCacheFrame();
-		int cacheIndex = dest.index_on_creation;
 		
-		this.renderComposition(dest.comp, dest.frame_id, cacheIndex);
+		this.renderComposition(dest.comp, dest.frame_id, dest.index);
 		
 		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+	
+	private void prepareTrackRenderList(Composition comp, int frame_id) {
+		this.trackRenderList.clear();
+		
+		List<Track> tracks = comp.getTimeline().getTracks();
+		track_loop: for(int i = 0; i < tracks.size(); i++) {
+			Track t = tracks.get(i);
+			
+			if(!t.isEnabled() || !t.isActiveAt(frame_id) || t.getEffectCount() == 0) continue;
+			
+			for(int j = 0; j < t.getEffectCount(); j++) {
+				TrackEffectInstance fx = t.getEffect(j);
+				
+				if(fx.getEffectClass().isVideoEffect() && fx.isEnabled()) {
+					this.trackRenderList.add(t);
+					continue track_loop;
+				}
+			}
+		}
+	}
+	
+	// TODO: CompositeTrack rendering
+	private void renderTrack(Composition comp, Track t, int frame_id) {
+		TrackRenderTexture dest = this.getTrackTexture(comp, t);
+		
+		// We bind the framebuffer and the first dest buffer
+		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.trackRenderingFBO);
+		this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.getDestBuffer(), 0);
+		
+		// We clear the first dest buffer
+		this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		this.gl.glClear(GL_COLOR_BUFFER_BIT);
+		
+		// Apply the effects
+		for(int j = 0; j < t.getEffectCount(); j++) {
+			TrackEffectInstance fx = t.getEffect(j);
+			
+			// We only care about enabled video effects
+			if(!fx.isEnabled() || !fx.getEffectClass().isVideoEffect()) continue;
+			
+			// Init the effect first to make sure everything's oki
+			if(!fx.hasSetupVideo()) fx.setupVideo(this.gl);
+			
+			// Swap dest/back buffers, to bring the previous dest buffer to the back and get a fresh usable dest buffer
+			dest.swapBuffers();
+			
+			// Bind the framebuffer and the dest buffer
+			this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.getDestBuffer(), 0);
+			
+			// Clear the dest buffer
+			this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			this.gl.glClear(GL_COLOR_BUFFER_BIT);
+			
+			// Effect arguments
+			this.fxArgs.clear();
+			this.fxArgs.width = dest.width;
+			this.fxArgs.height = dest.height;
+			this.fxArgs.frame = frame_id;
+			this.fxArgs.texInput = dest.getBackBuffer();
+			this.fxArgs.fboOutput = this.trackRenderingFBO;
+			
+			// DO IT TO EM
+			fx.applyVideo(this.gl, this.fxArgs);
+		}
+		
+		// When we leave, the last rendering is on the dest buffer, so swap it one last time
+		dest.swapBuffers();
+	}
+	
+	private void renderAllTracks(Composition comp, int frame_id) {
+		for(int i = 0; i < this.trackRenderList.size(); i++) {
+			this.renderTrack(comp, this.trackRenderList.get(i), frame_id);
+		}
 	}
 	
 	private void renderComposition(Composition comp, int frame_id, int cacheIndex) {
@@ -202,132 +369,84 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			dest = this.getFramebufferFor(comp).update(this.gl, comp);
 		}
 		
-		int destFBO = dest.fbo[cacheIndex];
-		
-		
-		// Bind framebuffer
-		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, destFBO);
+		// Setup the viewport
 		this.gl.glViewport(0, 0, dest.width, dest.height);
 		
+		// Disable blending before doing shit
 		this.gl.glDisable(GL_BLEND);
 		this.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
-		// -- Composition --
-		List<Track> tracks = comp.getTimeline().getTracks();
+		// Render all the tracks
+		this.prepareTrackRenderList(comp, frame_id);
+		this.renderAllTracks(comp, frame_id);
 		
-		int lastTrackIndex = -1;
+		// Compose them, on the dest framebuffer
+		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, dest.fbo);
+		this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.texture[cacheIndex], 0);
+		
+		this.gl.glClearColor(
+			comp.getClearColor().getRedf(),
+			comp.getClearColor().getGreenf(),
+			comp.getClearColor().getBluef(),
+			comp.getClearColor().getAlphaf()
+		);
+		this.gl.glClear(GL_COLOR_BUFFER_BIT);
+		
+		this.gl.glUseProgram(this.compose_prog);
+		this.gl.glBindVertexArray(this.compose_quadVAO);
+		
+		List<Track> tracks = comp.getTimeline().getTracks();
 		for(int i = 0; i < tracks.size(); i++) {
 			Track t = tracks.get(i);
 			
-			if(t.isEnabled() && t.isActiveAt(frame_id) && t.getEffectCount() != 0) lastTrackIndex = i;
-		}
-		
-		if(lastTrackIndex == -1) { // if no track
-			this.gl.glClearColor(
-				comp.getClearColor().getRedf(),
-				comp.getClearColor().getGreenf(),
-				comp.getClearColor().getBluef(),
-				comp.getClearColor().getAlphaf()
-			);
-			this.gl.glClear(GL_COLOR_BUFFER_BIT);
+			if(!t.isEnabled() || !t.isActiveAt(frame_id) || t.getEffectCount() == 0) continue;
 			
-			return;
-		}
-		
-		this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		this.gl.glClear(GL_COLOR_BUFFER_BIT);
-		
-		for(int i = 0; i <= lastTrackIndex; i++) {
-			Track t = tracks.get(i);
-			
-			if(!t.isEnabled() || !t.isActiveAt(frame_id)) continue;
-			
-			/*
-			TODO: CompositeTrack rendering
-			// We only care about video tracks
-			if(t instanceof CompositeTrack) {
-				this.renderComposition(((CompositeTrack) t).getComposition(), frame_id, cacheIndex);
-				
-				// Rebind framebuffer
-				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, destFBO);
-				this.gl.glViewport(0, 0, dest.width, dest.height);
-			}
-			*/
-			
-			int lastEffectIndex = -1;
+			// Don't compose if there's no effect
+			boolean noEffect = true;
 			for(int j = 0; j < t.getEffectCount(); j++) {
 				TrackEffectInstance fx = t.getEffect(j);
 				
-				if(fx.isEnabled() && fx.getEffectClass().isVideoEffect()) lastEffectIndex = j;
+				noEffect &= !fx.getEffectClass().isVideoEffect() || !fx.isEnabled();
+				
+				if(!noEffect) break;
 			}
+			if(noEffect) continue;
 			
-			boolean isLastTrack = lastTrackIndex == i;
+			// We render to the alt texture and then swap it to the used cache slot
+			this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.textureAlt, 0);
 			
-			for(int j = 0; j <= lastEffectIndex; j++) {
-				TrackEffectInstance fx = t.getEffect(j);
-				
-				// We only care about video effects
-				if(!fx.isEnabled() || !fx.getEffectClass().isVideoEffect()) continue;
-				
-				dest.swapAlt(this.gl, cacheIndex);
-				
-				if(isLastTrack && j == lastEffectIndex) { // if last track and last effect (aka next is final comp)
-					this.gl.glEnable(GL_BLEND);
-					
-					this.gl.glClearColor(
-						comp.getClearColor().getRedf(),
-						comp.getClearColor().getGreenf(),
-						comp.getClearColor().getBluef(),
-						comp.getClearColor().getAlphaf()
-					);
-				} else
-					this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-				
-				this.gl.glClear(GL_COLOR_BUFFER_BIT);
-				
-				this.fxArgs.clear();
-				this.fxArgs.width = dest.width;
-				this.fxArgs.height = dest.height;
-				this.fxArgs.frame = frame_id;
-				this.fxArgs.texInput = dest.textureAlt;
-				this.fxArgs.fboOutput = destFBO;
-				
-				if(!fx.hasSetupVideo()) fx.setupVideo(this.gl);
-				fx.applyVideo(this.gl, this.fxArgs);
-			}
+			this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			this.gl.glClear(GL_COLOR_BUFFER_BIT);
+			
+			// We use the current cache slot as input
+			this.glu.uniformTexture(this.gl, this.compose_loc_inputComp, dest.texture[cacheIndex], 1);
+			this.glu.uniformTexture(this.gl, this.compose_loc_inputTex, this.getTrackTexture(comp, t).getBackBuffer(), 0);
+			this.gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			
+			// We then swap the alt texture we just rendered to with the cache slot
+			dest.swapAlt(this.gl, cacheIndex);
 		}
 	}
 
-	public int getCurrentDestFBO(Composition comp) {
-		return this.getFBOFor(comp, this.mainRenderer.getCurrentDestCacheFrame().index_on_creation);
-	}
-	
 	public int getCurrentDestTexture(Composition comp) {
-		return this.getTexFor(comp, this.mainRenderer.getCurrentDestCacheFrame().index_on_creation);
+		return this.getTextureForCacheIndex(comp, this.mainRenderer.getCurrentDestCacheFrame().index);
 	}
 	
 	public int getLastTextureFor(Composition comp, int frame) {
-		return this.getTexFor(comp, this.mainRenderer.getLastCacheFor(comp, frame));
+		return this.getTextureForCacheIndex(comp, this.mainRenderer.getLastCacheFor(comp, frame));
 	}
 	
-	public int getTextureFor(Composition comp, int frame) {
-		return this.getTexFor(comp, this.mainRenderer.getCacheFor(comp, frame));
+	public int getTextureForFrame(Composition comp, int frame) {
+		return this.getTextureForCacheIndex(comp, this.mainRenderer.getCacheFor(comp, frame));
+	}
+	private int getTextureForCacheIndex(Composition comp, int index) {
+		if(index > this.mainRenderer.getCacheSize() || index < 0) return -1;
+		
+		return this.getFramebufferFor(comp).texture[index];
 	}
 	
 	private CachedFramebuffer getFramebufferFor(Composition comp) {
 		return this.compFBOs.get(comp);
-	}
-	
-	private int getFBOFor(Composition comp, int index) {
-		if(index > this.mainRenderer.getCacheSize() || index < 0) return -1;
-		
-		return this.getFramebufferFor(comp).fbo[index];
-	}
-	
-	private int getTexFor(Composition comp, int index) {
-		if(index > this.mainRenderer.getCacheSize() || index < 0) return -1;
-		
-		return this.getFramebufferFor(comp).texture[index];
 	}
 	
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) { }

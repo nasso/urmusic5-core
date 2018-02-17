@@ -11,13 +11,14 @@ public class UrmusicUIRes {
 	public static final ImageIcon DELETE_ICON_S = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-delete-8.png"));
 	public static final ImageIcon POPUP_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-open-in-popup-16.png"));
 
-	public static final ImageIcon UP_ARROW_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-up-16.png"));
-	public static final ImageIcon DOWN_ARROW_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-down-arrow-16.png"));
 	public static final ImageIcon TRI_RIGHT_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-forward-12.png"));
 	public static final ImageIcon TRI_DOWN_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-expand-arrow-12.png"));
 	public static final ImageIcon KEY_FRAME_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-camera-automation-16.png"));
 	public static final ImageIcon KEY_FRAME_ICON_BLUE = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-camera-automation-16-blue.png"));
 	public static final ImageIcon KEY_FRAME_ICON_RED = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-camera-automation-16-red.png"));
+	public static final ImageIcon SORT_UP_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-sort-up-16.png"));
+	public static final ImageIcon SORT_DOWN_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-sort-down-16.png"));
+	public static final ImageIcon CODE_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-source-code-16.png"));
 	
 	public static final void init() { }
 	

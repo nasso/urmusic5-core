@@ -14,8 +14,19 @@
 
 #endif
 
+// 
 // blends and compose the given colours using the given porter duff operator and normal alpha blending
 // see https://www.w3.org/TR/compositing-1/
+// 
+// Arguments:
+// - src = the source color
+// - dst = the destination color
+// - op = the Porter-Duff operator used. One of: PD_BLEND_SRC_OVER, PD_BLEND_DST_OVER
+//                                               PD_BLEND_SRC_IN, PD_BLEND_DST_IN,
+//                                               PD_BLEND_SRC_OUT, PD_BLEND_DST_OUT,
+//                                               PD_BLEND_SRC_ATOP, PD_BLEND_DST_ATOP,
+//                                               PD_BLEND_COPY, PD_BLEND_ADD or PD_BLEND_XOR.
+// 
 vec4 PD_compose(vec4 src, vec4 dst, int op) {
 	vec3 cs = src.rgb;
 	vec3 cb = dst.rgb;

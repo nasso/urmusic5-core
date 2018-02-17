@@ -60,7 +60,7 @@ public class GLPreviewRenderer implements GLEventListener {
 		
 		this.quadProg = this.glu.createProgram(gl, "full_quad.vs", "full_quad.fs");
 		gl.glUseProgram(this.quadProg);
-		this.quadProgTextureLocation = gl.glGetUniformLocation(this.quadProg, "color");
+		this.quadProgTextureLocation = gl.glGetUniformLocation(this.quadProg, "inputTex");
 		this.loc_xform = gl.glGetUniformLocation(this.quadProg, "xform");
 		
 		this.quadVAO = this.glu.genFullQuadVAO(gl);

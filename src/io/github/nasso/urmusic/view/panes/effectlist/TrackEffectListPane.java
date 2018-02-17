@@ -24,7 +24,7 @@ public class TrackEffectListPane extends JPanel implements TrackListener {
 	}
 
 	private void addEffectPane(TrackEffectInstance e, int pos) {
-		this.add(new TrackEffectPane(e), pos);
+		this.add(new TrackEffectPane(this.track, e), pos);
 		
 		this.revalidate();
 		this.repaint();
