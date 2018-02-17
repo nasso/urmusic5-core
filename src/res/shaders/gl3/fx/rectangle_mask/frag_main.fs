@@ -17,8 +17,7 @@
 
 struct Parameters {
 	vec4 color;
-	vec4 originInOutRadius;
-	vec2 inOutFade;
+	vec4 points;
 	
 	int blending;
 	
@@ -26,11 +25,8 @@ struct Parameters {
 };
 
 #define u_color params.color
-#define u_originPoint params.originInOutRadius.xy
-#define u_innerRadius params.originInOutRadius.z
-#define u_outerRadius params.originInOutRadius.w
-#define u_innerFade params.inOutFade.x
-#define u_outerFade params.inOutFade.y
+#define u_pointA params.points.xy
+#define u_pointB params.points.zw
 #define u_blending params.blending
 #define u_invert params.invert
 
@@ -45,16 +41,12 @@ out vec4 out_color;
 float doMask() {
 	vec2 pixelCoords = (pass_quad_uv * 1.0 - 0.5) * colorSize;
 	
-	float dist = distance(pixelCoords, u_originPoint);
+	float minx = min(u_pointA.x, u_pointB.x);
+	float maxx = max(u_pointA.x, u_pointB.x);
+	float miny = min(u_pointA.y, u_pointB.y);
+	float maxy = max(u_pointA.y, u_pointB.y);
 	
-	if(u_outerRadius == 0.0 && u_outerFade == 0.0) return 0.0;
-	
-	float outerMask = __smoothstep(u_outerRadius + u_outerFade, u_outerRadius, dist);
-	if(u_innerRadius == 0) return outerMask;
-	
-	float innerMask = __smoothstep(u_innerRadius - u_innerFade, u_innerRadius, dist);
-	
-	return outerMask * innerMask;
+	return step(minx, pixelCoords.x) * step(pixelCoords.x, maxx) * step(miny, pixelCoords.y) * step(pixelCoords.y, maxy);
 }
 
 void main() {

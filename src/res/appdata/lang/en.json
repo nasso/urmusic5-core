@@ -1,5 +1,6 @@
 {
 	"locale_name": "English (United-States)",
+	
 	"map": {
 		"title": "urmusic",
 		
@@ -60,6 +61,24 @@
 		"effect.circle_mask.param.blendingMode.option.add": "Add",
 		"effect.circle_mask.param.blendingMode.option.xor": "XOR",
 		"effect.circle_mask.param.invert.name": "Invert",
+		
+		"effect.rectangle_mask.name": "Rectangle Mask",
+		"effect.rectangle_mask.param.color.name": "Color",
+		"effect.rectangle_mask.param.pointA.name": "Point A",
+		"effect.rectangle_mask.param.pointB.name": "Point B",
+		"effect.rectangle_mask.param.blendingMode.name": "Blending Mode",
+		"effect.rectangle_mask.param.blendingMode.option.srcOver": "Source Over",
+		"effect.rectangle_mask.param.blendingMode.option.dstOver": "Destination Over",
+		"effect.rectangle_mask.param.blendingMode.option.srcIn": "Source In",
+		"effect.rectangle_mask.param.blendingMode.option.dstIn": "Destination In",
+		"effect.rectangle_mask.param.blendingMode.option.srcOut": "Source Out",
+		"effect.rectangle_mask.param.blendingMode.option.dstOut": "Destination Out",
+		"effect.rectangle_mask.param.blendingMode.option.srcAtop": "Source Atop",
+		"effect.rectangle_mask.param.blendingMode.option.dstAtop": "Destination Atop",
+		"effect.rectangle_mask.param.blendingMode.option.copy": "Copy",
+		"effect.rectangle_mask.param.blendingMode.option.add": "Add",
+		"effect.rectangle_mask.param.blendingMode.option.xor": "XOR",
+		"effect.rectangle_mask.param.invert.name": "Invert",
 		
 		"effect.affine_transform.name": "Affine Transform",
 		"effect.affine_transform.param.translation.name": "Translate",

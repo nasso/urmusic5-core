@@ -95,6 +95,7 @@ public class Urmusic {
 		
 		visuals.addEffect(vignette);
 		visuals.addEffect(vignette2);
+		visuals.addEffect(UrmusicModel.STOCK_EFFECTS[1].instance());
 		prj.getMainComposition().getTimeline().addTrack(visuals);
 	}
 	
