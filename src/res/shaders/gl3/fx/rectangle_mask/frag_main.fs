@@ -12,7 +12,6 @@
 #define PD_BLEND_ADD 9
 #define PD_BLEND_XOR 10
 
-#include <stdurm>
 #include <porterDuff>
 
 struct Parameters {

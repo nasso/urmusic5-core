@@ -17,7 +17,6 @@ public class OptionParamUI extends EffectParamUI<OptionParam> {
 	public OptionParamUI(TrackEffectInstance fx, OptionParam param) {
 		super(fx, param);
 	}
-	
 
 	public void updateControl(int frame) {
 		this.combo.setSelectedIndex(this.getParam().getValue(frame));

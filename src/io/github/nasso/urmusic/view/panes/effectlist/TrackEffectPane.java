@@ -148,7 +148,7 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 	}
 	
 	private void delete() {
-		this.track.removeEffect(this.fx);
+		UrmusicController.deleteTrackEffect(this.track, this.fx);
 	}
 	
 	private void toggleExpand() {

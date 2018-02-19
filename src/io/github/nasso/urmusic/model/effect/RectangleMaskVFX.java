@@ -96,10 +96,11 @@ public class RectangleMaskVFX extends TrackEffect {
 		this.loc_blending = gl.glGetUniformLocation(this.prog, "params.blending");
 		this.loc_invert = gl.glGetUniformLocation(this.prog, "params.invert");
 		
-		this.quadVAO = this.glu.genFullQuadVAO(gl);
+		this.quadVAO = this.glu.createFullQuadVAO(gl);
 	}
 	
 	public void globalVideoDispose(GL3 gl) {
+		this.glu.dispose(gl);
 	}
 	
 	public void effectMain() {

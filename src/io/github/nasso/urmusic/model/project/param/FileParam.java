@@ -1,28 +1,27 @@
 package io.github.nasso.urmusic.model.project.param;
 
-import io.github.nasso.urmusic.model.project.ProjectFileSystem.ProjectFile;
+import java.nio.file.Path;
 
-public class FileParam extends EffectParam<ProjectFile> {
-	private ProjectFile val;
+public class FileParam extends EffectParam<Path> {
+	private Path val;
 	
 	public FileParam(String name) {
 		super(name, false);
 	}
 	
-
-	protected void setStaticValue(ProjectFile val) {
+	protected void setStaticValue(Path val) {
 		this.val = val;
 	}
 	
-	protected ProjectFile getStaticValue() {
+	protected Path getStaticValue() {
 		return this.val;
 	}
 	
-	protected ProjectFile cloneValue(ProjectFile val) {
-		return null;
+	protected Path cloneValue(Path val) {
+		return val;
 	}
 	
-	public ProjectFile ramp(ProjectFile s, ProjectFile e, float t) {
-		return null;
+	public Path ramp(Path s, Path e, float t) {
+		return t < 1.0f ? s : e;
 	}
 }

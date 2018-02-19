@@ -4,13 +4,21 @@ package io.github.nasso.urmusic.model.renderer;
 import static com.jogamp.opengl.GL.*;
 import static com.jogamp.opengl.GL2ES2.*;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+
+import org.joml.Matrix4f;
+import org.joml.Vector2i;
 
 import com.jogamp.common.nio.Buffers;
 import com.jogamp.opengl.GL3;
@@ -53,6 +61,8 @@ public class GLUtils {
 	
 	private final IntBuffer buf1a = Buffers.newDirectIntBuffer(1);
 	private final IntBuffer buf1b = Buffers.newDirectIntBuffer(1);
+	
+	private FloatBuffer _mat4Buf = Buffers.newDirectFloatBuffer(4 * 4);
 	
 	private final TIntList buffers = new TIntArrayList();
 	private final TIntList vaos = new TIntArrayList();
@@ -255,6 +265,11 @@ public class GLUtils {
 		gl.glActiveTexture(GL_TEXTURE0);
 	}
 	
+	public final void uniformMatrix(GL3 gl, int loc, Matrix4f mat4) {
+		mat4.get(this._mat4Buf);
+		gl.glUniformMatrix4fv(loc, this._mat4Buf.remaining() >> 4, false, this._mat4Buf);
+	}
+	
 	public final void deleteBuffer(GL3 gl, int buf) {
 		if(!this.buffers.contains(buf)) return;
 		
@@ -353,9 +368,49 @@ public class GLUtils {
 		this.framebuffers.clear();
 	}
 	
-	public GLUtils() { }
-	
 	// Misc utils
+	/**
+	 * Loads an image to a gl texture, optionnaly generating mip maps at the end.<br> 
+	 * @return The size of the loaded image, in pixels, or <tt>null</tt> if the image couldn't be loaded.
+	 */
+	public final Vector2i loadImageToTexture(GL3 gl, int tex, String imagePath, boolean genMipmaps) {
+		BufferedImage img = null;
+		try {
+			img = ImageIO.read(new File(imagePath));
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		if(img == null) {
+			System.err.println("Couldn't load " + imagePath);
+			return null;
+		}
+		
+		int width = img.getWidth();
+		int height = img.getHeight();
+		
+		ByteBuffer data = Buffers.newDirectByteBuffer(width * height * 4);
+		
+		boolean hasAlpha = img.getColorModel().hasAlpha();
+		for(int x = 0; x < width; x++) {
+			for(int y = 0; y < height; y++) {
+				int rgb = img.getRGB(y, x);
+				
+				data.put((byte) (rgb >> 16));
+				data.put((byte) (rgb >> 8));
+				data.put((byte) (rgb >> 0));
+				data.put((byte) (hasAlpha ? (rgb >> 24) : 0xFF));
+			}
+		}
+		
+		data.flip();
+		
+		gl.glBindTexture(GL_TEXTURE_2D, tex);
+		gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		if(genMipmaps) gl.glGenerateMipmap(GL_TEXTURE_2D);
+		
+		return new Vector2i(width, height);
+	}
 	
 	/**
 	 * Generates a VAO containing 1 VBO of 2D positions for a full screen quad. The vertices are ordered so a render can be done simply by doing:
@@ -378,7 +433,7 @@ public class GLUtils {
 	 * @param gl
 	 * @return The VAO
 	 */
-	public final int genFullQuadVAO(GL3 gl) {
+	public final int createFullQuadVAO(GL3 gl) {
 		int quadPos = this.genBuffer(gl);
 		gl.glBindBuffer(GL_ARRAY_BUFFER, quadPos);
 		gl.glBufferData(GL_ARRAY_BUFFER, 8 * 32, FloatBuffer.wrap(new float[] {

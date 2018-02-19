@@ -34,6 +34,19 @@ public class Renderer implements Runnable {
 			this.notifier = notifier;
 		}
 		
+		public void waitForStop() {
+			this.clearAllCommands();
+			
+			Renderer.this.renderingThreadStopRequest = true;
+			if(Renderer.this.renderingThreadIdle) this.notifyLock();
+			
+			try {
+				Renderer.this.renderingThread.join();
+			} catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
 		private void notifyLock() {
 			synchronized(this.notifier) {
 				this.notifier.notifyAll();
@@ -46,7 +59,7 @@ public class Renderer implements Runnable {
 			if(Renderer.this.renderingThreadIdle) this.notifyLock();
 		}
 		
-		private void clearCommandsOfType(int cmd) {
+		public void clearCommandsOfType(int cmd) {
 			synchronized(this.commands) {
 				for(int i = 0; i < this.commands.size(); i++) {
 					int c = (int) this.commands.get(i);
@@ -54,13 +67,16 @@ public class Renderer implements Runnable {
 					
 					switch(c) {
 						case RCMD_RENDER_FRAME:
-							s = 3;
+							s = 2;
 							break;
 						case RCMD_LOAD_EFFECT:
 						case RCMD_UNLOAD_EFFECT:
 						case RCMD_UNLOAD_EFFECT_INSTANCE:
 						case RCMD_UNLOAD_TRACK:
 							s = 1;
+							break;
+						default:
+							s = 0;
 							break;
 					}
 					
@@ -78,7 +94,10 @@ public class Renderer implements Runnable {
 		}
 		
 		public void clearAllCommands() {
-			this.clearCommandsOfType(RCMD_RENDER_FRAME);
+			synchronized(this.commands) {
+				this.commands.clear();
+				this.availableCommands = 0;
+			}
 		}
 		
 		public void consumeCommand() {
@@ -91,12 +110,13 @@ public class Renderer implements Runnable {
 		
 		public void queueRender(Composition comp, int frame, int frameCount) {
 			synchronized(this.commands) {
-				this.commands.add(RCMD_RENDER_FRAME);
-				this.commands.add(comp);
-				this.commands.add(frame);
-				this.commands.add(frameCount);
-				
-				this.pushCommand();
+				for(int i = 0; i < frameCount; i++) {
+					this.commands.add(RCMD_RENDER_FRAME);
+					this.commands.add(comp);
+					this.commands.add(frame + i);
+					
+					this.pushCommand();
+				}
 			}
 		}
 		
@@ -154,6 +174,8 @@ public class Renderer implements Runnable {
 	
 	private List<RendererListener> listeners = new ArrayList<>();
 	
+	private Thread renderingThread;
+	
 	private Object renderLock = new Object();
 	private RenderQueue renderQueue = new RenderQueue(this.renderLock);
 	
@@ -175,30 +197,32 @@ public class Renderer implements Runnable {
 		this.drawable.setContext(this.drawable.createContext(null), false);
 		this.drawable.addGLEventListener(this.glRenderer);
 		
-		Thread renderingThread = new Thread(this);
-		renderingThread.setName("urmusic_rendering_thread");
-		renderingThread.start();
+		this.renderingThread = new Thread(this);
+		this.renderingThread.setName("urmusic_rendering_thread");
+		this.renderingThread.start();
 	}
 	
+	private boolean renderingThreadStopRequest = false;
 	private boolean renderingThreadIdle = false;
 	public void run() {
 		int cmd = -1;
 		Composition comp = null;
 		int frame = -1;
-		int frameCount = 0;
 		TrackEffect fx = null;
 		TrackEffectInstance fxi = null;
 		Track track = null;
 		
 		// Wait for frames to render now
 		try {
-			while(true) {
+			main_loop: while(!this.renderingThreadStopRequest) {
 				while(this.renderQueue.getAvailableCommands() == 0) {
 					synchronized(this.renderLock) {
 						this.renderingThreadIdle = true;
 						this.renderLock.wait();
 						this.renderingThreadIdle = false;
 					}
+					
+					if(this.renderingThreadStopRequest) break main_loop;
 				}
 				
 				// Get stuff from the render queue
@@ -212,7 +236,6 @@ public class Renderer implements Runnable {
 						case RCMD_RENDER_FRAME:
 							comp = (Composition) this.renderQueue.pop();
 							frame = (int) this.renderQueue.pop();
-							frameCount = (int) this.renderQueue.pop();
 							break;
 						case RCMD_LOAD_EFFECT:
 						case RCMD_UNLOAD_EFFECT:
@@ -231,9 +254,7 @@ public class Renderer implements Runnable {
 				
 				switch(cmd) {
 					case RCMD_RENDER_FRAME:
-						for(int i = 0; i < frameCount; i++) {
-							this.doFrame(comp, frame + i);
-						}
+						this.doFrame(comp, frame);
 						comp = null; // gc free
 						break;
 					case RCMD_LOAD_EFFECT:
@@ -272,7 +293,7 @@ public class Renderer implements Runnable {
 			return;
 		}
 		
-		this.renderQueue.clearAllCommands();
+		this.renderQueue.clearCommandsOfType(RCMD_RENDER_FRAME);
 		this.queueFrameRange(comp, frame, 1);
 	}
 	
@@ -383,6 +404,8 @@ public class Renderer implements Runnable {
 	}
 	
 	public void dispose() {
+		this.renderQueue.waitForStop();
+		
 		this.drawable.destroy();
 	}
 	
@@ -409,7 +432,7 @@ public class Renderer implements Runnable {
 		glcvs.addGLEventListener(previewer.renderer);
 		
 		glcvs.display();
-
+		
 		previewer.panel = glcvs;
 		
 		return previewer;

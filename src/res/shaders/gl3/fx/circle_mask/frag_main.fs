@@ -12,7 +12,6 @@
 #define PD_BLEND_ADD 9
 #define PD_BLEND_XOR 10
 
-#include <stdurm>
 #include <porterDuff>
 
 struct Parameters {
@@ -49,10 +48,10 @@ float doMask() {
 	
 	if(u_outerRadius == 0.0 && u_outerFade == 0.0) return 0.0;
 	
-	float outerMask = __smoothstep(u_outerRadius + u_outerFade, u_outerRadius, dist);
+	float outerMask = smoothstep(u_outerRadius + u_outerFade, u_outerRadius, dist);
 	if(u_innerRadius == 0) return outerMask;
 	
-	float innerMask = __smoothstep(u_innerRadius - u_innerFade, u_innerRadius, dist);
+	float innerMask = smoothstep(u_innerRadius - u_innerFade, u_innerRadius, dist);
 	
 	return outerMask * innerMask;
 }

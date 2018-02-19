@@ -26,10 +26,15 @@ import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
  * @author nasso
  */
 public class GLRenderer implements GLEventListener, CompositionListener {
-	private static final class CachedFramebuffer {
-		private static int cacheSize;
-		private static IntBuffer bufTex;
-		
+	private int cacheSize;
+	private IntBuffer bufTex;
+	
+	public void setCacheSize(int size) {
+		this.cacheSize = size;
+		this.bufTex = Buffers.newDirectIntBuffer(size);
+	}
+	
+	private final class CachedFramebuffer {
 		private int width, height;
 		
 		public int fbo;
@@ -38,51 +43,46 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		public int[] texture;
 		public boolean[] dirty;
 		
-		public CachedFramebuffer(GL3 gl, GLUtils glu, Composition comp) {
-			this.fbo = glu.genFramebuffer(gl);
-			this.texture = new int[cacheSize];
-			this.dirty = new boolean[cacheSize];
+		public CachedFramebuffer(Composition comp) {
+			this.fbo = GLRenderer.this.glu.genFramebuffer(GLRenderer.this.gl);
+			this.texture = new int[GLRenderer.this.cacheSize];
+			this.dirty = new boolean[GLRenderer.this.cacheSize];
 			
 			this.makeAllDirty(true);
 			
 			this.width = comp.getWidth();
 			this.height = comp.getHeight();
 			
-			this.textureAlt = glu.genTexture(gl);
-			glu.genTextures(gl, cacheSize, bufTex);
+			this.textureAlt = GLRenderer.this.glu.genTexture(GLRenderer.this.gl);
+			GLRenderer.this.glu.genTextures(GLRenderer.this.gl, GLRenderer.this.cacheSize, GLRenderer.this.bufTex);
 			
-			for(int i = 0; i <= cacheSize; i++) {
-				int t = i == cacheSize ? this.textureAlt : bufTex.get(i);
+			for(int i = 0; i <= GLRenderer.this.cacheSize; i++) {
+				int t = i == GLRenderer.this.cacheSize ? this.textureAlt : GLRenderer.this.bufTex.get(i);
 
-				gl.glBindTexture(GL_TEXTURE_2D, t);
-				gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
-				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, t);
+				GLRenderer.this.gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+				GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			}
 			
-			bufTex.get(this.texture);
-			bufTex.flip();
+			GLRenderer.this.bufTex.get(this.texture);
+			GLRenderer.this.bufTex.flip();
 		}
 		
 		public void makeAllDirty(boolean dirty) {
 			for(int i = 0; i < this.dirty.length; i++) this.dirty[i] = dirty;
 		}
-		
-		public static void setCacheSize(int size) {
-			cacheSize = size;
-			bufTex = Buffers.newDirectIntBuffer(size);
-		}
 
-		public CachedFramebuffer update(GL3 gl, Composition comp) {
+		public CachedFramebuffer update(Composition comp) {
 			if(comp.getWidth() != this.width || comp.getHeight() != this.height) {
 				this.width = comp.getWidth();
 				this.height = comp.getHeight();
 				
 				for(int i = 0; i <= this.texture.length; i++) {
-					gl.glBindTexture(GL_TEXTURE_2D, i == this.texture.length ? this.textureAlt : this.texture[i]);
-					gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+					GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, i == this.texture.length ? this.textureAlt : this.texture[i]);
+					GLRenderer.this.gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
 				}
 			}
 			
@@ -101,6 +101,14 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 
 			gl.glBindFramebuffer(GL_FRAMEBUFFER, this.fbo);
 			gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this.texture[i], 0);
+		}
+
+		public void dispose() {
+			GLRenderer.this.glu.deleteFramebuffer(GLRenderer.this.gl, this.fbo);
+			GLRenderer.this.glu.deleteTexture(GLRenderer.this.gl, this.textureAlt);
+			
+			for(int i = 0; i < this.texture.length; i++)
+				GLRenderer.this.glu.deleteTexture(GLRenderer.this.gl, this.texture[i]);
 		}
 	}
 	
@@ -160,9 +168,12 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			return this;
 		}
 	}
-	
-	private Map<Composition, CachedFramebuffer> compFBOs = new HashMap<>();
+
+	private List<TrackEffectInstance> loadedEffectInstances = new ArrayList<>();
+	private List<TrackEffect> loadedEffects = new ArrayList<>();
 	private Map<Track, TrackRenderTexture> tracksTextures = new HashMap<>();
+	private Map<Composition, CachedFramebuffer> compFBOs = new HashMap<>();
+	
 	public final Renderer mainRenderer;
 	private GL3 gl;
 	private GLUtils glu;
@@ -194,6 +205,8 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		fx.globalVideoSetup(this.gl);
 		
 		ctx.release();
+		
+		this.loadedEffects.add(fx);
 	}
 	
 	public void disposeEffect(TrackEffect fx) {
@@ -204,6 +217,8 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		fx.globalVideoDispose(this.gl);
 		
 		ctx.release();
+		
+		this.loadedEffects.remove(fx);
 	}
 	
 	public void disposeTrack(Track t) {
@@ -215,14 +230,25 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			TrackEffectInstance vfx = t.getEffect(i);
 			
 			vfx.disposeVideo(this.gl);
+			this.loadedEffectInstances.remove(vfx);
 		}
 		
-		TrackRenderTexture tex = this.tracksTextures.get(t);
+		TrackRenderTexture tex = this.tracksTextures.remove(t);
 		
 		if(tex != null) {
 			for(int i = 0; i < tex.tex_id.length; i++)
 				this.glu.deleteTexture(this.gl, tex.tex_id[i]);
 		}
+		
+		ctx.release();
+	}
+	
+	public void disposeComposition(Composition comp) {
+		GLContext ctx = this.mainRenderer.drawable.getContext();
+		ctx.makeCurrent();
+		this.gl = ctx.getGL().getGL3();
+		
+		this.compFBOs.remove(comp).dispose();
 		
 		ctx.release();
 	}
@@ -244,6 +270,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		fx.disposeVideo(this.gl);
 		
 		ctx.release();
+
+		this.loadedEffectInstances.remove(fx);
+		System.out.println("GLRenderer.disposeEffectInstance()");
 	}
 	
 	public void makeCompositionDirty(Composition comp) {
@@ -255,7 +284,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	public void init(GLAutoDrawable drawable) {
 		this.gl = drawable.getGL().getGL3();
 		
-		CachedFramebuffer.setCacheSize(this.mainRenderer.getCachedFrames().length);
+		this.setCacheSize(this.mainRenderer.getCachedFrames().length);
 		
 		this.trackRenderingFBO = this.glu.genFramebuffer(this.gl);
 		
@@ -263,7 +292,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		this.compose_loc_inputTex = this.gl.glGetUniformLocation(this.compose_prog, "trackInput");
 		this.compose_loc_inputComp = this.gl.glGetUniformLocation(this.compose_prog, "compOutput");
 		
-		this.compose_quadVAO = this.glu.genFullQuadVAO(this.gl);
+		this.compose_quadVAO = this.glu.createFullQuadVAO(this.gl);
 		
 		this.gl.glBindVertexArray(0);
 		this.gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -271,12 +300,34 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	
 	public void dispose(GLAutoDrawable drawable) {
 		this.gl = drawable.getGL().getGL3();
-
+		
+		while(!this.loadedEffectInstances.isEmpty()) this.loadedEffectInstances.remove(0).disposeVideo(this.gl);
+		while(!this.loadedEffects.isEmpty()) this.loadedEffects.remove(0).globalVideoDispose(this.gl);
+		
+		for(Track t : this.tracksTextures.keySet()) {
+			TrackRenderTexture tex = this.tracksTextures.remove(t);
+			
+			if(tex != null) {
+				for(int i = 0; i < tex.tex_id.length; i++)
+					this.glu.deleteTexture(this.gl, tex.tex_id[i]);
+			}
+		}
+		this.tracksTextures.clear();
+		
+		for(Composition c : this.compFBOs.keySet()) {
+			this.compFBOs.get(c).dispose();
+		}
+		
 		this.glu.dispose(this.gl);
 	}
 	
 	public void display(GLAutoDrawable drawable) {
 		this.gl = drawable.getGL().getGL3();
+		
+		for(Composition c : this.disposedCompositions)
+			this.disposeComposition(c);
+		
+		this.disposedCompositions.clear();
 		
 		CachedFrame dest = this.mainRenderer.getCurrentDestCacheFrame();
 		
@@ -316,6 +367,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		// We clear the first dest buffer
 		this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		this.gl.glClear(GL_COLOR_BUFFER_BIT);
+
+		// Clear the args before starting
+		this.fxArgs.clear();
 		
 		// Apply the effects
 		for(int j = 0; j < t.getEffectCount(); j++) {
@@ -325,13 +379,19 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			if(!fx.isEnabled() || !fx.getEffectClass().isVideoEffect()) continue;
 			
 			// Init the effect first to make sure everything's oki
-			if(!fx.hasSetupVideo()) fx.setupVideo(this.gl);
+			if(!this.loadedEffectInstances.contains(fx)) {
+				fx.setupVideo(this.gl);
+				this.loadedEffectInstances.add(fx);
+			}
 			
-			// Swap dest/back buffers, to bring the previous dest buffer to the back and get a fresh usable dest buffer
-			dest.swapBuffers();
-			
-			// Bind the framebuffer and the dest buffer
-			this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.getDestBuffer(), 0);
+			// Don't swap buffers if the previous effect did nothing
+			if(!this.fxArgs.cancelled) {
+				// Swap dest/back buffers, to bring the previous dest buffer to the back and get a fresh usable dest buffer
+				dest.swapBuffers();
+				
+				// Bind the framebuffer and the dest buffer
+				this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.getDestBuffer(), 0);
+			}
 			
 			// Clear the dest buffer
 			this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -349,8 +409,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			fx.applyVideo(this.gl, this.fxArgs);
 		}
 		
-		// When we leave, the last rendering is on the dest buffer, so swap it one last time
-		dest.swapBuffers();
+		// When we leave, and if the last effect actually had an effect, the last rendering is on the dest buffer.
+		// So we have to swap it to get the final result on the back buffer.
+		if(!this.fxArgs.cancelled) dest.swapBuffers();
 	}
 	
 	private void renderAllTracks(Composition comp, int frame_id) {
@@ -362,11 +423,11 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	private void renderComposition(Composition comp, int frame_id, int cacheIndex) {
 		CachedFramebuffer dest;
 		if(!this.compFBOs.containsKey(comp)) {
-			dest = new CachedFramebuffer(this.gl, this.glu, comp);
+			dest = new CachedFramebuffer(comp);
 			this.compFBOs.put(comp, dest);
 			comp.addListener(this);
 		} else {
-			dest = this.getFramebufferFor(comp).update(this.gl, comp);
+			dest = this.getFramebufferFor(comp).update(comp);
 		}
 		
 		// Setup the viewport

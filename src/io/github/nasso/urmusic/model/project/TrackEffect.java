@@ -24,15 +24,6 @@ public abstract class TrackEffect {
 		private List<EffectInstanceListener> listeners = new ArrayList<>();
 		
 		private boolean enabled = true;
-		private boolean hasSetupVideo = false;
-		
-		/**
-		 * Assumes the video is setup just after the first call to this method.
-		 * @return
-		 */
-		public final boolean hasSetupVideo() {
-			return this.hasSetupVideo || !(this.hasSetupVideo = true);
-		}
 		
 		public boolean isEnabled() {
 			return this.enabled;

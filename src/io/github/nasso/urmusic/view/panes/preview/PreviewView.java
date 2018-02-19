@@ -99,6 +99,7 @@ public class PreviewView extends UrmViewPane implements
 		UrmusicModel.getRenderer().removeRendererListener(this);
 		UrmusicController.removeEffectParameterFocusListener(this);
 		
+		this.previewer.dispose();
 		this.controlPane.dispose();
 	}
 

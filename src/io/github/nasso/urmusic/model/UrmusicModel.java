@@ -10,6 +10,7 @@ import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.common.event.RendererListener;
 import io.github.nasso.urmusic.model.effect.AffineTransformVFX;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
+import io.github.nasso.urmusic.model.effect.ImageDisplayVFX;
 import io.github.nasso.urmusic.model.effect.RectangleMaskVFX;
 import io.github.nasso.urmusic.model.playback.PlaybackThread;
 import io.github.nasso.urmusic.model.project.Composition;
@@ -23,6 +24,7 @@ import io.github.nasso.urmusic.view.UrmusicView;
 
 public class UrmusicModel {
 	public static final TrackEffect[] STOCK_EFFECTS = new TrackEffect[] {
+		new ImageDisplayVFX(),
 		new CircleMaskVFX(),
 		new RectangleMaskVFX(),
 		new AffineTransformVFX(),
@@ -73,6 +75,7 @@ public class UrmusicModel {
 	public static void exit() {
 		UrmusicView.saveViewState();
 		
+		loadProject(null);
 		renderer.dispose();
 		
 		System.exit(0);

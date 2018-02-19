@@ -155,7 +155,26 @@ public class UrmusicController {
 		
 		if(i < 0) return;
 		
+		if(focusedTrack == t)
+			focusTrack(null);
+		
+		if(t.getEffects().contains(focusedEffect))
+			focusTrackEffectInstance(null);
+		
 		UrmusicModel.deleteTrack(comp, i);
+	}
+	
+	public static void deleteTrackEffect(Track t, TrackEffectInstance fx) {
+		for(int i = 0; i < fx.getParameterCount(); i++) {
+			EffectParam<?> param = fx.getParameter(i);
+			
+			if(isFocused(param)) toggleFocusEffectParameter(param, true);
+		}
+		
+		if(focusedEffect == fx)
+			focusTrackEffectInstance(null);
+		
+		t.removeEffect(fx);
 	}
 	
 	public static void deleteFocusedTrackActivityRange() {
@@ -165,9 +184,7 @@ public class UrmusicController {
 	}
 	
 	public static void deleteFocusedTrack() {
-		Track t = getFocusedTrack();
-		focusTrack(null);
-		deleteTrack(t);
+		deleteTrack(getFocusedTrack());
 	}
 	
 	// -- Focus
@@ -305,12 +322,12 @@ public class UrmusicController {
 	 * calling this with null and false effectively unselects everything
 	 * 
 	 * @param p
-	 * @param multifocus If false, unfocuses the previously focused parameter
+	 * @param keepSelection If false, unfocuses the previously focused parameters
 	 */
-	public static void toggleFocusEffectParameter(EffectParam<?> p, boolean multifocus) {
+	public static void toggleFocusEffectParameter(EffectParam<?> p, boolean keepSelection) {
 		boolean willHaveFocus = !(p != null && focusedParams.contains(p) && focusedParams.size() > 1);
 		
-		if(!multifocus) {
+		if(!keepSelection) {
 			while(!focusedParams.isEmpty()) {
 				EffectParam<?> param = focusedParams.remove(0);
 				
@@ -328,7 +345,7 @@ public class UrmusicController {
 			for(MultiFocusListener<EffectParam<?>> l : controlParamFocusListeners) {
 				l.focused(p);
 			}
-		} else if(multifocus) {
+		} else if(keepSelection) {
 			focusedParams.remove(p);
 			
 			for(MultiFocusListener<EffectParam<?>> l : controlParamFocusListeners) {

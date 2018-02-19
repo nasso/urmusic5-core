@@ -2,6 +2,8 @@ package io.github.nasso.urmusic.model.renderer;
 
 import java.awt.Component;
 
+import com.jogamp.opengl.GLAutoDrawable;
+
 import io.github.nasso.urmusic.model.renderer.GLPreviewRenderer.ViewMode;
 
 public class GLPreviewer {
@@ -26,5 +28,10 @@ public class GLPreviewer {
 
 	public void setViewMode(ViewMode viewMode) {
 		this.renderer.setViewMode(viewMode);
+	}
+	
+	public void dispose() {
+		if(this.panel != null)
+			((GLAutoDrawable) this.panel).destroy();
 	}
 }

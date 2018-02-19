@@ -20,9 +20,7 @@ public class FloatParamUI extends EffectParamUI<FloatParam> {
 
 	public JComponent buildUI() {
 		this.field = new UrmEditableNumberField((f) -> {
-			int frame = UrmusicModel.getFrameCursor();
-			
-			this.getParam().setValue(f.getValue().floatValue(), frame);
+			this.getParam().setValue(f.getValue().floatValue(), UrmusicModel.getFrameCursor());
 		});
 		this.field.setStep(this.getParam().getStep());
 		

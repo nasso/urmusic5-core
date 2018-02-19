@@ -40,7 +40,8 @@ public class ProjectView extends UrmViewPane {
 					try {
 						UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 						
-						if(this.chooser == null) this.chooser = new JFileChooser(UrmusicStrings.getString("view." + VIEW_NAME + ".dialog.importFile.title"));
+						if(this.chooser == null) this.chooser = new JFileChooser();
+						// this.chooser.setDialogTitle(UrmusicStrings.getString("view." + VIEW_NAME + ".dialog.importFile.title"));
 						this.chooser.setMultiSelectionEnabled(true);
 						this.chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 						int action = this.chooser.showOpenDialog(ProjectView.this);

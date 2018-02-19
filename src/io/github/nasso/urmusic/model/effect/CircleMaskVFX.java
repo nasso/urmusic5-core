@@ -94,6 +94,7 @@ public class CircleMaskVFX extends TrackEffect {
 		}
 		
 		public void disposeVideo(GL3 gl) {
+			System.out.println("CircleMaskVFX.CircleMaskVFXInstance.disposeVideo()");
 		}
 	}
 	
@@ -109,7 +110,7 @@ public class CircleMaskVFX extends TrackEffect {
 		this.loc_blending = gl.glGetUniformLocation(this.prog, "params.blending");
 		this.loc_invert = gl.glGetUniformLocation(this.prog, "params.invert");
 		
-		this.quadVAO = this.glu.genFullQuadVAO(gl);
+		this.quadVAO = this.glu.createFullQuadVAO(gl);
 	}
 
 	public void globalVideoDispose(GL3 gl) {
