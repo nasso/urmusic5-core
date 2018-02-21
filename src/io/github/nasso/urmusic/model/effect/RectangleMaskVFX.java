@@ -2,7 +2,7 @@ package io.github.nasso.urmusic.model.effect;
 
 import static com.jogamp.opengl.GL.*;
 
-import org.joml.Vector2fc;
+import org.joml.Vector4fc;
 
 import com.jogamp.opengl.GL3;
 
@@ -10,8 +10,8 @@ import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.param.BooleanParam;
+import io.github.nasso.urmusic.model.project.param.BoundsParam;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
-import io.github.nasso.urmusic.model.project.param.Point2DParam;
 import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
@@ -24,8 +24,7 @@ public class RectangleMaskVFX extends TrackEffect {
 	
 	public class RectangleMaskVFXInstance extends TrackEffectInstance {
 		private RGBA32Param color = new RGBA32Param("color", 0xffffffff);
-		private Point2DParam pointA = new Point2DParam("pointA", -50.0f, -50.0f);
-		private Point2DParam pointB = new Point2DParam("pointB", +50.0f, +50.0f);
+		private BoundsParam bounds = new BoundsParam("bounds", -50, -50, 100, 100);
 		private OptionParam blendingMode = new OptionParam("blendingMode",
 				"srcOver",
 				"dstOver",
@@ -43,8 +42,7 @@ public class RectangleMaskVFX extends TrackEffect {
 		
 		public RectangleMaskVFXInstance() {
 			this.addParameter(this.color);
-			this.addParameter(this.pointA);
-			this.addParameter(this.pointB);
+			this.addParameter(this.bounds);
 			this.addParameter(this.blendingMode);
 			this.addParameter(this.invert);
 		}
@@ -54,8 +52,7 @@ public class RectangleMaskVFX extends TrackEffect {
 		
 		public void applyVideo(GL3 gl, EffectArgs args) {
 			RGBA32 color = this.color.getValue(args.frame);
-			Vector2fc pointA = this.pointA.getValue(args.frame);
-			Vector2fc pointB = this.pointB.getValue(args.frame);
+			Vector4fc bounds = this.bounds.getValue(args.frame);
 			int blending = this.blendingMode.getValue(args.frame);
 			BoolValue invert = this.invert.getValue(args.frame);
 			
@@ -65,10 +62,10 @@ public class RectangleMaskVFX extends TrackEffect {
 			gl.glUniform2f(RectangleMaskVFX.this.loc_size, args.width, args.height);
 			gl.glUniform4f(RectangleMaskVFX.this.loc_color, color.getRedf(), color.getGreenf(), color.getBluef(), color.getAlphaf());
 			gl.glUniform4f(RectangleMaskVFX.this.loc_points,
-					pointA.x(),
-					-pointA.y(),
-					pointB.x(),
-					-pointB.y()
+					bounds.x(),
+					-bounds.y(),
+					bounds.x() + bounds.z(),
+					-bounds.y() - bounds.w()
 			);
 			gl.glUniform1i(RectangleMaskVFX.this.loc_blending, blending);
 			gl.glUniform1i(RectangleMaskVFX.this.loc_invert, invert == BoolValue.TRUE ? 1 : 0);

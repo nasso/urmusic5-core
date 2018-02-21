@@ -153,29 +153,29 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 	}
 
 	public void valueChanged(EffectParam source, Object newVal) {
-		this.update(UrmusicModel.getFrameCursor());
+		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
 	}
 
 	public void keyFrameAdded(EffectParam source, KeyFrame kf) {
 		kf.addKeyFrameListener(this);
-		this.update(UrmusicModel.getFrameCursor());
+		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
 	}
 
 	public void keyFrameRemoved(EffectParam source, KeyFrame kf) {
 		kf.removeKeyFrameListener(this);
-		this.update(UrmusicModel.getFrameCursor());
+		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
 	}
 	
 	public void valueChanged(KeyFrame source, Object newValue) {
-		this.update(UrmusicModel.getFrameCursor());
+		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
 	}
 
 	public void frameChanged(KeyFrame source, int newFrame) {
-		this.update(UrmusicModel.getFrameCursor());
+		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
 	}
 
 	public void interpChanged(KeyFrame source, EasingFunction newInterp) {
-		this.update(UrmusicModel.getFrameCursor());
+		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
 	}
 	
 	public void mouseClicked(MouseEvent e) {

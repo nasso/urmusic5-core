@@ -62,7 +62,7 @@ public class Urmusic {
 		Track visuals = new Track(comp.getTimeline().getLength());
 		visuals.setName("Visuals");
 		
-		visuals.addEffect(UrmusicModel.STOCK_EFFECTS[0].instance());
+		visuals.addEffect(UrmusicModel.STOCK_EFFECTS[2].instance());
 		prj.getMainComposition().getTimeline().addTrack(visuals);
 	}
 	

@@ -81,8 +81,7 @@
 		
 		"effect.rectangle_mask.name": "Rectangle Mask",
 		"effect.rectangle_mask.param.color.name": "Color",
-		"effect.rectangle_mask.param.pointA.name": "Point A",
-		"effect.rectangle_mask.param.pointB.name": "Point B",
+		"effect.rectangle_mask.param.bounds.name": "Bounds",
 		"effect.rectangle_mask.param.blendingMode.name": "Blending Mode",
 		"effect.rectangle_mask.param.blendingMode.option.srcOver": "Source Over",
 		"effect.rectangle_mask.param.blendingMode.option.dstOver": "Destination Over",

@@ -160,7 +160,7 @@ public class PreviewView extends UrmViewPane implements
 		uix += sw * 0.5f;
 		uix -= this.camX;
 		
-		return (int) uix;
+		return Math.round(uix);
 	}
 	
 	public int yPosToUI(float y) {
@@ -179,7 +179,7 @@ public class PreviewView extends UrmViewPane implements
 		uiy += sh * 0.5f;
 		uiy -= this.camY;
 		
-		return (int) uiy;
+		return Math.round(uiy);
 	}
 	
 	public float xUIToPos(int x) {

@@ -8,6 +8,7 @@ import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.BooleanParam;
+import io.github.nasso.urmusic.model.project.param.BoundsParam;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.FileParam;
 import io.github.nasso.urmusic.model.project.param.FloatParam;
@@ -58,6 +59,8 @@ public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
 			return new OptionParamUI(fx, (OptionParam) param);
 		} else if(param instanceof FileParam) {
 			return new FileParamUI(fx, (FileParam) param);
+		} else if(param instanceof BoundsParam) {
+			return new BoundsParamUI(fx, (BoundsParam) param);
 		}
 		
 		return null;

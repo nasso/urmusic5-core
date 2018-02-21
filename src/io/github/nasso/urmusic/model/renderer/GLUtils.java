@@ -390,17 +390,14 @@ public class GLUtils {
 		int height = img.getHeight();
 		
 		ByteBuffer data = Buffers.newDirectByteBuffer(width * height * 4);
-		
-		boolean hasAlpha = img.getColorModel().hasAlpha();
-		for(int x = 0; x < width; x++) {
-			for(int y = 0; y < height; y++) {
-				int rgb = img.getRGB(y, x);
-				
-				data.put((byte) (rgb >> 16));
-				data.put((byte) (rgb >> 8));
-				data.put((byte) (rgb >> 0));
-				data.put((byte) (hasAlpha ? (rgb >> 24) : 0xFF));
-			}
+
+		for(int i = 0; i < width * height; i++) {
+			int rgb = img.getRGB(i % width, i / width);
+			
+			data.put((byte) ((rgb >> 16) & 0xFF));
+			data.put((byte) ((rgb >> 8 ) & 0xFF));
+			data.put((byte) ((rgb >> 0 ) & 0xFF));
+			data.put((byte) ((rgb >> 24) & 0xFF));
 		}
 		
 		data.flip();
