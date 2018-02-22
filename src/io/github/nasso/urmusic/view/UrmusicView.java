@@ -72,6 +72,14 @@ public class UrmusicView {
 		});
 	}
 	
+	public static void dispose() {
+		for(JFrame frame : frames) {
+			frame.dispose();
+		}
+		
+		frames.clear();
+	}
+	
 	public static Locale getLocale() {
 		return Locale.ENGLISH;
 	}

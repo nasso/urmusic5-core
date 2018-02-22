@@ -26,6 +26,8 @@ public class Urmusic {
 	private static final void setupFiles() {
 		if(!URM_HOME.exists()) URM_HOME.mkdirs();
 		
+		System.out.println(URM_HOME.getAbsolutePath());
+		
 		try {
 			String internalAppdataFolder = "res/appdata";
 			List<Path> appdata = DataUtils.listFilesInResource(internalAppdataFolder);

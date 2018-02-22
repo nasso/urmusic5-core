@@ -78,6 +78,8 @@ public class UrmusicModel {
 		loadProject(null);
 		renderer.dispose();
 		
+		UrmusicView.dispose();
+		
 		System.exit(0);
 	}
 	
