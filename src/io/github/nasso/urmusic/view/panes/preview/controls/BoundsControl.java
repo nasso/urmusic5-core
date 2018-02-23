@@ -4,6 +4,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
@@ -22,7 +23,7 @@ import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.param.BoundsParam;
 import io.github.nasso.urmusic.view.panes.preview.PreviewView;
 
-public class BoundsControl extends PreviewParamControl<BoundsParam> {
+public class BoundsControl extends PreviewParamControl<BoundsParam> implements MouseListener, MouseMotionListener {
 	private static final int BORDER_SIZE = 10;
 	
 	private static final Stroke LINE_BORDER_STROKE = new BasicStroke(3);
@@ -104,6 +105,9 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> {
 			
 			this.getParam().setValue(this._vec4, frame);
 		}));
+		
+		this.addMouseListener(this);
+		this.addMouseMotionListener(this);
 	}
 	
 	protected void paintComponent(Graphics g) {
@@ -112,17 +116,17 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> {
 		Graphics2D g2d = (Graphics2D) g.create();
 		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
-		int x = BORDER_SIZE;
-		int y = BORDER_SIZE;
-		int w = this.getWidth() - BORDER_SIZE * 2;
-		int h = this.getHeight() - BORDER_SIZE * 2;
+		int x = BoundsControl.BORDER_SIZE;
+		int y = BoundsControl.BORDER_SIZE;
+		int w = this.getWidth() - BoundsControl.BORDER_SIZE * 2;
+		int h = this.getHeight() - BoundsControl.BORDER_SIZE * 2;
 		
-		g2d.setColor(LINE_BORDER_COLOR);
-		g2d.setStroke(LINE_BORDER_STROKE);
+		g2d.setColor(BoundsControl.LINE_BORDER_COLOR);
+		g2d.setStroke(BoundsControl.LINE_BORDER_STROKE);
 		g2d.drawRect(x - 1, y - 1, w + 2, h + 2);
 		
-		g2d.setColor(LINE_INNER_COLOR);
-		g2d.setStroke(LINE_INNER_STROKE);
+		g2d.setColor(BoundsControl.LINE_INNER_COLOR);
+		g2d.setStroke(BoundsControl.LINE_INNER_STROKE);
 		g2d.drawRect(x, y, w, h);
 		
 		g2d.dispose();
@@ -156,25 +160,25 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> {
 		int ih = this.yPosToUI(y2) - iy;
 		
 		// Border
-		ix -= BORDER_SIZE;
-		iy -= BORDER_SIZE;
-		iw += BORDER_SIZE * 2;
-		ih += BORDER_SIZE * 2;
+		ix -= BoundsControl.BORDER_SIZE;
+		iy -= BoundsControl.BORDER_SIZE;
+		iw += BoundsControl.BORDER_SIZE * 2;
+		ih += BoundsControl.BORDER_SIZE * 2;
 		
 		this.setBounds(ix, iy, iw, ih);
 		
 		// Points
-		this.topLeft.setSize(BORDER_SIZE * 2, BORDER_SIZE * 2);
+		this.topLeft.setSize(BoundsControl.BORDER_SIZE * 2, BoundsControl.BORDER_SIZE * 2);
 		this.topLeft.setLocation(0, 0);
 		
-		this.topRight.setSize(BORDER_SIZE * 2, BORDER_SIZE * 2);
-		this.topRight.setLocation(iw - BORDER_SIZE * 2, 0);
+		this.topRight.setSize(BoundsControl.BORDER_SIZE * 2, BoundsControl.BORDER_SIZE * 2);
+		this.topRight.setLocation(iw - BoundsControl.BORDER_SIZE * 2, 0);
 		
-		this.botLeft.setSize(BORDER_SIZE * 2, BORDER_SIZE * 2);
-		this.botLeft.setLocation(0, ih - BORDER_SIZE * 2);
+		this.botLeft.setSize(BoundsControl.BORDER_SIZE * 2, BoundsControl.BORDER_SIZE * 2);
+		this.botLeft.setLocation(0, ih - BoundsControl.BORDER_SIZE * 2);
 		
-		this.botRight.setSize(BORDER_SIZE * 2, BORDER_SIZE * 2);
-		this.botRight.setLocation(iw - BORDER_SIZE * 2, ih - BORDER_SIZE * 2);
+		this.botRight.setSize(BoundsControl.BORDER_SIZE * 2, BoundsControl.BORDER_SIZE * 2);
+		this.botRight.setLocation(iw - BoundsControl.BORDER_SIZE * 2, ih - BoundsControl.BORDER_SIZE * 2);
 	}
 
 	public void dispose() {
@@ -207,21 +211,21 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> {
 			int h = this.getHeight();
 			
 			if(this.filled) {
-				g2d.setColor(POINT_BORDER_COLOR);
+				g2d.setColor(BoundsControl.POINT_BORDER_COLOR);
 				if(!this.hover) g2d.fillRect(3, 3, w - 6, h - 6);
 				else g2d.fillRect(1, 1, w - 2, h - 2);
 				
-				g2d.setColor(POINT_INNER_COLOR);
+				g2d.setColor(BoundsControl.POINT_INNER_COLOR);
 				if(!this.hover) g2d.fillRect(4, 4, w - 8, h - 8);
 				else g2d.fillRect(2, 2, w - 4, h - 4);
 			} else {
-				g2d.setColor(POINT_BORDER_COLOR);
-				g2d.setStroke(POINT_BORDER_STROKE);
+				g2d.setColor(BoundsControl.POINT_BORDER_COLOR);
+				g2d.setStroke(BoundsControl.POINT_BORDER_STROKE);
 				if(!this.hover) g2d.drawRect(3, 3, w - 6, h - 6);
 				else g2d.drawRect(1, 1, w - 2, h - 2);
 				
-				g2d.setColor(POINT_INNER_COLOR);
-				g2d.setStroke(POINT_INNER_STROKE);
+				g2d.setColor(BoundsControl.POINT_INNER_COLOR);
+				g2d.setStroke(BoundsControl.POINT_INNER_STROKE);
 				if(!this.hover) g2d.drawRect(3, 3, w - 6, h - 6);
 				else g2d.drawRect(1, 1, w - 2, h - 2);
 			}
@@ -261,6 +265,56 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> {
 		}
 
 		public void mouseMoved(MouseEvent e) {
+		}
+	}
+	
+	// Global drag
+	private Point pressPoint = new Point();
+	private boolean pressed = false;
+
+	public void mouseDragged(MouseEvent e) {
+		if(this.pressed) {
+			int relx = e.getXOnScreen() - this.pressPoint.x;
+			int rely = e.getYOnScreen() - this.pressPoint.y;
+			
+			int frame = UrmusicModel.getFrameCursor();
+			
+			this._vec4.set(this.getParam().getValue(frame));
+			this._vec4.x += relx;
+			this._vec4.y -= rely;
+			
+			this.getParam().setValue(this._vec4, frame);
+			
+			this.pressPoint.setLocation(e.getLocationOnScreen());
+		}
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		
+	}
+
+	public void mouseClicked(MouseEvent e) {
+		
+	}
+
+	public void mouseEntered(MouseEvent e) {
+		
+	}
+
+	public void mouseExited(MouseEvent e) {
+		
+	}
+
+	public void mousePressed(MouseEvent e) {
+		if(e.getButton() == MouseEvent.BUTTON1) {
+			this.pressed = true;
+			this.pressPoint.setLocation(e.getLocationOnScreen());
+		}
+	}
+
+	public void mouseReleased(MouseEvent e) {
+		if(e.getButton() == MouseEvent.BUTTON1) {
+			this.pressed = false;
 		}
 	}
 }

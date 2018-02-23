@@ -1,7 +1,5 @@
 package io.github.nasso.urmusic.view;
 
-import static io.github.nasso.urmusic.view.data.UrmusicStrings.*;
-
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -37,7 +35,7 @@ import io.github.nasso.urmusic.view.data.UrmusicViewStateCodec;
 import io.github.nasso.urmusic.view.dialog.UrmusicAboutDialog;
 
 public class UrmusicView {
-	private static List<JFrame> frames = new ArrayList<JFrame>();
+	private static List<JFrame> frames = new ArrayList<>();
 	
 	private static UrmusicViewState viewState = null;
 	
@@ -47,24 +45,24 @@ public class UrmusicView {
 	
 	public static void init() {
 		// TODO: Load Locale from pref file
-		UrmusicStrings.init(getLocale());
+		UrmusicStrings.init(UrmusicView.getLocale());
 		UrmusicUIRes.init();
 		
-		setupActions();
-		buildMenu();
+		UrmusicView.setupActions();
+		UrmusicView.buildMenu();
 		
-		loadViewState();
+		UrmusicView.loadViewState();
 
 		SwingUtilities.invokeLater(() -> {
 			KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher((e) -> {
 							return UrmusicView.keyEvent(e);
 			});
 			
-			if(viewState == null || viewState.getPaneStates().length == 0) {
+			if(UrmusicView.viewState == null || UrmusicView.viewState.getPaneStates().length == 0) {
 				SplittablePane.popupNew();
 			} else {
-				UrmusicSplittedPaneState[] frames = viewState.getPaneStates();
-				for(int i = 0; i < viewState.getPaneStates().length; i++) {
+				UrmusicSplittedPaneState[] frames = UrmusicView.viewState.getPaneStates();
+				for(int i = 0; i < UrmusicView.viewState.getPaneStates().length; i++) {
 					SplittablePane pane = SplittablePane.popupNew();
 					pane.loadState(frames[i]);
 				}
@@ -73,11 +71,11 @@ public class UrmusicView {
 	}
 	
 	public static void dispose() {
-		for(JFrame frame : frames) {
+		for(JFrame frame : UrmusicView.frames) {
 			frame.dispose();
 		}
 		
-		frames.clear();
+		UrmusicView.frames.clear();
 	}
 	
 	public static Locale getLocale() {
@@ -87,18 +85,18 @@ public class UrmusicView {
 	public static void registerFrame(JFrame frame) {
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
-				if(frames.size() > 1) {
+				if(UrmusicView.frames.size() > 1) {
 					int chosen = JOptionPane.showOptionDialog(
 						frame,
-						getString("frame.multiCloseWarning.message"),
-						getString("frame.multiCloseWarning.title"),
+						UrmusicStrings.getString("frame.multiCloseWarning.message"),
+						UrmusicStrings.getString("frame.multiCloseWarning.title"),
 						JOptionPane.CANCEL_OPTION,
 						JOptionPane.QUESTION_MESSAGE,
 						null,
 						new String[]{
-							getString("frame.multiCloseWarning.closeOne"),
-							getString("frame.multiCloseWarning.closeAll"),
-							getString("frame.multiCloseWarning.cancel")
+							UrmusicStrings.getString("frame.multiCloseWarning.closeOne"),
+							UrmusicStrings.getString("frame.multiCloseWarning.closeAll"),
+							UrmusicStrings.getString("frame.multiCloseWarning.cancel")
 						},
 						null
 					);
@@ -114,26 +112,26 @@ public class UrmusicView {
 				}
 				
 				// If this is the last window left, exit
-				if(frames.size() == 1) UrmusicController.requestExit();
-				else frames.remove(frame);
+				if(UrmusicView.frames.size() == 1) UrmusicController.requestExit();
+				else UrmusicView.frames.remove(frame);
 				
 				// Close the window
 				e.getWindow().dispose();
 			}
 		});
 		
-		frame.setJMenuBar(buildMenu());
-		frames.add(frame);
+		frame.setJMenuBar(UrmusicView.buildMenu());
+		UrmusicView.frames.add(frame);
 	}
 	
 	private static void setupActions() {
-		menuExitAction = new AbstractAction(getString("menu.file.quit")) {
+		UrmusicView.menuExitAction = new AbstractAction(UrmusicStrings.getString("menu.file.quit")) {
 			public void actionPerformed(ActionEvent e) {
 				UrmusicController.requestExit();
 			}
 		};
 		
-		menuAboutAction = new AbstractAction(getString("menu.help.about")) {
+		UrmusicView.menuAboutAction = new AbstractAction(UrmusicStrings.getString("menu.help.about")) {
 			private final UrmusicAboutDialog aboutDialog = new UrmusicAboutDialog();
 			
 			public void actionPerformed(ActionEvent e) {
@@ -145,11 +143,11 @@ public class UrmusicView {
 	private static JMenuBar buildMenu() {
 		JMenuBar mb = new JMenuBar();
 		
-		JMenu fileMenu = new JMenu(getString("menu.file"));
-		fileMenu.add(new JMenuItem(menuExitAction));
+		JMenu fileMenu = new JMenu(UrmusicStrings.getString("menu.file"));
+		fileMenu.add(new JMenuItem(UrmusicView.menuExitAction));
 		
-		JMenu helpMenu = new JMenu(getString("menu.help"));
-		helpMenu.add(new JMenuItem(menuAboutAction));
+		JMenu helpMenu = new JMenu(UrmusicStrings.getString("menu.help"));
+		helpMenu.add(new JMenuItem(UrmusicView.menuAboutAction));
 		
 		mb.add(fileMenu);
 		mb.add(helpMenu);
@@ -166,7 +164,7 @@ public class UrmusicView {
 		}
 		
 		try(BufferedInputStream in = new BufferedInputStream(new FileInputStream(viewStateFile))) {
-			viewState = UrmusicViewStateCodec.readState(in);
+			UrmusicView.viewState = UrmusicViewStateCodec.readState(in);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -176,29 +174,29 @@ public class UrmusicView {
 		File viewStateFile = DataUtils.localFile("view-state.dat");
 		if(!viewStateFile.getParentFile().exists()) viewStateFile.getParentFile().mkdirs();
 		
-		UrmusicSplittedPaneState[] paneStates = new UrmusicSplittedPaneState[frames.size()];
-		for(int i = 0; i < paneStates.length; i++) paneStates[i] = ((SplittablePane) frames.get(i).getContentPane()).saveState();
+		UrmusicSplittedPaneState[] paneStates = new UrmusicSplittedPaneState[UrmusicView.frames.size()];
+		for(int i = 0; i < paneStates.length; i++) paneStates[i] = ((SplittablePane) UrmusicView.frames.get(i).getContentPane()).saveState();
 
-		viewState = new UrmusicViewState();
-		viewState.setPaneStates(paneStates);
+		UrmusicView.viewState = new UrmusicViewState();
+		UrmusicView.viewState.setPaneStates(paneStates);
 		
 		try(BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(viewStateFile))) {
-			UrmusicViewStateCodec.writeState(viewState, out);
+			UrmusicViewStateCodec.writeState(UrmusicView.viewState, out);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
 	public static void blockKeyEvent() {
-		keyEventBlocked = true;
+		UrmusicView.keyEventBlocked = true;
 	}
 	
 	public static void freeKeyEvent() {
-		keyEventBlocked = false;
+		UrmusicView.keyEventBlocked = false;
 	}
 	
 	public static boolean keyEvent(KeyEvent e) {
-		if(keyEventBlocked) return false;
+		if(UrmusicView.keyEventBlocked) return false;
 		
 		if(e.getID() == KeyEvent.KEY_PRESSED) {
 			switch(e.getKeyCode()) {

@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import io.github.nasso.urmusic.view.UrmusicView;
@@ -124,7 +125,7 @@ public class SplittablePane extends JPanel {
 		this.controlBar.setLayout(ctrlLayout);
 		
 		this.controlBar.setBorder(new EmptyBorder(2, 2, 2, 2));
-		this.controlBar.setBackground(CONTROL_BAR_BG);
+		this.controlBar.setBackground(SplittablePane.CONTROL_BAR_BG);
 
 		this.controlBar.add(this.viewCombo);
 		this.controlBar.add(Box.createHorizontalStrut(2));
@@ -152,16 +153,16 @@ public class SplittablePane extends JPanel {
 		
 		// Main
 		this.setLayout(this.cardLayout = new CardLayout());
-		this.add(this.bodyContainer, CARD_MAIN);
-		this.add(this.splitPane, CARD_SPLIT);
+		this.add(this.bodyContainer, SplittablePane.CARD_MAIN);
+		this.add(this.splitPane, SplittablePane.CARD_SPLIT);
 		
-		this.cardLayout.show(this, CARD_MAIN);
+		this.cardLayout.show(this, SplittablePane.CARD_MAIN);
 		if(viewID == 0) this.updateView(null);
 		else this.viewCombo.setSelectedIndex(viewID); 
 	}
 	
 	public void popup() {
-		popupNew(this);
+		SplittablePane.popupNew(this);
 	}
 	
 	public void splitVertically() {
@@ -174,7 +175,7 @@ public class SplittablePane extends JPanel {
 		
 		this.splitPane.setDividerLocation(0.5f);
 		
-		this.cardLayout.show(this, CARD_SPLIT);
+		this.cardLayout.show(this, SplittablePane.CARD_SPLIT);
 	}
 	
 	public void splitHorizontally() {
@@ -187,14 +188,14 @@ public class SplittablePane extends JPanel {
 		
 		this.splitPane.setDividerLocation(0.5f);
 		
-		this.cardLayout.show(this, CARD_SPLIT);
+		this.cardLayout.show(this, SplittablePane.CARD_SPLIT);
 	}
 	
 	public void unsplit() {
 		if(!this.split) return;
 		this.split = false;
 
-		this.cardLayout.show(this, CARD_MAIN);
+		this.cardLayout.show(this, SplittablePane.CARD_MAIN);
 		
 		this.splitPane.setLeftComponent(null);
 		this.splitPane.setRightComponent(null);
@@ -304,17 +305,17 @@ public class SplittablePane extends JPanel {
 	}
 	
 	public static SplittablePane popupNew() {
-		return popupNew(null);
+		return SplittablePane.popupNew(null);
 	}
 	
 	public static SplittablePane popupNew(SplittablePane owner) {
 		SplittablePane newPane; 
-		
+
 		JFrame popup = new JFrame(UrmusicStrings.getString("title"));
 		popup.setVisible(true);
 		popup.setSize(800, 600); // TODO: Maybe custom size for popups?
 		popup.setLocationRelativeTo(null);
-		popup.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		popup.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		popup.setContentPane(newPane = new SplittablePane(owner, popup));
 		popup.addWindowListener(new WindowAdapter() {
 			public void windowClosed(WindowEvent e) {
