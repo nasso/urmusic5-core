@@ -1,14 +1,15 @@
 package io.github.nasso.urmusic.model.effect;
 
-import static com.jogamp.opengl.GL.*;
-
 import org.joml.Vector4fc;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.project.TrackEffect;
+import io.github.nasso.urmusic.model.project.VideoEffect;
+import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.project.param.BooleanParam;
 import io.github.nasso.urmusic.model.project.param.BoundsParam;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
@@ -16,13 +17,13 @@ import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
 
-public class RectangleMaskVFX extends TrackEffect {
+public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
 	private GLUtils glu = new GLUtils();
 	
 	private int prog, quadVAO;
 	private int loc_inputTex, loc_size, loc_color, loc_points, loc_blending, loc_invert;
 	
-	public class RectangleMaskVFXInstance extends TrackEffectInstance {
+	public class RectangleMaskVFXInstance extends TrackEffectInstance implements VideoEffectInstance  {
 		private RGBA32Param color = new RGBA32Param("color", 0xffffffff);
 		private BoundsParam bounds = new BoundsParam("bounds", -50, -50, 100, 100);
 		private OptionParam blendingMode = new OptionParam("blendingMode",
@@ -71,7 +72,7 @@ public class RectangleMaskVFX extends TrackEffect {
 			gl.glUniform1i(RectangleMaskVFX.this.loc_invert, invert == BoolValue.TRUE ? 1 : 0);
 			
 			gl.glBindVertexArray(RectangleMaskVFX.this.quadVAO);
-			gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
 		}
 		
 		public void disposeVideo(GL3 gl) {
@@ -101,7 +102,6 @@ public class RectangleMaskVFX extends TrackEffect {
 	}
 	
 	public void effectMain() {
-		this.enableVideoEffect();
 	}
 	
 	public String getEffectClassName() {

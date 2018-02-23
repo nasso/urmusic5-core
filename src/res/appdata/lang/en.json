@@ -44,6 +44,7 @@
 		"effect.image_display.name": "Image Display",
 		"effect.image_display.param.source.name": "Source",
 		"effect.image_display.param.source.empty": "none",
+		"effect.image_display.param.bounds.name": "Bounds",
 		"effect.image_display.param.blendingMode.name": "Blending Mode",
 		"effect.image_display.param.blendingMode.option.srcOver": "Source Over",
 		"effect.image_display.param.blendingMode.option.dstOver": "Destination Over",

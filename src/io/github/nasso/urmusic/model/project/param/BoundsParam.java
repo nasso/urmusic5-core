@@ -7,11 +7,18 @@ public class BoundsParam extends EffectParam<Vector4fc> {
 	private Vector4f value = new Vector4f();
 	private Vector4f step = new Vector4f();
 	
-	public BoundsParam(String name, float x, float y, float w, float h, float stepX, float stepY, float stepW, float stepH) {
+	private boolean keepRatio = false;
+	
+	public BoundsParam(String name, float x, float y, float w, float h, float stepX, float stepY, float stepW, float stepH, boolean keepRatio) {
 		super(name);
 		
 		this.value.set(x, y, w, h);
 		this.step.set(stepX, stepY, stepW, stepH);
+		this.keepRatio = keepRatio;
+	}
+	
+	public BoundsParam(String name, float x, float y, float w, float h, float stepX, float stepY, float stepW, float stepH) {
+		this(name, x, y, w, h, stepX, stepY, stepW, stepH, false);
 	}
 	
 	public BoundsParam(String name, float x, float y, float w, float h) {
@@ -20,6 +27,10 @@ public class BoundsParam extends EffectParam<Vector4fc> {
 
 	public Vector4fc getStep() {
 		return this.step;
+	}
+
+	public boolean isKeepRatio() {
+		return this.keepRatio;
 	}
 	
 	protected void setStaticValue(Vector4fc val) {

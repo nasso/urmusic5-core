@@ -39,6 +39,13 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 		}
 	}
 	
+	/**
+	 * @return <tt>true</tt> if the value of this param is automated, <tt>false</tt> otherwise (the value is static).
+	 */
+	public boolean isAutomated() {
+		return this.canAnimate && !this.keyFrames.isEmpty();
+	}
+	
 	public String getName() {
 		return this.name;
 	}
@@ -71,7 +78,7 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 			} else if(kf.getFrame() > frame) break;
 		}
 		
-		KeyFrame<T> kf = new KeyFrame<T>(frame, valClone, func);
+		KeyFrame<T> kf = new KeyFrame<>(frame, valClone, func);
 		this.keyFrames.add(i, kf);
 		
 		this.notifyKeyFrameAdded(kf);
@@ -165,7 +172,7 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	 * @param frame
 	 */
 	public void setValue(T val, int frame) {
-		if(!this.canAnimate || this.keyFrames.isEmpty()) {
+		if(!this.isAutomated()) {
 			this.setStaticValue(val);
 			this.notifyValueChanged(val);
 			
@@ -176,7 +183,7 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	}
 	
 	public T getValue(int frame) {
-		if(!this.canAnimate || this.keyFrames.isEmpty()) {
+		if(!this.isAutomated()) {
 			return this.getStaticValue();
 		}
 		

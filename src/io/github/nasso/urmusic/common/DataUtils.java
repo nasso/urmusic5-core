@@ -1,5 +1,6 @@
 package io.github.nasso.urmusic.common;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -25,11 +26,29 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
+import javax.imageio.ImageIO;
+
 import io.github.nasso.urmusic.Urmusic;
 
 public class DataUtils {
 	private DataUtils() { }
 
+	public static BufferedImage loadImage(String imagePath) {
+		BufferedImage img = null;
+		try {
+			img = ImageIO.read(new File(imagePath));
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		if(img == null) {
+			System.err.println("Couldn't load " + imagePath);
+			return null;
+		}
+		
+		return img;
+	}
+	
 	/**
 	 * Creates a local file, located in the {@link Urmusic#URM_HOME} folder.
 	 * @param path
@@ -80,17 +99,17 @@ public class DataUtils {
 	}
 	
 	public static String normalizePath(String path) {
-		return normalizePath(normalizeSeparators(path), File.separatorChar);
+		return DataUtils.normalizePath(DataUtils.normalizeSeparators(path), File.separatorChar);
 	}
 
 	public static String getPathName(String path, char separator) {
-		String[] e = normalizePath(path, separator).split(Matcher.quoteReplacement("" + separator));
+		String[] e = DataUtils.normalizePath(path, separator).split(Matcher.quoteReplacement("" + separator));
 		if(e.length <= 0) return "";
 		return e[e.length - 1];
 	}
 
 	public static String getPathName(String path) {
-		return getPathName(normalizeSeparators(path), File.separatorChar);
+		return DataUtils.getPathName(DataUtils.normalizeSeparators(path), File.separatorChar);
 	}
 	
 	public static String normalizeSeparators(String path, String separator) {
@@ -98,7 +117,7 @@ public class DataUtils {
 	}
 	
 	public static String normalizeSeparators(String path) {
-		return normalizeSeparators(path, File.separator);
+		return DataUtils.normalizeSeparators(path, File.separator);
 	}
 	
 	/**
@@ -136,7 +155,7 @@ public class DataUtils {
 	}
 	
 	public static void exportResource(String resPath, String destPath) throws IOException {
-		resPath = normalizeSeparators(resPath, "/");
+		resPath = DataUtils.normalizeSeparators(resPath, "/");
 		
 		File dest = new File(destPath);
 		File destParent = dest.getParentFile();
@@ -144,7 +163,7 @@ public class DataUtils {
 		if(destParent != null && !destParent.exists())
 			destParent.mkdirs();
 		
-		BufferedInputStream in = new BufferedInputStream(getFileInputStream(resPath, true));
+		BufferedInputStream in = new BufferedInputStream(DataUtils.getFileInputStream(resPath, true));
 		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(dest));
 		
 		byte[] buffer = new byte[4096];
@@ -173,13 +192,13 @@ public class DataUtils {
 	}
 	
 	public static String readFile(CharSequence filePath, boolean inJar) throws IOException {
-		InputStream in = getFileInputStream(filePath.toString(), inJar);
+		InputStream in = DataUtils.getFileInputStream(filePath.toString(), inJar);
 		if(in == null) {
 			System.err.println("Can't find ressource: " + filePath);
 			return null;
 		}
 		
-		String str = readAllString(in);
+		String str = DataUtils.readAllString(in);
 		in.close();
 		
 		return str;

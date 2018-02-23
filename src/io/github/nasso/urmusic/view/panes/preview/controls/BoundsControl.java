@@ -10,7 +10,7 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import javax.swing.JComponent;
 
@@ -18,6 +18,7 @@ import org.joml.Vector2f;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 
+import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.param.BoundsParam;
@@ -39,13 +40,15 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 	private Vector4f _vec4 = new Vector4f();
 	private DraggablePoint topLeft, topRight, botLeft, botRight;
 	
+	private float lastValidRatio = 1;
+	
 	public BoundsControl(PreviewView view, BoundsParam param) {
 		super(view, param);
 		
 		this.setOpaque(false);
 		
 		this.setLayout(null);
-		this.add(this.topLeft = new DraggablePoint(true, p -> {
+		this.add(this.topLeft = new DraggablePoint(true, (p, shift) -> {
 			int frame = UrmusicModel.getFrameCursor();
 			
 			this._vec4.set(this.getParam().getValue(frame));
@@ -53,26 +56,37 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 			p.value.x = Math.min(p.value.x, this._vec4.x + this._vec4.z);
 			p.value.y = Math.max(p.value.y, this._vec4.y);
 			
-			this._vec4.z = this._vec4.x + this._vec4.z - p.value.x;
-			this._vec4.w = p.value.y - this._vec4.y;
+			float width = this._vec4.x + this._vec4.z - p.value.x;
+			float height = p.value.y - this._vec4.y;
 			
-			this._vec4.x = p.value.x;
+			if(shift == BoolValue.FALSE == this.getParam().isKeepRatio())
+				width = height * this.lastValidRatio;
+			
+			this._vec4.x = this._vec4.x + this._vec4.z - width;
+			this._vec4.z = width;
+			this._vec4.w = height;
 			
 			this.getParam().setValue(this._vec4, frame);
 		}));
 		
-		this.add(this.topRight = new DraggablePoint(true, p -> {
+		this.add(this.topRight = new DraggablePoint(true, (p, shift) -> {
 			int frame = UrmusicModel.getFrameCursor();
 			
 			this._vec4.set(this.getParam().getValue(frame));
-
-			this._vec4.z = p.value.x - this._vec4.x;
-			this._vec4.w = p.value.y - this._vec4.y;
+			
+			float width = p.value.x - this._vec4.x;
+			float height = p.value.y - this._vec4.y;
+			
+			if(shift == BoolValue.FALSE == this.getParam().isKeepRatio())
+				width = height * this.lastValidRatio;
+			
+			this._vec4.z = width;
+			this._vec4.w = height;
 			
 			this.getParam().setValue(this._vec4, frame);
 		}));
 		
-		this.add(this.botLeft = new DraggablePoint(true, p -> {
+		this.add(this.botLeft = new DraggablePoint(true, (p, shift) -> {
 			int frame = UrmusicModel.getFrameCursor();
 			
 			this._vec4.set(this.getParam().getValue(frame));
@@ -80,28 +94,37 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 			p.value.x = Math.min(p.value.x, this._vec4.x + this._vec4.z);
 			p.value.y = Math.min(p.value.y, this._vec4.y + this._vec4.w);
 			
-			this._vec4.z = this._vec4.x + this._vec4.z - p.value.x;
-			this._vec4.w = this._vec4.y + this._vec4.w - p.value.y;
+			float width = this._vec4.x + this._vec4.z - p.value.x;
+			float height = this._vec4.y + this._vec4.w - p.value.y;
 			
-			this._vec4.x = p.value.x;
+			if(shift == BoolValue.FALSE == this.getParam().isKeepRatio())
+				width = height * this.lastValidRatio;
+			
+			this._vec4.x = this._vec4.x + this._vec4.z - width;
 			this._vec4.y = p.value.y;
+			this._vec4.z = width;
+			this._vec4.w = height;
 			
 			this.getParam().setValue(this._vec4, frame);
 		}));
 		
-		this.add(this.botRight = new DraggablePoint(true, p -> {
+		this.add(this.botRight = new DraggablePoint(true, (p, shift) -> {
 			int frame = UrmusicModel.getFrameCursor();
 			
 			this._vec4.set(this.getParam().getValue(frame));
 
 			p.value.x = Math.max(p.value.x, this._vec4.x);
 			p.value.y = Math.min(p.value.y, this._vec4.y + this._vec4.w);
+			
+			float width = p.value.x - this._vec4.x;
+			float height = this._vec4.y + this._vec4.w - p.value.y;
+			
+			if(shift == BoolValue.FALSE == this.getParam().isKeepRatio())
+				width = height * this.lastValidRatio;
 
-			this._vec4.z = p.value.x - this._vec4.x;
-			this._vec4.w = this._vec4.y + this._vec4.w - p.value.y;
-
-			this._vec4.z = p.value.x - this._vec4.x;
 			this._vec4.y = p.value.y;
+			this._vec4.z = width;
+			this._vec4.w = height;
 			
 			this.getParam().setValue(this._vec4, frame);
 		}));
@@ -134,6 +157,8 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 	
 	public void updateComponentLayout(int frame) {
 		Vector4fc p = this.getParam().getValue(frame);
+		
+		if(this._vec4.z != 0 && this._vec4.w != 0) this.lastValidRatio = this._vec4.z / this._vec4.w;
 		
 		// Calc rect coords
 		float x = p.x();
@@ -191,9 +216,9 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 		private boolean hover = false;
 		private boolean pressed = false;
 		
-		private Consumer<DraggablePoint> onChange;
+		private BiConsumer<DraggablePoint, BoolValue> onChange;
 		
-		public DraggablePoint(boolean filled, Consumer<DraggablePoint> onChange) {
+		public DraggablePoint(boolean filled, BiConsumer<DraggablePoint, BoolValue> onChange) {
 			this.filled = filled;
 			this.onChange = onChange;
 			
@@ -260,7 +285,7 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 				float y = BoundsControl.this.yUIToPos(e.getY() + this.getY() + BoundsControl.this.getY());
 				
 				this.value.set(x, y);
-				this.onChange.accept(this);
+				this.onChange.accept(this, e.isShiftDown() ? BoolValue.TRUE : BoolValue.FALSE);
 			}
 		}
 

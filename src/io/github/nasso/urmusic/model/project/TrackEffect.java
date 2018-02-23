@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.jogamp.opengl.GL3;
-
 import io.github.nasso.urmusic.common.easing.EasingFunction;
 import io.github.nasso.urmusic.common.event.EffectInstanceListener;
 import io.github.nasso.urmusic.common.event.EffectParamListener;
@@ -13,7 +11,6 @@ import io.github.nasso.urmusic.common.event.KeyFrameListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
-import io.github.nasso.urmusic.model.renderer.EffectArgs;
 
 public abstract class TrackEffect {
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -144,37 +141,12 @@ public abstract class TrackEffect {
 				l.parameterRemoved(this, i, param);
 			}
 		}
-		
-		public abstract void setupVideo(GL3 gl);
-		public abstract void applyVideo(GL3 gl, EffectArgs args);
-		public abstract void disposeVideo(GL3 gl);
 	}
-	
-	private boolean audioEffect = false, videoEffect = false;
 	
 	public TrackEffect() {
 	}
 	
-	public void enableAudioEffect() {
-		this.audioEffect = true;
-	}
-	
-	public void enableVideoEffect() {
-		this.videoEffect = true;
-	}
-	
-	public boolean isAudioEffect() {
-		return this.audioEffect;
-	}
-	
-	public boolean isVideoEffect() {
-		return this.videoEffect;
-	}
-	
 	public abstract TrackEffectInstance instance();
-	
-	public abstract void globalVideoSetup(GL3 gl);
-	public abstract void globalVideoDispose(GL3 gl);
 	
 	public abstract void effectMain();
 	

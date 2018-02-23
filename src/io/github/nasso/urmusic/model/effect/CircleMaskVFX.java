@@ -1,14 +1,15 @@
 package io.github.nasso.urmusic.model.effect;
 
-import static com.jogamp.opengl.GL.*;
-
 import org.joml.Vector2fc;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.project.TrackEffect;
+import io.github.nasso.urmusic.model.project.VideoEffect;
+import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.project.param.BooleanParam;
 import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
@@ -17,13 +18,13 @@ import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
 
-public class CircleMaskVFX extends TrackEffect {
+public class CircleMaskVFX extends TrackEffect implements VideoEffect {
 	private GLUtils glu = new GLUtils();
 	
 	private int prog, quadVAO;
 	private int loc_inputTex, loc_size, loc_color, loc_originInOutRadius, loc_inOutFade, loc_blending, loc_invert;
 	
-	public class CircleMaskVFXInstance extends TrackEffectInstance {
+	public class CircleMaskVFXInstance extends TrackEffectInstance implements VideoEffectInstance  {
 		private Point2DParam position = new Point2DParam("position", 0, 0);
 		private RGBA32Param color = new RGBA32Param("color", 0xFFFFFFFF);
 		private FloatParam outerRadius = new FloatParam("outerRadius", 200.0f, 1.0f, 0.0f, Float.MAX_VALUE);
@@ -90,7 +91,7 @@ public class CircleMaskVFX extends TrackEffect {
 			gl.glUniform1i(CircleMaskVFX.this.loc_invert, invert == BoolValue.TRUE ? 1 : 0);
 			
 			gl.glBindVertexArray(CircleMaskVFX.this.quadVAO);
-			gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
 		}
 		
 		public void disposeVideo(GL3 gl) {
@@ -122,7 +123,6 @@ public class CircleMaskVFX extends TrackEffect {
 	}
 
 	public void effectMain() {
-		this.enableVideoEffect();
 	}
 
 	public String getEffectClassName() {

@@ -1,27 +1,28 @@
 package io.github.nasso.urmusic.model.effect;
 
-import static com.jogamp.opengl.GL.*;
-
 import org.joml.Matrix4f;
 import org.joml.Vector2fc;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.model.project.TrackEffect;
+import io.github.nasso.urmusic.model.project.VideoEffect;
+import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.model.project.param.Point2DParam;
 import io.github.nasso.urmusic.model.project.param.Vector2DParam;
 import io.github.nasso.urmusic.model.renderer.EffectArgs;
 import io.github.nasso.urmusic.model.renderer.GLUtils;
 
-public class AffineTransformVFX extends TrackEffect {
+public class AffineTransformVFX extends TrackEffect implements VideoEffect {
 	private GLUtils glu = new GLUtils();
 	
 	private int prog, quadVAO;
 	private int loc_inputTex, loc_xform, loc_opacity;
 	
-	public class AffineTransformVFXInstance extends TrackEffectInstance {
+	public class AffineTransformVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
 		private Point2DParam translation = new Point2DParam("translation", 0, 0);
 		private FloatParam rotation = new FloatParam("rotation", 0.0f);
 		private Vector2DParam scale = new Vector2DParam("scale", 1.0f, 1.0f, 0.01f, 0.01f);
@@ -58,7 +59,7 @@ public class AffineTransformVFX extends TrackEffect {
 			gl.glUniform1f(AffineTransformVFX.this.loc_opacity, opacity);
 			
 			gl.glBindVertexArray(AffineTransformVFX.this.quadVAO);
-			gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
 		}
 
 		public void disposeVideo(GL3 gl) {
@@ -85,7 +86,6 @@ public class AffineTransformVFX extends TrackEffect {
 	}
 
 	public void effectMain() {
-		this.enableVideoEffect();
 	}
 	
 	public String getEffectClassName() {

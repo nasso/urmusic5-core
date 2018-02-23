@@ -19,6 +19,8 @@ import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.github.nasso.urmusic.model.project.VideoEffect;
+import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.renderer.Renderer;
 import io.github.nasso.urmusic.view.UrmusicView;
 
@@ -39,44 +41,44 @@ public class UrmusicModel {
 	private static int frameCursor = 0;
 	
 	private static List<TrackEffect> loadedEffects = new ArrayList<>();
-	private static List<TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableList(loadedEffects);
+	private static List<TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableList(UrmusicModel.loadedEffects);
 	
 	public static void init() {
 		// TODO: User prefs
-		renderer = new Renderer(200);
+		UrmusicModel.renderer = new Renderer(200);
 		
-		renderer.addRendererListener(new RendererListener() {
+		UrmusicModel.renderer.addRendererListener(new RendererListener() {
 			public void frameRendered(Composition comp, int frame) {
 			}
 			
 			public void effectLoaded(TrackEffect fx) {
-				synchronized(loadedEffects) {
-					loadedEffects.add(fx);
+				synchronized(UrmusicModel.loadedEffects) {
+					UrmusicModel.loadedEffects.add(fx);
 				}
 			}
 			
 			public void effectUnloaded(TrackEffect fx) {
-				synchronized(loadedEffects) {
-					loadedEffects.remove(fx);
+				synchronized(UrmusicModel.loadedEffects) {
+					UrmusicModel.loadedEffects.remove(fx);
 				}
 			}
 		});
 		
-		for(TrackEffect fx : STOCK_EFFECTS) {
-			loadEffect(fx);
+		for(TrackEffect fx : UrmusicModel.STOCK_EFFECTS) {
+			UrmusicModel.loadEffect(fx);
 		}
 		
-		loadProject(null);
+		UrmusicModel.loadProject(null);
 		
-		playbackThread = new PlaybackThread();
-		playbackThread.setFPS(project.getMainComposition().getTimeline().getFramerate());
+		UrmusicModel.playbackThread = new PlaybackThread();
+		UrmusicModel.playbackThread.setFPS(UrmusicModel.project.getMainComposition().getTimeline().getFramerate());
 	}
 	
 	public static void exit() {
 		UrmusicView.saveViewState();
 		
-		loadProject(null);
-		renderer.dispose();
+		UrmusicModel.loadProject(null);
+		UrmusicModel.renderer.dispose();
 		
 		UrmusicView.dispose();
 		
@@ -84,90 +86,90 @@ public class UrmusicModel {
 	}
 	
 	public static boolean isEffectLoaded(TrackEffect fx) {
-		synchronized(loadedEffects) {
-			return loadedEffects.contains(fx);
+		synchronized(UrmusicModel.loadedEffects) {
+			return UrmusicModel.loadedEffects.contains(fx);
 		}
 	}
 	
 	public static void loadEffect(TrackEffect fx) {
-		if(isEffectLoaded(fx)) return;
+		if(UrmusicModel.isEffectLoaded(fx)) return;
 		
 		fx.effectMain();
-		if(fx.isVideoEffect()) {
-			renderer.initEffect(fx);
+		if(fx instanceof VideoEffect) {
+			UrmusicModel.renderer.initEffect(fx);
 		}
 	}
 	
 	public static void unloadEffect(TrackEffect fx) {
-		if(!isEffectLoaded(fx)) return;
+		if(!UrmusicModel.isEffectLoaded(fx)) return;
 
-		if(fx.isVideoEffect()) {
-			renderer.disposeEffect(fx);
+		if(fx instanceof VideoEffect) {
+			UrmusicModel.renderer.disposeEffect(fx);
 		}
 	}
 	
 	public static List<TrackEffect> getLoadedEffects() {
-		return loadedEffectsUnmodifiable;
+		return UrmusicModel.loadedEffectsUnmodifiable;
 	}
 	
 	public static void loadProject(File f) {
 		// TODO: project management
-		if(project != null) {
-			project.getMainComposition().dispose();
-			notifyProjectUnloaded(project);
+		if(UrmusicModel.project != null) {
+			UrmusicModel.project.getMainComposition().dispose();
+			UrmusicModel.notifyProjectUnloaded(UrmusicModel.project);
 		}
 		
 		if(f == null) {
-			project = new Project();
-			renderer.queueFrameASAP(project.getMainComposition(), 0);
+			UrmusicModel.project = new Project();
+			UrmusicModel.renderer.queueFrameASAP(UrmusicModel.project.getMainComposition(), 0);
 			
-			notifyProjectLoaded(project);
+			UrmusicModel.notifyProjectLoaded(UrmusicModel.project);
 		}
 	}
 	
 	public static Renderer getRenderer() {
-		return renderer;
+		return UrmusicModel.renderer;
 	}
 	
 	public static Project getCurrentProject() {
-		return project;
+		return UrmusicModel.project;
 	}
 	
 	public static void makeCompositionDirty(Composition comp) {
-		renderer.makeCompositionDirty(comp);
+		UrmusicModel.renderer.makeCompositionDirty(comp);
 	}
 	
 	public static int getFrameCursor() {
-		return frameCursor;
+		return UrmusicModel.frameCursor;
 	}
 
 	public static void setFrameCursor(int frameCursor) {
-		frameCursor = Math.min(getCurrentProject().getMainComposition().getTimeline().getLength() - 1, Math.max(frameCursor, 0));
+		frameCursor = Math.min(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getLength() - 1, Math.max(frameCursor, 0));
 		
 		if(UrmusicModel.frameCursor == frameCursor) return;
 		int before = UrmusicModel.frameCursor;
-		notifyFrameCursorChange(before, UrmusicModel.frameCursor = frameCursor);
+		UrmusicModel.notifyFrameCursorChange(before, UrmusicModel.frameCursor = frameCursor);
 	}
 	
 	public static boolean isPlayingBack() {
-		return playbackThread.isPlayingBack();
+		return UrmusicModel.playbackThread.isPlayingBack();
 	}
 	
 	public static void startPlayback() {
-		playbackThread.startPlayback();
+		UrmusicModel.playbackThread.startPlayback();
 	}
 	
 	public static void stopPlayback() {
-		playbackThread.stopPlayback();
+		UrmusicModel.playbackThread.stopPlayback();
 	}
 
 	public static void disposeTrack(Track track) {
-		renderer.disposeTrack(track);
+		UrmusicModel.renderer.disposeTrack(track);
 	}
 	
 	public static void disposeEffect(TrackEffectInstance fx) {
-		if(fx.getEffectClass().isVideoEffect()) {
-			renderer.disposeEffectInstance(fx);
+		if(fx instanceof VideoEffectInstance) {
+			UrmusicModel.renderer.disposeEffectInstance(fx);
 		}
 	}
 	
@@ -184,42 +186,42 @@ public class UrmusicModel {
 		Track t = comp.getTimeline().getTracks().get(trackIndex);
 		
 		comp.getTimeline().removeTrack(trackIndex);
-		disposeTrack(t);
+		UrmusicModel.disposeTrack(t);
 	}
 	
 	// -- Listeners --
 	private static List<ProjectLoadingListener> projectLoadingListeners = new ArrayList<>();
 	public static void addProjectLoadingListener(ProjectLoadingListener l) {
-		projectLoadingListeners.add(l);
+		UrmusicModel.projectLoadingListeners.add(l);
 	}
 	
 	public static void removeProjectLoadingListener(ProjectLoadingListener l) {
-		projectLoadingListeners.remove(l);
+		UrmusicModel.projectLoadingListeners.remove(l);
 	}
 
 	private static void notifyProjectLoaded(Project p) {
-		for(ProjectLoadingListener l : projectLoadingListeners) {
+		for(ProjectLoadingListener l : UrmusicModel.projectLoadingListeners) {
 			l.projectLoaded(p);
 		}
 	}
 
 	private static void notifyProjectUnloaded(Project p) {
-		for(ProjectLoadingListener l : projectLoadingListeners) {
+		for(ProjectLoadingListener l : UrmusicModel.projectLoadingListeners) {
 			l.projectUnloaded(p);
 		}
 	}
 	
 	private static List<FrameCursorListener> frameCursorListeners = new ArrayList<>();
 	public static void addFrameCursorListener(FrameCursorListener l) {
-		frameCursorListeners.add(l);
+		UrmusicModel.frameCursorListeners.add(l);
 	}
 	
 	public static void removeFrameCursorListener(FrameCursorListener l) {
-		frameCursorListeners.remove(l);
+		UrmusicModel.frameCursorListeners.remove(l);
 	}
 
 	private static void notifyFrameCursorChange(int before, int after) {
-		for(FrameCursorListener l : frameCursorListeners) {
+		for(FrameCursorListener l : UrmusicModel.frameCursorListeners) {
 			l.frameChanged(before, after);
 		}
 	}

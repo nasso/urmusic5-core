@@ -14,6 +14,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.LookAndFeel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -44,6 +45,7 @@ public class FileParamUI extends EffectParamUI<FileParam> {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					
 					if(this.fileChooser == null) this.fileChooser = new JFileChooser();
+					SwingUtilities.updateComponentTreeUI(this.fileChooser);
 					this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 					int action = this.fileChooser.showOpenDialog(FileParamUI.this);
 					
