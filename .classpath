@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="libs/gson-2.8.1.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen/gluegen-rt-natives-linux-amd64.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen/gluegen-rt-natives-linux-armv6.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen/gluegen-rt-natives-linux-armv6hf.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen/gluegen-rt-natives-linux-i586.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen/gluegen-rt-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen/gluegen-rt-natives-solaris-amd64.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen/gluegen-rt-natives-solaris-i586.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen/gluegen-rt-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen/gluegen-rt-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="libs/gluegen/gluegen-rt.jar" sourcepath="libs/gluegen/gluegen-java-src.zip"/>
+	<classpathentry kind="lib" path="libs/jogl/jogl-all-natives-linux-amd64.jar"/>
+	<classpathentry kind="lib" path="libs/jogl/jogl-all-natives-linux-armv6.jar"/>
+	<classpathentry kind="lib" path="libs/jogl/jogl-all-natives-linux-armv6hf.jar"/>
+	<classpathentry kind="lib" path="libs/jogl/jogl-all-natives-linux-i586.jar"/>
+	<classpathentry kind="lib" path="libs/jogl/jogl-all-natives-macosx-universal.jar"/>
+	<classpathentry kind="lib" path="libs/jogl/jogl-all-natives-solaris-amd64.jar"/>
+	<classpathentry kind="lib" path="libs/jogl/jogl-all-natives-solaris-i586.jar"/>
+	<classpathentry kind="lib" path="libs/jogl/jogl-all-natives-windows-amd64.jar"/>
+	<classpathentry kind="lib" path="libs/jogl/jogl-all-natives-windows-i586.jar"/>
+	<classpathentry kind="lib" path="libs/jogl/jogl-all.jar" sourcepath="libs/jogl/jogl-java-src.zip"/>
+	<classpathentry kind="lib" path="libs/joml/joml-1.9.3.jar" sourcepath="libs/joml/joml-1.9.3-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/urmusic5-dev/libs/joml/joml-1.9.3-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/trove/trove-3.1a1.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -5,8 +5,6 @@ ignore/*
 *.war
 *.ear
 *.log
-.classpath
-.project
 
 hs_err_pid*
 /bin/
