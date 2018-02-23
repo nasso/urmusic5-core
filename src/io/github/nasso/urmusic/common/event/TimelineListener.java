@@ -4,7 +4,7 @@ import io.github.nasso.urmusic.model.project.Timeline;
 import io.github.nasso.urmusic.model.project.Track;
 
 public interface TimelineListener {
-	public void lengthChanged(Timeline src);
+	public void durationChanged(Timeline src);
 	public void framerateChanged(Timeline src);
 	
 	/**

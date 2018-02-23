@@ -4,19 +4,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.nasso.urmusic.common.IntRange;
+import io.github.nasso.urmusic.common.FloatRange;
 import io.github.nasso.urmusic.common.MathUtils;
-import io.github.nasso.urmusic.common.event.EffectInstanceListener;
 import io.github.nasso.urmusic.common.event.TrackListener;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.param.EffectParam;
 
-public class Track implements EffectInstanceListener {
-	public static final class TrackActivityRange implements IntRange {
+public class Track {
+	public static final class TrackActivityRange implements FloatRange {
 		private Track track;
-		private int start, end;
+		private float start, end;
 		
-		public TrackActivityRange(Track t, int start, int end) {
+		public TrackActivityRange(Track t, float start, float end) {
 			this.track = t;
 			this.start = Math.min(start, end);
 			this.end = Math.max(start, end);
@@ -26,11 +24,11 @@ public class Track implements EffectInstanceListener {
 			return this.track;
 		}
 		
-		public int getStart() {
+		public float getStart() {
 			return this.start;
 		}
 
-		public void setStart(int start) {
+		public void setStart(float start) {
 			start = Math.min(start, this.end - 1);
 			start = Math.max(start, this.startFrameMin());
 			
@@ -39,11 +37,11 @@ public class Track implements EffectInstanceListener {
 			this.track.notifyTrackRangesChangedEvent();
 		}
 
-		public int getEnd() {
+		public float getEnd() {
 			return this.end;
 		}
 
-		public void setEnd(int end) {
+		public void setEnd(float end) {
 			end = Math.max(end, this.start + 1);
 			end = Math.min(end, this.endFrameMax());
 			
@@ -52,12 +50,12 @@ public class Track implements EffectInstanceListener {
 			this.track.notifyTrackRangesChangedEvent();
 		}
 		
-		public int getLength() {
+		public float getLength() {
 			return this.end - this.start;
 		}
 		
-		public void moveTo(int newStart) {
-			int len = this.getLength();
+		public void moveTo(float newStart) {
+			float len = this.getLength();
 			newStart = MathUtils.clamp(newStart, this.startFrameMin(), this.endFrameMax() - len);
 			
 			if(this.start == newStart) return;
@@ -68,20 +66,20 @@ public class Track implements EffectInstanceListener {
 			this.track.notifyTrackRangesChangedEvent();
 		}
 		
-		private int startFrameMin() {
+		private float startFrameMin() {
 			int thisIndex = this.track.activityRangesLengths.indexOf(this);
 			
 			if(thisIndex <= 0) return 0;
 			
-			return this.track.activityRangesLengths.get(thisIndex - 1).end + 1;
+			return this.track.activityRangesLengths.get(thisIndex - 1).end;
 		}
 		
-		private int endFrameMax() {
+		private float endFrameMax() {
 			int thisIndex = this.track.activityRangesLengths.indexOf(this);
 			
-			if(thisIndex == this.track.activityRangesLengths.size() - 1) return Integer.MAX_VALUE;
+			if(thisIndex == this.track.activityRangesLengths.size() - 1) return Float.MAX_VALUE;
 			
-			return this.track.activityRangesLengths.get(thisIndex + 1).start - 1;
+			return this.track.activityRangesLengths.get(thisIndex + 1).start;
 		}
 	}
 	
@@ -99,8 +97,8 @@ public class Track implements EffectInstanceListener {
 	
 	private List<TrackListener> listeners = new ArrayList<>();
 	
-	public Track(int initRangeLen) {
-		this.addActiveRange(0, initRangeLen - 1);
+	public Track(float initRangeLen) {
+		this.addActiveRange(0, initRangeLen);
 	}
 	
 	public String getName() {
@@ -145,7 +143,6 @@ public class Track implements EffectInstanceListener {
 	public void addEffect(TrackEffectInstance e, int i) {
 		this.effects.add(i, e);
 		
-		e.addEffectInstanceListener(this);
 		this.notifyEffectAdded(e, i);
 	}
 	
@@ -159,7 +156,6 @@ public class Track implements EffectInstanceListener {
 		TrackEffectInstance item = this.getEffect(i);
 		this.effects.remove(i);
 		
-		item.removeEffectInstanceListener(this);
 		this.notifyEffectRemoved(item, i);
 		
 		return item;
@@ -201,7 +197,7 @@ public class Track implements EffectInstanceListener {
 		return this.unmodifiableRanges;
 	}
 	
-	public TrackActivityRange addActiveRange(int start, int len) {
+	public TrackActivityRange addActiveRange(float start, float len) {
 		TrackActivityRange r = new TrackActivityRange(this, start, start + len);
 		
 		this.activityRangesLengths.add(r);
@@ -220,21 +216,21 @@ public class Track implements EffectInstanceListener {
 	/**
 	 * If the given frame is on an active range, split this range at this point.<br>
 	 * If it isn't, nothing happens.
-	 * @param frame
+	 * @param time
 	 */
-	public void splitAt(int frame) {
+	public void splitAt(float time) {
 		int i = 0; 
 		TrackActivityRange r = null;
 		
 		for(i = 0; i < this.activityRangesLengths.size(); i++) {
-			if((r = this.activityRangesLengths.get(i)).contains(frame)) break;
+			if((r = this.activityRangesLengths.get(i)).contains(time)) break;
 			
 			r = null;
 		}
 		
 		if(r == null) return;
-		TrackActivityRange r2 = new TrackActivityRange(this, frame, r.getEnd());
-		r.setEnd(frame - 1);
+		TrackActivityRange r2 = new TrackActivityRange(this, time, r.getEnd());
+		r.setEnd(time);
 		
 		this.activityRangesLengths.add(i + 1, r2);
 		
@@ -244,36 +240,16 @@ public class Track implements EffectInstanceListener {
 	/**
 	 * Returns true if the track is active on the given frame.
 	 */
-	public boolean isActiveAt(int frame) {
-		return this.getRangeAt(frame) != null;
+	public boolean isActiveAt(float time) {
+		return this.getRangeAt(time) != null;
 	}
 	
-	public TrackActivityRange getRangeAt(int frame) {
+	public TrackActivityRange getRangeAt(float time) {
 		for(TrackActivityRange r : this.activityRangesLengths) {
-			if(r.contains(frame)) return r;
+			if(r.contains(time)) return r;
 		}
 		
 		return null;
-	}
-	
-	public void dirtyFlagged(TrackEffectInstance source) {
-		this.notifyDirtyFlagged();
-	}
-
-	public void enabledStateChanged(TrackEffectInstance source, boolean isEnabledNow) {
-		this.notifyDirtyFlagged();
-	}
-
-	public void parameterAdded(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
-	}
-
-	public void parameterRemoved(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
-	}
-	
-	private void notifyDirtyFlagged() {
-		for(TrackListener l : this.listeners) {
-			l.dirtyFlagged(this);
-		}
 	}
 	
 	private void notifyNameChanged() {

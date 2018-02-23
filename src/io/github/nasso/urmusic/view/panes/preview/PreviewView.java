@@ -103,8 +103,8 @@ public class PreviewView extends UrmViewPane implements
 		this.controlPane.dispose();
 	}
 
-	public void frameRendered(Composition comp, int frame) {
-		if(frame != UrmusicModel.getFrameCursor()) return;
+	public void frameRendered(Composition comp, float time) {
+		if(time - UrmusicController.getTimePosition() > UrmusicModel.FRAME_TIME_PRECISION) return;
 		
 		SwingUtilities.invokeLater(() -> {
 			this.controlPane.update();
@@ -168,7 +168,7 @@ public class PreviewView extends UrmViewPane implements
 	
 	private void updateCamera() {
 		this.camZoom = MathUtils.clamp(this.camZoom, 0.5f, 10.0f);
-
+		
 		this.previewer.setViewMode(ViewMode.CUSTOM);
 		this.previewer.updateCamera(this.camX, this.camY, this.camZoom);
 		
@@ -228,7 +228,8 @@ public class PreviewView extends UrmViewPane implements
 	}
 
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		this.camZoom -= e.getPreciseWheelRotation() * 0.5f;
+		this.camZoom -= e.getPreciseWheelRotation() * 0.25f;
+		
 		this.updateCamera();
 	}
 }

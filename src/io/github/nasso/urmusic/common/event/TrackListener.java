@@ -4,8 +4,6 @@ import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 
 public interface TrackListener {
-	public void dirtyFlagged(Track source);
-	
 	public void nameChanged(Track source, String newName);
 	public void enabledStateChanged(Track source, boolean isEnabledNow);
 	

@@ -80,7 +80,7 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 		
 		this.chbxEnabled = new JCheckBox();
 		this.chbxEnabled.addActionListener((e) -> {
-			this.fx.setEnabled(this.chbxEnabled.isSelected());
+			UrmusicController.setEffectEnabled(this.fx, this.chbxEnabled.isSelected());
 		});
 		
 		this.labelName = new JLabel();
@@ -140,11 +140,11 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 	}
 	
 	private void moveUp() {
-		this.track.moveEffect(this.fx, this.track.getEffects().indexOf(this.fx) - 1);
+		UrmusicController.moveEffectUp(this.track, this.fx);
 	}
 	
 	private void moveDown() {
-		this.track.moveEffect(this.fx, this.track.getEffects().indexOf(this.fx) + 1);
+		UrmusicController.moveEffectDown(this.track, this.fx);
 	}
 	
 	private void delete() {
@@ -173,7 +173,7 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 	public TrackEffectInstance getEffectInstance() {
 		return this.fx;
 	}
-
+	
 	public void setEffectInstance(TrackEffectInstance newFx) {
 		if(this.fx == newFx) return;
 		
@@ -200,23 +200,19 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 			this.chbxEnabled.setSelected(this.fx.isEnabled());
 		}
 	}
-
+	
 	public void enabledStateChanged(TrackEffectInstance source, boolean isEnabledNow) {
 		this.chbxEnabled.setSelected(isEnabledNow);
 	}
-
+	
 	public void parameterAdded(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
 		SwingUtilities.invokeLater(() -> this.addParam(ctrl, i));
 	}
-
+	
 	public void parameterRemoved(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
 		SwingUtilities.invokeLater(() -> this.removeParam(i));
 	}
-
-	public void dirtyFlagged(TrackEffectInstance source) {
-	}
 	
-
 	public void focusChanged(TrackEffectInstance oldFocus, TrackEffectInstance newFocus) {
 		if(this.fx != newFocus && this.fx != oldFocus) return;
 		

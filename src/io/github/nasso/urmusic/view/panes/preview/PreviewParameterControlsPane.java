@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
-import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.view.panes.preview.controls.PreviewParamControl;
 
@@ -32,13 +31,11 @@ public class PreviewParameterControlsPane extends JComponent {
 		public void layoutContainer(Container parent) {
 			Component[] comps = parent.getComponents();
 			
-			int frame = UrmusicModel.getFrameCursor();
-			
 			for(int i = 0; i < comps.length; i++) {
 				Component c = comps[i];
 				
 				if(c instanceof PreviewParamControl<?>) {
-					((PreviewParamControl<?>) c).updateComponentLayout(frame);
+					((PreviewParamControl<?>) c).updateComponentLayout();
 				}
 			}
 		}

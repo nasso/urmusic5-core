@@ -4,17 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.nasso.urmusic.common.easing.EasingFunction;
 import io.github.nasso.urmusic.common.event.EffectInstanceListener;
-import io.github.nasso.urmusic.common.event.EffectParamListener;
-import io.github.nasso.urmusic.common.event.KeyFrameListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
-import io.github.nasso.urmusic.model.project.param.KeyFrame;
 
 public abstract class TrackEffect {
-	@SuppressWarnings({"rawtypes", "unchecked"})
-	public abstract class TrackEffectInstance implements EffectParamListener, KeyFrameListener {
+	public abstract class TrackEffectInstance {
 		private List<EffectParam<?>> parameters = new ArrayList<>();
 		private List<EffectParam<?>> unmodifiableParameters = Collections.unmodifiableList(this.parameters);
 		
@@ -64,7 +59,6 @@ public abstract class TrackEffect {
 		
 		public void addParameter(EffectParam<?> param, int i) {
 			this.parameters.add(i, param);
-			param.addEffectParamListener(this);
 			
 			this.notifyParameterAdded(param, i);
 		}
@@ -80,48 +74,12 @@ public abstract class TrackEffect {
 			return this.unmodifiableParameters;
 		}
 		
-		public void valueChanged(EffectParam source, Object newVal) {
-			this.markDirty();
-		}
-
-		public void keyFrameAdded(EffectParam source, KeyFrame kf) {
-			kf.addKeyFrameListener(this);
-			this.markDirty();
-		}
-
-		public void keyFrameRemoved(EffectParam source, KeyFrame kf) {
-			kf.removeKeyFrameListener(this);
-			this.markDirty();
-		}
-		
-		public void valueChanged(KeyFrame source, Object newValue) {
-			this.markDirty();
-		}
-		
-		public void frameChanged(KeyFrame source, int newFrame) {
-			this.markDirty();
-		}
-		
-		public void interpChanged(KeyFrame source, EasingFunction newInterp) {
-			this.markDirty();
-		}
-		
 		public void addEffectInstanceListener(EffectInstanceListener l) {
 			this.listeners.add(l);
 		}
 		
 		public void removeEffectInstanceListener(EffectInstanceListener l) {
 			this.listeners.remove(l);
-		}
-		
-		public void markDirty() {
-			this.notifyDirtyFlag();
-		}
-		
-		private void notifyDirtyFlag() {
-			for(EffectInstanceListener l : this.listeners) {
-				l.dirtyFlagged(this);
-			}
 		}
 		
 		private void notifyEnabledStateChanged() {

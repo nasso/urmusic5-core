@@ -33,7 +33,7 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 		this.setOpaque(true);
 		
 		this.nameLabel = new UrmEditableLabel((l) -> {
-			this.track.setName(l.getValue());
+			UrmusicController.renameTrack(t, l.getValue());
 		});
 		this.nameLabel.setValue(t.getName());
 		this.nameLabel.setOpaque(false);
@@ -53,7 +53,7 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 		this.enableCheckbox.setBorder(null);
 		this.enableCheckbox.setOpaque(false);
 		this.enableCheckbox.addActionListener((e) -> {
-			t.setEnabled(this.enableCheckbox.isSelected());
+			UrmusicController.setTrackEnabled(this.track, this.enableCheckbox.isSelected());
 		});
 		
 		this.deleteBtn = new UrmIconButton(UrmusicUIRes.DELETE_ICON_S);
@@ -83,10 +83,6 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 		if(this.track != null) {
 			this.track.removeTrackListener(this);
 		}
-	}
-	
-	public Track getTrack() {
-		return this.track;
 	}
 
 	public void setTrack(Track t) {
@@ -121,8 +117,5 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 	}
 
 	public void effectMoved(Track source, TrackEffectInstance e, int oldPos, int newPos) {
-	}
-
-	public void dirtyFlagged(Track source) {
 	}
 }

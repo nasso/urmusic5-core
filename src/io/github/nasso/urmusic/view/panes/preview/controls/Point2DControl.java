@@ -15,7 +15,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
 import io.github.nasso.urmusic.common.MathUtils;
-import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.param.Point2DParam;
 import io.github.nasso.urmusic.view.panes.preview.PreviewView;
 
@@ -38,8 +38,8 @@ public class Point2DControl extends PreviewParamControl<Point2DParam> implements
 		this.addMouseMotionListener(this);
 	}
 
-	public void updateComponentLayout(int frame) {
-		Vector2fc p = this.getParam().getValue(frame);
+	public void updateComponentLayout() {
+		Vector2fc p = UrmusicController.getParamValueNow(this.getParam());
 		
 		int x = this.xPosToUI(p.x());
 		int y = this.yPosToUI(p.y());
@@ -62,15 +62,15 @@ public class Point2DControl extends PreviewParamControl<Point2DParam> implements
 		int w = this.getWidth() - 1;
 		int h = this.getHeight() - 1;
 		
-		g2d.setColor(POINT_BORDER_COLOR);
-		g2d.setStroke(POINT_BORDER_STROKE);
+		g2d.setColor(Point2DControl.POINT_BORDER_COLOR);
+		g2d.setStroke(Point2DControl.POINT_BORDER_STROKE);
 		if(!this.hover) g2d.drawOval(3, 3, w - 6, h - 6);
 		else g2d.drawOval(1, 1, w - 2, h - 2);
 		g2d.drawLine(0, h / 2, w, h / 2);
 		g2d.drawLine(w / 2, 0, w / 2, h);
 		
-		g2d.setColor(POINT_INNER_COLOR);
-		g2d.setStroke(POINT_INNER_STROKE);
+		g2d.setColor(Point2DControl.POINT_INNER_COLOR);
+		g2d.setStroke(Point2DControl.POINT_INNER_STROKE);
 		if(!this.hover) g2d.drawOval(3, 3, w - 6, h - 6);
 		else g2d.drawOval(1, 1, w - 2, h - 2);
 		g2d.drawLine(1, h / 2, w - 1, h / 2);
@@ -104,8 +104,8 @@ public class Point2DControl extends PreviewParamControl<Point2DParam> implements
 		if(this.pressed) {
 			float x = this.xUIToPos(e.getX() + this.getX());
 			float y = this.yUIToPos(e.getY() + this.getY());
-			
-			this.getParam().setValue(this._vec2.set(x, y), UrmusicModel.getFrameCursor());
+
+			UrmusicController.setParamValueNow(this.getParam(), this._vec2.set(x, y));
 		}
 	}
 

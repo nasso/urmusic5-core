@@ -12,7 +12,7 @@ import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.common.DataUtils;
 import io.github.nasso.urmusic.common.event.EffectParamListener;
-import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.VideoEffect;
 import io.github.nasso.urmusic.model.project.VideoEffectInstance;
@@ -63,7 +63,7 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 				ImageDisplayVFXInstance.this.lastSrc = newVal.toAbsolutePath();
 				ImageDisplayVFXInstance.this.reloadImage();
 				
-				int frame = UrmusicModel.getFrameCursor();
+				int frame = UrmusicController.getFrameCursor();
 				this._vec4.set(ImageDisplayVFXInstance.this.bounds.getValue(frame));
 				this._vec4.z = ImageDisplayVFXInstance.this.loadedImage.getWidth();
 				this._vec4.w = ImageDisplayVFXInstance.this.loadedImage.getHeight();
@@ -103,10 +103,10 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 		}
 		
 		public void applyVideo(GL3 gl, EffectArgs args) {
-			Path src = this.source.getValue(args.frame);
-			Vector4fc bounds = this.bounds.getValue(args.frame);
-			int blendingMode = this.blendingMode.getValue(args.frame);
-			float opacity = this.opacity.getValue(args.frame);
+			Path src = this.source.getValue(args.time);
+			Vector4fc bounds = this.bounds.getValue(args.time);
+			int blendingMode = this.blendingMode.getValue(args.time);
+			float opacity = this.opacity.getValue(args.time);
 			
 			if(src == null) {
 				args.cancelled = true;

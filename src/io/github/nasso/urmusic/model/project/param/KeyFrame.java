@@ -10,14 +10,14 @@ public class KeyFrame<T> {
 	private List<KeyFrameListener<T>> listeners = new ArrayList<>();
 	
 	private T value = null;
-	private int frame = 0;
+	private float time = 0;
 	private EasingFunction interp = EasingFunction.LINEAR;
 	
 	public KeyFrame() {
 	}
 	
-	public KeyFrame(int frame, T value, EasingFunction interp) {
-		this.setFrame(frame);
+	public KeyFrame(float position, T value, EasingFunction interp) {
+		this.setPosition(position);
 		this.setValue(value);
 		this.setInterpolationMethod(interp);
 	}
@@ -32,14 +32,14 @@ public class KeyFrame<T> {
 		this.notifyValueChanged(this.value);
 	}
 
-	public int getFrame() {
-		return this.frame;
+	public float getPosition() {
+		return this.time;
 	}
 
-	public void setFrame(int frame) {
-		if(this.frame == frame) return;
-		this.frame = frame;
-		this.notifyFrameChanged(this.frame);
+	public void setPosition(float time) {
+		if(this.time == time) return;
+		this.time = time;
+		this.notifyPositionChanged(this.time);
 	}
 
 	public EasingFunction getInterpolationMethod() {
@@ -65,9 +65,9 @@ public class KeyFrame<T> {
 			l.valueChanged(this, newValue);
 	}
 	
-	private void notifyFrameChanged(int newValue) {
+	private void notifyPositionChanged(float newValue) {
 		for(KeyFrameListener<T> l : this.listeners)
-			l.frameChanged(this, newValue);
+			l.positionChanged(this, newValue);
 	}
 	
 	private void notifyInterpChanged(EasingFunction newValue) {

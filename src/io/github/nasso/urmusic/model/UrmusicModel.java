@@ -5,14 +5,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.common.event.RendererListener;
 import io.github.nasso.urmusic.model.effect.AffineTransformVFX;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
 import io.github.nasso.urmusic.model.effect.ImageDisplayVFX;
 import io.github.nasso.urmusic.model.effect.RectangleMaskVFX;
-import io.github.nasso.urmusic.model.playback.PlaybackThread;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
 import io.github.nasso.urmusic.model.project.Track;
@@ -24,7 +22,15 @@ import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.renderer.Renderer;
 import io.github.nasso.urmusic.view.UrmusicView;
 
+/**
+ * Where stuff happens, rendering, exporting, importing...<br />
+ * Controlled by the controller.
+ * 
+ * @author nasso
+ */
 public class UrmusicModel {
+	public static final float FRAME_TIME_PRECISION = 0.0f;
+	
 	public static final TrackEffect[] STOCK_EFFECTS = new TrackEffect[] {
 		new ImageDisplayVFX(),
 		new CircleMaskVFX(),
@@ -36,9 +42,6 @@ public class UrmusicModel {
 
 	private static Project project;
 	private static Renderer renderer;
-	private static PlaybackThread playbackThread;
-	
-	private static int frameCursor = 0;
 	
 	private static List<TrackEffect> loadedEffects = new ArrayList<>();
 	private static List<TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableList(UrmusicModel.loadedEffects);
@@ -48,7 +51,7 @@ public class UrmusicModel {
 		UrmusicModel.renderer = new Renderer(200);
 		
 		UrmusicModel.renderer.addRendererListener(new RendererListener() {
-			public void frameRendered(Composition comp, int frame) {
+			public void frameRendered(Composition comp, float time) {
 			}
 			
 			public void effectLoaded(TrackEffect fx) {
@@ -67,11 +70,6 @@ public class UrmusicModel {
 		for(TrackEffect fx : UrmusicModel.STOCK_EFFECTS) {
 			UrmusicModel.loadEffect(fx);
 		}
-		
-		UrmusicModel.loadProject(null);
-		
-		UrmusicModel.playbackThread = new PlaybackThread();
-		UrmusicModel.playbackThread.setFPS(UrmusicModel.project.getMainComposition().getTimeline().getFramerate());
 	}
 	
 	public static void exit() {
@@ -135,34 +133,6 @@ public class UrmusicModel {
 		return UrmusicModel.project;
 	}
 	
-	public static void makeCompositionDirty(Composition comp) {
-		UrmusicModel.renderer.makeCompositionDirty(comp);
-	}
-	
-	public static int getFrameCursor() {
-		return UrmusicModel.frameCursor;
-	}
-
-	public static void setFrameCursor(int frameCursor) {
-		frameCursor = Math.min(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getLength() - 1, Math.max(frameCursor, 0));
-		
-		if(UrmusicModel.frameCursor == frameCursor) return;
-		int before = UrmusicModel.frameCursor;
-		UrmusicModel.notifyFrameCursorChange(before, UrmusicModel.frameCursor = frameCursor);
-	}
-	
-	public static boolean isPlayingBack() {
-		return UrmusicModel.playbackThread.isPlayingBack();
-	}
-	
-	public static void startPlayback() {
-		UrmusicModel.playbackThread.startPlayback();
-	}
-	
-	public static void stopPlayback() {
-		UrmusicModel.playbackThread.stopPlayback();
-	}
-
 	public static void disposeTrack(Track track) {
 		UrmusicModel.renderer.disposeTrack(track);
 	}
@@ -208,21 +178,6 @@ public class UrmusicModel {
 	private static void notifyProjectUnloaded(Project p) {
 		for(ProjectLoadingListener l : UrmusicModel.projectLoadingListeners) {
 			l.projectUnloaded(p);
-		}
-	}
-	
-	private static List<FrameCursorListener> frameCursorListeners = new ArrayList<>();
-	public static void addFrameCursorListener(FrameCursorListener l) {
-		UrmusicModel.frameCursorListeners.add(l);
-	}
-	
-	public static void removeFrameCursorListener(FrameCursorListener l) {
-		UrmusicModel.frameCursorListeners.remove(l);
-	}
-
-	private static void notifyFrameCursorChange(int before, int after) {
-		for(FrameCursorListener l : UrmusicModel.frameCursorListeners) {
-			l.frameChanged(before, after);
 		}
 	}
 }

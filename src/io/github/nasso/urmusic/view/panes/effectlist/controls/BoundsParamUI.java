@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import org.joml.Vector4f;
 import org.joml.Vector4fc;
 
-import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.BoundsParam;
 import io.github.nasso.urmusic.view.components.UrmEditableNumberField;
@@ -23,36 +23,31 @@ public class BoundsParamUI extends EffectParamUI<BoundsParam> {
 
 	public JComponent buildUI() {
 		this.xField = new UrmEditableNumberField((f) -> {
-			int frame = UrmusicModel.getFrameCursor();
-
-			this._vec4.set(this.getParam().getValue(frame));
+			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			this._vec4.x = f.getValue().floatValue();
 			
-			this.getParam().setValue(this._vec4, frame);
+			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 		});
+		
 		this.wField = new UrmEditableNumberField((f) -> {
-			int frame = UrmusicModel.getFrameCursor();
-
-			this._vec4.set(this.getParam().getValue(frame));
+			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			this._vec4.z = f.getValue().floatValue();
-			
-			this.getParam().setValue(this._vec4, frame);
+
+			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 		});
+		
 		this.yField = new UrmEditableNumberField((f) -> {
-			int frame = UrmusicModel.getFrameCursor();
-
-			this._vec4.set(this.getParam().getValue(frame));
+			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			this._vec4.y = f.getValue().floatValue();
-			
-			this.getParam().setValue(this._vec4, frame);
-		});
-		this.hField = new UrmEditableNumberField((f) -> {
-			int frame = UrmusicModel.getFrameCursor();
 
-			this._vec4.set(this.getParam().getValue(frame));
+			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
+		});
+		
+		this.hField = new UrmEditableNumberField((f) -> {
+			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			this._vec4.w = f.getValue().floatValue();
-			
-			this.getParam().setValue(this._vec4, frame);
+
+			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 		});
 		
 		this.xField.setStep(this.getParam().getStep().x());
@@ -87,8 +82,8 @@ public class BoundsParamUI extends EffectParamUI<BoundsParam> {
 		return container;
 	}
 
-	public void updateControl(int frame) {
-		Vector4fc val = this.getParam().getValue(frame);
+	public void updateControl() {
+		Vector4fc val = UrmusicController.getParamValueNow(this.getParam());
 		
 		this.xField.setValue(val.x());
 		this.yField.setValue(val.y());

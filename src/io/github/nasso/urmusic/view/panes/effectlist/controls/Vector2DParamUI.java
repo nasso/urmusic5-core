@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
-import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.Vector2DParam;
 import io.github.nasso.urmusic.view.components.UrmEditableNumberField;
@@ -21,8 +21,8 @@ public class Vector2DParamUI extends EffectParamUI<Vector2DParam> {
 		super(fx, param);
 	}
 
-	public void updateControl(int frame) {
-		Vector2fc val = this.getParam().getValue(frame);
+	public void updateControl() {
+		Vector2fc val = UrmusicController.getParamValueNow(this.getParam());
 		
 		this.xField.setValue(val.x());
 		this.yField.setValue(val.y());
@@ -33,18 +33,14 @@ public class Vector2DParamUI extends EffectParamUI<Vector2DParam> {
 		fieldsPane.setOpaque(false);
 		
 		this.xField = new UrmEditableNumberField((f) -> {
-			int frame = UrmusicModel.getFrameCursor();
+			Vector2fc val = UrmusicController.getParamValueNow(this.getParam());
 
-			Vector2fc val = this.getParam().getValue(frame);
-			
-			this.getParam().setValue(this._vec2.set(f.getValue().floatValue(), val.y()), frame);
+			UrmusicController.setParamValueNow(this.getParam(), this._vec2.set(f.getValue().floatValue(), val.y()));
 		});
 		this.yField = new UrmEditableNumberField((f) -> {
-			int frame = UrmusicModel.getFrameCursor();
-
-			Vector2fc val = this.getParam().getValue(frame);
+			Vector2fc val = UrmusicController.getParamValueNow(this.getParam());
 			
-			this.getParam().setValue(this._vec2.set(val.x(), f.getValue().floatValue()), frame);
+			UrmusicController.setParamValueNow(this.getParam(), this._vec2.set(val.x(), f.getValue().floatValue()));
 		});
 		
 		this.xField.setStep(this.getParam().getStep().x());

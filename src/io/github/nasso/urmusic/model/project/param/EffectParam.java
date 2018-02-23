@@ -50,19 +50,19 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 		return this.name;
 	}
 	
-	public KeyFrame<T> addKeyFrame(int frame) {
+	public KeyFrame<T> addKeyFrame(float time) {
 		if(!this.canAnimate) return null;
 		
-		return this.addKeyFrame(frame, this.getValue(frame));
+		return this.addKeyFrame(time, this.getValue(time));
 	}
 	
-	public KeyFrame<T> addKeyFrame(int frame, T val) {
+	public KeyFrame<T> addKeyFrame(float time, T val) {
 		if(!this.canAnimate) return null;
 		
-		return this.addKeyFrame(frame, val, EasingFunction.EASE);
+		return this.addKeyFrame(time, val, EasingFunction.EASE);
 	}
 	
-	public KeyFrame<T> addKeyFrame(int frame, T val, EasingFunction func) {
+	public KeyFrame<T> addKeyFrame(float time, T val, EasingFunction func) {
 		if(!this.canAnimate) return null;
 		
 		T valClone = this.cloneValue(val);
@@ -71,14 +71,14 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 		for(i = 0; i < this.keyFrames.size(); i++) {
 			KeyFrame<T> kf = this.keyFrames.get(i);
 			
-			if(kf.getFrame() == frame) {
+			if(kf.getPosition() == time) {
 				kf.setValue(valClone);
 				kf.setInterpolationMethod(func);
 				return kf;
-			} else if(kf.getFrame() > frame) break;
+			} else if(kf.getPosition() > time) break;
 		}
 		
-		KeyFrame<T> kf = new KeyFrame<>(frame, valClone, func);
+		KeyFrame<T> kf = new KeyFrame<>(time, valClone, func);
 		this.keyFrames.add(i, kf);
 		
 		this.notifyKeyFrameAdded(kf);
@@ -86,33 +86,33 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 		return kf;
 	}
 	
-	public KeyFrame<T> getKeyFrameAt(int frame) {
+	public KeyFrame<T> getKeyFrameAt(float time) {
 		if(!this.canAnimate) return null;
 		
 		for(KeyFrame<T> kf : this.keyFrames) {
-			if(kf.getFrame() == frame) return kf;
+			if(kf.getPosition() == time) return kf;
 		}
 		
 		return null;
 	}
 
-	public KeyFrame<T> getKeyFrameBefore(int frame) {
+	public KeyFrame<T> getKeyFrameBefore(float time) {
 		if(!this.canAnimate) return null;
 		
 		int i;
 		for(i = 0; i < this.keyFrames.size(); i++) {
-			if(this.keyFrames.get(i).getFrame() >= frame) break;
+			if(this.keyFrames.get(i).getPosition() >= time) break;
 		}
 		
 		return i == 0 ? null : this.keyFrames.get(i - 1);
 	}
 	
-	public KeyFrame<T> getKeyFrameAfter(int frame) {
+	public KeyFrame<T> getKeyFrameAfter(float time) {
 		if(!this.canAnimate) return null;
 		
 		int i;
 		for(i = 0; i < this.keyFrames.size(); i++) {
-			if(this.keyFrames.get(i).getFrame() > frame) break;
+			if(this.keyFrames.get(i).getPosition() > time) break;
 		}
 		
 		return i == this.keyFrames.size() ? null : this.keyFrames.get(i);
@@ -135,19 +135,19 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 		this.notifyKeyFrameRemoved(kf);
 	}
 	
-	public void frameChanged(KeyFrame<T> source, int frame) {
+	public void positionChanged(KeyFrame<T> source, float time) {
 		this.keyFrames.remove(source);
 
 		int i;
 		for(i = 0; i < this.keyFrames.size(); i++) {
 			KeyFrame<T> kf = this.keyFrames.get(i);
 			
-			if(kf.getFrame() == frame) {
+			if(kf.getPosition() == time) {
 				this.removeKeyFrame(kf);
 				break;
 			}
 			
-			if(kf.getFrame() > frame) {
+			if(kf.getPosition() > time) {
 				i--;
 				break;
 			}
@@ -165,13 +165,13 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	}
 	
 	/**
-	 * Sets the value of the parameter at the specified frame.<br>
-	 * If there's no key frames for this parameter, the frame index given won't matter.
+	 * Sets the value of the parameter at the specified time.<br>
+	 * If there's no key frames for this parameter (aka this parameter isn't key frame automated), the time position given won't matter.
 	 * 
 	 * @param val
-	 * @param frame
+	 * @param time
 	 */
-	public void setValue(T val, int frame) {
+	public void setValue(T val, float time) {
 		if(!this.isAutomated()) {
 			this.setStaticValue(val);
 			this.notifyValueChanged(val);
@@ -179,17 +179,17 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 			return;
 		}
 		
-		this.addKeyFrame(frame, val);
+		this.addKeyFrame(time, val);
 	}
 	
-	public T getValue(int frame) {
+	public T getValue(float time) {
 		if(!this.isAutomated()) {
 			return this.getStaticValue();
 		}
 		
 		int i;
 		for(i = 0; i < this.keyFrames.size(); i++) {
-			if(this.keyFrames.get(i).getFrame() > frame) break;
+			if(this.keyFrames.get(i).getPosition() > time) break;
 		}
 		
 		if(i == 0) return this.keyFrames.get(i).getValue();
@@ -200,10 +200,10 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 		next = this.keyFrames.get(i);
 		
 		return this.ramp(previous.getValue(), next.getValue(), next.getInterpolationMethod().apply(
-			frame - previous.getFrame(),			// position
+			time - previous.getPosition(),			// position
 			0,										// beginning value
 			1,										// change (aka: beginning value + change = end value)
-			next.getFrame() - previous.getFrame()	// duration
+			next.getPosition() - previous.getPosition()	// duration
 		));
 	}
 	

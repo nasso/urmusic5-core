@@ -1,4 +1,4 @@
-package io.github.nasso.urmusic.model.playback;
+package io.github.nasso.urmusic.controller;
 
 import io.github.nasso.urmusic.model.UrmusicModel;
 
@@ -6,7 +6,7 @@ public class PlaybackThread extends Thread {
 	private static final long SECOND_NANO = 1_000_000_000l;
 	
 	private boolean playingBack = false;
-	private int fps = 30;
+	private float fps = 30;
 	
 	private Object lock = new Object();
 	
@@ -27,7 +27,7 @@ public class PlaybackThread extends Thread {
 					}
 					
 					// Queue frames to render if we can
-					int playbackStartFrame = UrmusicModel.getFrameCursor();
+					int playbackStartFrame = UrmusicController.getFrameCursor();
 					int cacheSize = UrmusicModel.getRenderer().getCacheSize();
 					int cacheSizeFifth = cacheSize / 5;
 					UrmusicModel.getRenderer().queueFrameRange(UrmusicModel.getCurrentProject().getMainComposition(), playbackStartFrame, cacheSize);
@@ -35,14 +35,14 @@ public class PlaybackThread extends Thread {
 					int cacheForNext = -1;
 					while(this.isPlayingBack()) {
 						frameStartTime = System.nanoTime();
-						idealFrameTime = SECOND_NANO / this.fps;
+						idealFrameTime = (long) (PlaybackThread.SECOND_NANO / this.fps);
 						
 						// Advance cursor
-						if((cacheForNext = UrmusicModel.getRenderer().getCacheFor(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicModel.getFrameCursor() + 1)) >= 0
+						if((cacheForNext = UrmusicModel.getRenderer().getCacheFor(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicController.getFrameCursor() + 1)) >= 0
 								&& !UrmusicModel.getRenderer().getCachedFrames()[cacheForNext].dirty)
-							UrmusicModel.setFrameCursor(UrmusicModel.getFrameCursor() + 1);
+							UrmusicController.setFrameCursor(UrmusicController.getFrameCursor() + 1);
 						
-						if(UrmusicModel.getFrameCursor() - playbackStartFrame > cacheSizeFifth) {
+						if(UrmusicController.getFrameCursor() - playbackStartFrame > cacheSizeFifth) {
 							UrmusicModel.getRenderer().queueFrameRange(UrmusicModel.getCurrentProject().getMainComposition(), playbackStartFrame + cacheSize, cacheSizeFifth);
 							playbackStartFrame += cacheSizeFifth;
 						}
@@ -84,11 +84,11 @@ public class PlaybackThread extends Thread {
 		return this.playingBack;
 	}
 
-	public int getFPS() {
+	public float getFPS() {
 		return this.fps;
 	}
 
-	public void setFPS(int fps) {
+	public void setFPS(float fps) {
 		this.fps = fps;
 	}
 }

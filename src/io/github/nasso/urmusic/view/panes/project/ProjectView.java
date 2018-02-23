@@ -24,6 +24,11 @@ import io.github.nasso.urmusic.view.components.UrmMenu;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
+/**
+ * TODO: DELET THIS
+ * 
+ * @author nasso
+ */
 public class ProjectView extends UrmViewPane {
 	public static final String VIEW_NAME = "project";
 
@@ -31,8 +36,8 @@ public class ProjectView extends UrmViewPane {
 	private JTree tree;
 	
 	public ProjectView() {
-		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add"),
-			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add.importFile")) {
+		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + ProjectView.VIEW_NAME + ".menu.add"),
+			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + ProjectView.VIEW_NAME + ".menu.add.importFile")) {
 				private JFileChooser chooser;
 				
 				public void actionPerformed(ActionEvent e) {
@@ -60,7 +65,7 @@ public class ProjectView extends UrmViewPane {
 					}
 				}
 			}),
-			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add.newDirectory")) {
+			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + ProjectView.VIEW_NAME + ".menu.add.newDirectory")) {
 				public void actionPerformed(ActionEvent e) {
 					UrmusicController.newDirectory("New Directory");
 				}

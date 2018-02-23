@@ -20,9 +20,13 @@ uniform int blendingMode;
 uniform float opacity;
 
 in vec2 pass_quad_uv;
+in vec2 pass_quad_uv_xform;
 
 out vec4 out_color;
 
 void main() {
-	out_color = PD_compose(texture(imageTex, pass_quad_uv), texture(inputTex, pass_quad_uv), blendingMode);
+	if(pass_quad_uv_xform.x > 0.0 && pass_quad_uv_xform.y > 0.0 && pass_quad_uv_xform.x < 1.0 && pass_quad_uv_xform.y < 1.0)
+		out_color = PD_compose(texture(imageTex, pass_quad_uv_xform), texture(inputTex, pass_quad_uv), blendingMode);
+	else 
+		out_color = texture(inputTex, pass_quad_uv);
 }

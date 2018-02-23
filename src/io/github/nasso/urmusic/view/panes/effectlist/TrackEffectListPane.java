@@ -115,7 +115,4 @@ public class TrackEffectListPane extends JPanel implements TrackListener {
 			this.repaint();
 		});
 	}
-
-	public void dirtyFlagged(Track source) {
-	}
 }

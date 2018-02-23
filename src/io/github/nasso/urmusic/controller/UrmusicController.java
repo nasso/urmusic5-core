@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import io.github.nasso.urmusic.common.event.FocusListener;
+import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
@@ -16,87 +17,157 @@ import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
 
+/**
+ * Controls the model.
+ * 
+ * @author nasso
+ */
 public class UrmusicController {
 	private UrmusicController() { }
 	
+	private static PlaybackThread playbackThread;
+	
+	private static int frameCursor = 0;
+	
 	public static void init() {
-		focusComposition(UrmusicModel.getCurrentProject().getMainComposition());
+		UrmusicModel.loadProject(null);
 		
-		UrmusicModel.addFrameCursorListener((oldPosition, newPosition)  -> {
-			UrmusicModel.getRenderer().queueFrameASAP(getFocusedComposition(), newPosition);
+		UrmusicController.playbackThread = new PlaybackThread();
+		UrmusicController.playbackThread.setFPS(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getFramerate());
+		
+		UrmusicController.focusComposition(UrmusicModel.getCurrentProject().getMainComposition());
+		
+		UrmusicController.addFrameCursorListener((oldPosition, newPosition)  -> {
+			UrmusicModel.getRenderer().queueFrameASAP(UrmusicController.getFocusedComposition(), newPosition);
 		});
 		
-		addTrackEffectInstanceFocusListener(new FocusListener<TrackEffect.TrackEffectInstance>() {
+		UrmusicController.addTrackEffectInstanceFocusListener(new FocusListener<TrackEffect.TrackEffectInstance>() {
 			public void focusChanged(TrackEffectInstance oldFocus, TrackEffectInstance newFocus) {
-				toggleFocusEffectParameter(null, false);
+				UrmusicController.toggleFocusEffectParameter(null, false);
 				
 				if(newFocus == null) return;
 				
 				for(EffectParam<?> param : newFocus.getParameterListUnmodifiable()) {
-					toggleFocusEffectParameter(param, true);
+					UrmusicController.toggleFocusEffectParameter(param, true);
 				}
 			}
 		});
+	}
+	
+	public static void forceImmediateRender() {
+		UrmusicModel.getRenderer().queueFrameASAP(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicController.getFrameCursor());
+	}
+	
+	public static void markDirty() {
+		UrmusicModel.getRenderer().makeCompositionDirty(UrmusicModel.getCurrentProject().getMainComposition());
+		UrmusicController.forceImmediateRender();
 	}
 	
 	public static void requestExit() {
 		UrmusicModel.exit();
 	}
 	
-	// -- Frame control --
-	public static void setFramePosition(int frame) {
-		if(UrmusicModel.isPlayingBack()) UrmusicModel.stopPlayback();
+	// -- Playback & Frame Control --
+	private static List<FrameCursorListener> frameCursorListeners = new ArrayList<>();
+	public static int getFrameCursor() {
+		return UrmusicController.frameCursor;
+	}
+
+	public static void setFrameCursor(int frameCursor) {
+		frameCursor = Math.min(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTotalFrameCount() - 1, Math.max(frameCursor, 0));
 		
-		UrmusicModel.setFrameCursor(frame);
+		if(UrmusicController.frameCursor == frameCursor) return;
+		int before = frameCursor;
+		UrmusicController.notifyFrameCursorChange(before, UrmusicController.frameCursor = frameCursor);
+	}
+	
+	public static boolean isPlayingBack() {
+		return UrmusicController.playbackThread.isPlayingBack();
+	}
+	
+	public static void startPlayback() {
+		UrmusicController.playbackThread.startPlayback();
+	}
+	
+	public static void stopPlayback() {
+		UrmusicController.playbackThread.stopPlayback();
+	}
+
+	private static void notifyFrameCursorChange(int before, int after) {
+		for(FrameCursorListener l : UrmusicController.frameCursorListeners) {
+			l.frameChanged(before, after);
+		}
+	}
+	
+	public static void addFrameCursorListener(FrameCursorListener l) {
+		UrmusicController.frameCursorListeners.add(l);
+	}
+	
+	public static void removeFrameCursorListener(FrameCursorListener l) {
+		UrmusicController.frameCursorListeners.remove(l);
+	}
+	
+	public static float getTimePosition() {
+		return UrmusicController.getFrameCursor() / UrmusicController.getFocusedComposition().getTimeline().getFramerate();
+	}
+	
+	public static void setFramePosition(int frame) {
+		if(UrmusicController.isPlayingBack()) UrmusicController.stopPlayback();
+		
+		UrmusicController.setFrameCursor(frame);
+	}
+	
+	public static void setTimePosition(float time) {
+		UrmusicController.setFramePosition(Math.round(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getFramerate() * time));
 	}
 	
 	public static void frameAdvance() {
-		UrmusicModel.setFrameCursor(UrmusicModel.getFrameCursor() + 1);
+		UrmusicController.setFrameCursor(UrmusicController.getFrameCursor() + 1);
 	}
 	
 	public static void frameBack() {
-		UrmusicModel.setFrameCursor(UrmusicModel.getFrameCursor() - 1);
+		UrmusicController.setFrameCursor(UrmusicController.getFrameCursor() - 1);
 	}
 
 	public static void goToNextKeyFrame() {
-		if(getFocusedEffectParameters().isEmpty()) return;
+		if(UrmusicController.getFocusedEffectParameters().isEmpty()) return;
 		
-		int f = Integer.MAX_VALUE;
+		float t = Float.MAX_VALUE;
 		boolean set = false;
 		
-		for(EffectParam<?> param : getFocusedEffectParameters()) {
+		for(EffectParam<?> param : UrmusicController.getFocusedEffectParameters()) {
 			if(param == null) return;
 
-			KeyFrame<?> kf = param.getKeyFrameAfter(UrmusicModel.getFrameCursor());
-			if(kf != null) f = Math.min(f, kf.getFrame());
+			KeyFrame<?> kf = param.getKeyFrameAfter(UrmusicController.getFrameCursor());
+			if(kf != null) t = Math.min(t, kf.getPosition());
 			
 			set |= kf != null;
 		}
 		
-		if(set) setFramePosition(f);
+		if(set) UrmusicController.setTimePosition(t);
 	}
 	
 	public static void goToPreviousKeyFrame() {
-		if(getFocusedEffectParameters().isEmpty()) return;
+		if(UrmusicController.getFocusedEffectParameters().isEmpty()) return;
 		
-		int f = Integer.MIN_VALUE;
+		float t = Float.MIN_VALUE;
 		boolean set = false;
 		
-		for(EffectParam<?> param : getFocusedEffectParameters()) {
+		for(EffectParam<?> param : UrmusicController.getFocusedEffectParameters()) {
 			if(param == null) return;
 
-			KeyFrame<?> kf = param.getKeyFrameBefore(UrmusicModel.getFrameCursor());
-			if(kf != null) f = Math.max(f, kf.getFrame());
+			KeyFrame<?> kf = param.getKeyFrameBefore(UrmusicController.getFrameCursor());
+			if(kf != null) t = Math.max(t, kf.getPosition());
 			
 			set |= kf != null;
 		}
 		
-		if(set) setFramePosition(f);
+		if(set) UrmusicController.setTimePosition(t);
 	}
 	
 	public static void playPause() {
-		if(UrmusicModel.isPlayingBack()) UrmusicModel.stopPlayback();
-		else UrmusicModel.startPlayback();
+		if(UrmusicController.isPlayingBack()) UrmusicController.stopPlayback();
+		else UrmusicController.startPlayback();
 	}
 	
 	// -- Project --
@@ -111,42 +182,122 @@ public class UrmusicController {
 	}
 	
 	// -- Edit --
+	public static <T> T getParamValueNow(EffectParam<T> param) {
+		return param.getValue(UrmusicController.getTimePosition());
+	}
+	
+	public static <T> void setParamValueNow(EffectParam<T> param, T value) {
+		param.setValue(value, UrmusicController.getTimePosition());
+		
+		UrmusicController.markDirty();
+	}
+
+	public static <T> void toggleKeyFrame(EffectParam<T> param) {
+		KeyFrame<T> kf;
+		if((kf = param.getKeyFrameAt(UrmusicController.getTimePosition())) != null)
+			param.removeKeyFrame(kf);
+		else
+			param.addKeyFrame(UrmusicController.getTimePosition());
+		
+		UrmusicController.markDirty();
+	}
+	
 	public static void addEffect(TrackEffect e) {
 		if(e == null) return;
 		
-		Track t = getFocusedTrack();
+		Track t = UrmusicController.getFocusedTrack();
 		if(t == null) return;
 		
 		t.addEffect(e.instance());
+		
+		UrmusicController.markDirty();
 	}
 	
 	public static void addEffects(List<TrackEffect> elist) {
 		if(elist == null || elist.isEmpty()) return;
 		
-		Track t = getFocusedTrack();
+		Track t = UrmusicController.getFocusedTrack();
 		if(t == null) return;
 		
 		for(TrackEffect e : elist)
 			t.addEffect(e.instance());
+		
+		UrmusicController.markDirty();
+	}
+	
+	public static void moveEffect(Track track, TrackEffectInstance fx, int index) {
+		track.moveEffect(fx, index);
+		UrmusicController.markDirty();
+	}
+	
+	public static void moveEffectUp(Track track, TrackEffectInstance fx) {
+		UrmusicController.moveEffect(track, fx, track.getEffects().indexOf(fx) - 1);
+	}
+	
+	public static void moveEffectDown(Track track, TrackEffectInstance fx) {
+		UrmusicController.moveEffect(track, fx, track.getEffects().indexOf(fx) + 1);
+	}
+
+	public static void setEffectEnabled(TrackEffectInstance fx, boolean enabled) {
+		if(fx.isEnabled() == enabled) return;
+		
+		fx.setEnabled(enabled);
+		UrmusicController.markDirty();
 	}
 	
 	public static void addTrack() {
-		Composition comp = getFocusedComposition();
+		Composition comp = UrmusicController.getFocusedComposition();
 		if(comp == null) return;
 		
-		comp.getTimeline().addTrack(new Track(comp.getTimeline().getLength()));
+		comp.getTimeline().addTrack(new Track(comp.getTimeline().getDuration()));
+		
+		// We technically don't have to render after adding an empty track
+		// UrmusicController.forceImmediateRender();
+	}
+	
+	public static void setTrackEnabled(Track t, boolean isEnabled) {
+		t.setEnabled(isEnabled);
+		
+		UrmusicController.markDirty();
+	}
+	
+	public static void renameTrack(Track t, String newName) {
+		t.setName(newName);
+		
+		// No need to render
 	}
 	
 	public static void splitTrack() {
-		Track t = getFocusedTrack();
+		Track t = UrmusicController.getFocusedTrack();
 		
 		if(t != null) {
-			t.splitAt(UrmusicModel.getFrameCursor());
+			t.splitAt(UrmusicController.getTimePosition());
 		}
+		
+		// We technically don't have to render after a simple split
+		// UrmusicController.forceImmediateRender();
+	}
+	
+	public static void moveTrackActivityRange(TrackActivityRange range, float position) {
+		range.moveTo(position);
+		
+		UrmusicController.markDirty();
+	}
+	
+	public static void setTrackActivityRangeStart(TrackActivityRange range, float start) {
+		range.setStart(start);
+		
+		UrmusicController.markDirty();
+	}
+	
+	public static void setTrackActivityRangeEnd(TrackActivityRange range, float end) {
+		range.setEnd(end);
+		
+		UrmusicController.markDirty();
 	}
 	
 	public static void deleteTrack(Track t) {
-		Composition comp = getFocusedComposition();
+		Composition comp = UrmusicController.getFocusedComposition();
 		
 		if(comp == null) return;
 		if(t == null) return;
@@ -155,64 +306,70 @@ public class UrmusicController {
 		
 		if(i < 0) return;
 		
-		if(focusedTrack == t)
-			focusTrack(null);
+		if(UrmusicController.focusedTrack == t)
+			UrmusicController.focusTrack(null);
 		
-		if(t.getEffects().contains(focusedEffect))
-			focusTrackEffectInstance(null);
+		if(t.getEffects().contains(UrmusicController.focusedEffect))
+			UrmusicController.focusTrackEffectInstance(null);
 		
 		UrmusicModel.deleteTrack(comp, i);
+		
+		UrmusicController.markDirty();
 	}
 	
 	public static void deleteTrackEffect(Track t, TrackEffectInstance fx) {
 		for(int i = 0; i < fx.getParameterCount(); i++) {
 			EffectParam<?> param = fx.getParameter(i);
 			
-			if(isFocused(param)) toggleFocusEffectParameter(param, true);
+			if(UrmusicController.isFocused(param)) UrmusicController.toggleFocusEffectParameter(param, true);
 		}
 		
-		if(focusedEffect == fx)
-			focusTrackEffectInstance(null);
+		if(UrmusicController.focusedEffect == fx)
+			UrmusicController.focusTrackEffectInstance(null);
 		
 		t.removeEffect(fx);
+		
+		UrmusicController.markDirty();
 	}
 	
 	public static void deleteFocusedTrackActivityRange() {
-		TrackActivityRange r = getFocusedTrackActivityRange();
-		focusTrackActivityRange(null);
+		TrackActivityRange r = UrmusicController.getFocusedTrackActivityRange();
+		UrmusicController.focusTrackActivityRange(null);
 		UrmusicModel.deleteTrackActivityRange(r);
+		
+		UrmusicController.markDirty();
 	}
 	
 	public static void deleteFocusedTrack() {
-		deleteTrack(getFocusedTrack());
+		UrmusicController.deleteTrack(UrmusicController.getFocusedTrack());
 	}
 	
-	// -- Focus
+	// -- Focus --
 	// Composition
 	private static Composition focusedComposition;
 	private static List<FocusListener<Composition>> compFocusListeners = new ArrayList<>();
 	
 	public static void addCompositionFocusListener(FocusListener<Composition> l) {
-		compFocusListeners.add(l);
+		UrmusicController.compFocusListeners.add(l);
 	}
 	
 	public static void removeCompositionFocusListener(FocusListener<Composition> l) {
-		compFocusListeners.remove(l);
+		UrmusicController.compFocusListeners.remove(l);
 	}
 	
 	public static void focusComposition(Composition newFocus) {
-		if(focusedComposition == newFocus) return;
+		if(UrmusicController.focusedComposition == newFocus) return;
 		
-		Composition oldFocus = focusedComposition;
-		focusedComposition = newFocus;
+		Composition oldFocus = UrmusicController.focusedComposition;
+		UrmusicController.focusedComposition = newFocus;
 		
-		for(FocusListener<Composition> l : compFocusListeners) {
+		for(FocusListener<Composition> l : UrmusicController.compFocusListeners) {
 			l.focusChanged(oldFocus, newFocus);
 		}
 	}
 	
 	public static Composition getFocusedComposition() {
-		return focusedComposition;
+		return UrmusicController.focusedComposition;
 	}
 	
 	// Track
@@ -220,30 +377,30 @@ public class UrmusicController {
 	private static List<FocusListener<Track>> trackFocusListeners = new ArrayList<>();
 	
 	public static void addTrackFocusListener(FocusListener<Track> l) {
-		trackFocusListeners.add(l);
+		UrmusicController.trackFocusListeners.add(l);
 	}
 	
 	public static void removeTrackFocusListener(FocusListener<Track> l) {
-		trackFocusListeners.remove(l);
+		UrmusicController.trackFocusListeners.remove(l);
 	}
 	
 	public static void focusTrack(Track newFocus) {
-		if(focusedTrack == newFocus) return;
+		if(UrmusicController.focusedTrack == newFocus) return;
 		
-		Track oldFocus = focusedTrack;
-		focusedTrack = newFocus;
+		Track oldFocus = UrmusicController.focusedTrack;
+		UrmusicController.focusedTrack = newFocus;
 		
-		if(focusedTrackRange != null && focusedTrackRange.getTrack() != newFocus) {
-			focusTrackActivityRange(null);
+		if(UrmusicController.focusedTrackRange != null && UrmusicController.focusedTrackRange.getTrack() != newFocus) {
+			UrmusicController.focusTrackActivityRange(null);
 		}
 		
-		for(FocusListener<Track> l : trackFocusListeners) {
+		for(FocusListener<Track> l : UrmusicController.trackFocusListeners) {
 			l.focusChanged(oldFocus, newFocus);
 		}
 	}
 	
 	public static Track getFocusedTrack() {
-		return focusedTrack;
+		return UrmusicController.focusedTrack;
 	}
 	
 	// Track Activity Range
@@ -251,30 +408,30 @@ public class UrmusicController {
 	private static List<FocusListener<TrackActivityRange>> trackRangesFocusListeners = new ArrayList<>();
 	
 	public static void addTrackActivityRangeFocusListener(FocusListener<TrackActivityRange> l) {
-		trackRangesFocusListeners.add(l);
+		UrmusicController.trackRangesFocusListeners.add(l);
 	}
 	
 	public static void removeTrackActivityRangeFocusListener(FocusListener<TrackActivityRange> l) {
-		trackRangesFocusListeners.remove(l);
+		UrmusicController.trackRangesFocusListeners.remove(l);
 	}
 	
 	public static void focusTrackActivityRange(TrackActivityRange newFocus) {
-		if(focusedTrackRange == newFocus) return;
+		if(UrmusicController.focusedTrackRange == newFocus) return;
 		
-		TrackActivityRange oldFocus = focusedTrackRange;
-		focusedTrackRange = newFocus;
+		TrackActivityRange oldFocus = UrmusicController.focusedTrackRange;
+		UrmusicController.focusedTrackRange = newFocus;
 		
-		if(newFocus != null && focusedTrack != newFocus.getTrack()) {
-			focusTrack(newFocus.getTrack());
+		if(newFocus != null && UrmusicController.focusedTrack != newFocus.getTrack()) {
+			UrmusicController.focusTrack(newFocus.getTrack());
 		}
 		
-		for(FocusListener<TrackActivityRange> l : trackRangesFocusListeners) {
+		for(FocusListener<TrackActivityRange> l : UrmusicController.trackRangesFocusListeners) {
 			l.focusChanged(oldFocus, newFocus);
 		}
 	}
 	
 	public static TrackActivityRange getFocusedTrackActivityRange() {
-		return focusedTrackRange;
+		return UrmusicController.focusedTrackRange;
 	}
 	
 	// Track Effect Instance
@@ -282,40 +439,39 @@ public class UrmusicController {
 	private static List<FocusListener<TrackEffectInstance>> trackEffectFocusListeners = new ArrayList<>();
 	
 	public static void addTrackEffectInstanceFocusListener(FocusListener<TrackEffectInstance> l) {
-		trackEffectFocusListeners.add(l);
+		UrmusicController.trackEffectFocusListeners.add(l);
 	}
 	
 	public static void removeTrackEffectInstanceFocusListener(FocusListener<TrackEffectInstance> l) {
-		trackEffectFocusListeners.remove(l);
+		UrmusicController.trackEffectFocusListeners.remove(l);
 	}
 	
 	public static void focusTrackEffectInstance(TrackEffectInstance newFocus) {
-		if(focusedEffect == newFocus) return;
+		if(UrmusicController.focusedEffect == newFocus) return;
 		
-		TrackEffectInstance oldFocus = focusedEffect;
-		focusedEffect = newFocus;
+		TrackEffectInstance oldFocus = UrmusicController.focusedEffect;
+		UrmusicController.focusedEffect = newFocus;
 		
-		for(FocusListener<TrackEffectInstance> l : trackEffectFocusListeners) {
+		for(FocusListener<TrackEffectInstance> l : UrmusicController.trackEffectFocusListeners) {
 			l.focusChanged(oldFocus, newFocus);
 		}
 	}
 	
 	public static TrackEffectInstance getFocusedTrackEffectInstance() {
-		return focusedEffect;
+		return UrmusicController.focusedEffect;
 	}
-	
 	
 	// Control parameters
 	private static List<EffectParam<?>> focusedParams = new ArrayList<>();
-	private static List<EffectParam<?>> focusedParamsUnmodifiable = Collections.unmodifiableList(focusedParams);
+	private static List<EffectParam<?>> focusedParamsUnmodifiable = Collections.unmodifiableList(UrmusicController.focusedParams);
 	private static List<MultiFocusListener<EffectParam<?>>> controlParamFocusListeners = new ArrayList<>();
 	
 	public static void addEffectParameterFocusListener(MultiFocusListener<EffectParam<?>> l) {
-		controlParamFocusListeners.add(l);
+		UrmusicController.controlParamFocusListeners.add(l);
 	}
 	
 	public static void removeEffectParameterFocusListener(MultiFocusListener<EffectParam<?>> l) {
-		controlParamFocusListeners.remove(l);
+		UrmusicController.controlParamFocusListeners.remove(l);
 	}
 	
 	/**
@@ -325,13 +481,13 @@ public class UrmusicController {
 	 * @param keepSelection If false, unfocuses the previously focused parameters
 	 */
 	public static void toggleFocusEffectParameter(EffectParam<?> p, boolean keepSelection) {
-		boolean willHaveFocus = !(p != null && focusedParams.contains(p) && focusedParams.size() > 1);
+		boolean willHaveFocus = !(p != null && UrmusicController.focusedParams.contains(p) && UrmusicController.focusedParams.size() > 1);
 		
 		if(!keepSelection) {
-			while(!focusedParams.isEmpty()) {
-				EffectParam<?> param = focusedParams.remove(0);
+			while(!UrmusicController.focusedParams.isEmpty()) {
+				EffectParam<?> param = UrmusicController.focusedParams.remove(0);
 				
-				for(MultiFocusListener<EffectParam<?>> l : controlParamFocusListeners) {
+				for(MultiFocusListener<EffectParam<?>> l : UrmusicController.controlParamFocusListeners) {
 					l.unfocused(param);
 				}
 			}
@@ -340,25 +496,25 @@ public class UrmusicController {
 		if(p == null) return;
 		
 		if(willHaveFocus) {
-			focusedParams.add(p);
+			UrmusicController.focusedParams.add(p);
 			
-			for(MultiFocusListener<EffectParam<?>> l : controlParamFocusListeners) {
+			for(MultiFocusListener<EffectParam<?>> l : UrmusicController.controlParamFocusListeners) {
 				l.focused(p);
 			}
 		} else if(keepSelection) {
-			focusedParams.remove(p);
+			UrmusicController.focusedParams.remove(p);
 			
-			for(MultiFocusListener<EffectParam<?>> l : controlParamFocusListeners) {
+			for(MultiFocusListener<EffectParam<?>> l : UrmusicController.controlParamFocusListeners) {
 				l.unfocused(p);
 			}
 		}
 	}
 	
 	public static boolean isFocused(EffectParam<?> param) {
-		return focusedParams.contains(param);
+		return UrmusicController.focusedParams.contains(param);
 	}
 	
 	public static List<EffectParam<?>> getFocusedEffectParameters() {
-		return focusedParamsUnmodifiable;
+		return UrmusicController.focusedParamsUnmodifiable;
 	}
 }

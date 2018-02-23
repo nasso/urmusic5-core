@@ -6,12 +6,8 @@ import java.util.List;
 import io.github.nasso.urmusic.common.MutableRGBA32;
 import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.common.event.CompositionListener;
-import io.github.nasso.urmusic.common.event.TimelineListener;
-import io.github.nasso.urmusic.common.event.TrackListener;
-import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 
-public class Composition implements TimelineListener, TrackListener {
+public class Composition {
 	private Timeline timeline = new Timeline();
 	private MutableRGBA32 clearColor = new MutableRGBA32();
 	private int width = 1280, height = 720;
@@ -19,7 +15,6 @@ public class Composition implements TimelineListener, TrackListener {
 	private List<CompositionListener> listeners = new ArrayList<>();
 	
 	public Composition() {
-		this.timeline.addTracklistListener(this);
 	}
 	
 	public Timeline getTimeline() {
@@ -97,50 +92,4 @@ public class Composition implements TimelineListener, TrackListener {
 			l.resize(this);
 		}
 	}
-	
-	public void dirtyFlagged(Track source) {
-		UrmusicModel.makeCompositionDirty(Composition.this);
-	}
-	
-	public void effectAdded(Track source, TrackEffectInstance e, int pos) {
-		UrmusicModel.makeCompositionDirty(Composition.this);
-	}
-	
-	public void effectRemoved(Track source, TrackEffectInstance e, int pos) {
-		UrmusicModel.makeCompositionDirty(Composition.this);
-	}
-	
-	public void effectMoved(Track source, TrackEffectInstance e, int oldPos, int newPos) {
-		UrmusicModel.makeCompositionDirty(Composition.this);
-	}
-	
-	public void trackAdded(Timeline src, int index, Track track) {
-		track.addTrackListener(this);
-		
-		UrmusicModel.makeCompositionDirty(Composition.this);
-	}
-	
-	public void trackRemoved(Timeline src, int index, Track track) {
-		track.addTrackListener(this);
-		
-		UrmusicModel.makeCompositionDirty(Composition.this);
-	}
-	
-	public void lengthChanged(Timeline src) {
-	}
-
-	public void framerateChanged(Timeline src) {
-	}
-	
-	public void rangesChanged(Track source) {
-		UrmusicModel.makeCompositionDirty(Composition.this);
-	}
-
-	public void enabledStateChanged(Track source, boolean isEnabledNow) {
-		UrmusicModel.makeCompositionDirty(Composition.this);
-	}
-
-	public void nameChanged(Track source, String newName) {
-	}
-
 }

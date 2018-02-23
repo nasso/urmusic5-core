@@ -32,10 +32,10 @@ public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
 	
 	public abstract JComponent buildUI();
 	
-	public abstract void updateControl(int frame);
+	public abstract void updateControl();
 	
 	public void frameChanged(int oldPosition, int newPosition) {
-		SwingUtilities.invokeLater(() -> this.updateControl(newPosition));
+		SwingUtilities.invokeLater(() -> this.updateControl());
 	}
 	
 	public TrackEffectInstance getEffectInstance() {

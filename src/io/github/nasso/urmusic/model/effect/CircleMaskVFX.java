@@ -63,14 +63,14 @@ public class CircleMaskVFX extends TrackEffect implements VideoEffect {
 		
 		public void applyVideo(GL3 gl, EffectArgs args) {
 			// Retrieve params
-			Vector2fc position = this.position.getValue(args.frame);
-			RGBA32 color = this.color.getValue(args.frame);
-			float innerRadius = this.innerRadius.getValue(args.frame);
-			float outerRadius = this.outerRadius.getValue(args.frame);
-			float innerFade = this.innerFade.getValue(args.frame);
-			float outerFade = this.outerFade.getValue(args.frame);
-			int blending = this.blendingMode.getValue(args.frame);
-			BoolValue invert = this.invert.getValue(args.frame);
+			Vector2fc position = this.position.getValue(args.time);
+			RGBA32 color = this.color.getValue(args.time);
+			float innerRadius = this.innerRadius.getValue(args.time);
+			float outerRadius = this.outerRadius.getValue(args.time);
+			float innerFade = this.innerFade.getValue(args.time);
+			float outerFade = this.outerFade.getValue(args.time);
+			int blending = this.blendingMode.getValue(args.time);
+			BoolValue invert = this.invert.getValue(args.time);
 			
 			gl.glUseProgram(CircleMaskVFX.this.prog);
 			CircleMaskVFX.this.glu.uniformTexture(gl, CircleMaskVFX.this.loc_inputTex, args.texInput, 0);

@@ -7,5 +7,5 @@ public interface RendererListener {
 	public void effectLoaded(TrackEffect fx);
 	public void effectUnloaded(TrackEffect fx);
 	
-	public void frameRendered(Composition comp, int frame);
+	public void frameRendered(Composition comp, float time);
 }

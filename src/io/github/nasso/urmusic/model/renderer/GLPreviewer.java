@@ -32,7 +32,7 @@ public class GLPreviewer {
 	}
 	
 	public int getPreviewTexture() {
-		return this.mainRenderer.getLastTextureFor(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicModel.getFrameCursor());
+		return this.mainRenderer.getLastTextureFor(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicController.getFrameCursor());
 	}
 	
 	public Component getPanel() {

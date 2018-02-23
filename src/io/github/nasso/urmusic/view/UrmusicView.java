@@ -34,6 +34,11 @@ import io.github.nasso.urmusic.view.data.UrmusicViewState;
 import io.github.nasso.urmusic.view.data.UrmusicViewStateCodec;
 import io.github.nasso.urmusic.view.dialog.UrmusicAboutDialog;
 
+/**
+ * User interface to the controller.
+ * 
+ * @author nasso
+ */
 public class UrmusicView {
 	private static List<JFrame> frames = new ArrayList<>();
 	

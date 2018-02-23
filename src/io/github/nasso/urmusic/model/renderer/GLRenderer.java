@@ -346,26 +346,26 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	public void display(GLAutoDrawable drawable) {
 		this.gl = drawable.getGL().getGL3();
 		
+		// Dispose compositions that needs to be disposed
 		for(Composition c : this.disposedCompositions)
 			this.disposeComposition(c);
-		
 		this.disposedCompositions.clear();
 		
 		CachedFrame dest = this.mainRenderer.getCurrentDestCacheFrame();
 		
-		this.renderComposition(dest.comp, dest.frame_id, dest.index);
+		this.renderComposition(dest.comp, dest.frame_pos / dest.comp.getTimeline().getFramerate(), dest.index);
 		
 		this.gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0);
 	}
 	
-	private void prepareTrackRenderList(Composition comp, int frame_id) {
+	private void prepareTrackRenderList(Composition comp, float time) {
 		this.trackRenderList.clear();
 		
 		List<Track> tracks = comp.getTimeline().getTracks();
 		track_loop: for(int i = 0; i < tracks.size(); i++) {
 			Track t = tracks.get(i);
 			
-			if(!t.isEnabled() || !t.isActiveAt(frame_id) || t.getEffectCount() == 0) continue;
+			if(!t.isEnabled() || !t.isActiveAt(time) || t.getEffectCount() == 0) continue;
 			
 			for(int j = 0; j < t.getEffectCount(); j++) {
 				TrackEffectInstance fx = t.getEffect(j);
@@ -379,7 +379,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	}
 	
 	// TODO: CompositeTrack rendering
-	private void renderTrack(Composition comp, Track t, int frame_id) {
+	private void renderTrack(Composition comp, Track t, float time) {
 		TrackRenderTexture dest = this.getTrackTexture(comp, t);
 		
 		// We bind the framebuffer and the first dest buffer
@@ -424,7 +424,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			this.fxArgs.clear();
 			this.fxArgs.width = dest.width;
 			this.fxArgs.height = dest.height;
-			this.fxArgs.frame = frame_id;
+			this.fxArgs.time = time;
 			this.fxArgs.texInput = dest.getBackBuffer();
 			this.fxArgs.fboOutput = this.trackRenderingFBO;
 			
@@ -437,13 +437,13 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		if(!this.fxArgs.cancelled) dest.swapBuffers();
 	}
 	
-	private void renderAllTracks(Composition comp, int frame_id) {
+	private void renderAllTracks(Composition comp, float time) {
 		for(int i = 0; i < this.trackRenderList.size(); i++) {
-			this.renderTrack(comp, this.trackRenderList.get(i), frame_id);
+			this.renderTrack(comp, this.trackRenderList.get(i), time);
 		}
 	}
 	
-	private void renderComposition(Composition comp, int frame_id, int cacheIndex) {
+	private void renderComposition(Composition comp, float time, int cacheIndex) {
 		CachedFramebuffer dest;
 		if(!this.compFBOs.containsKey(comp)) {
 			dest = new CachedFramebuffer(comp);
@@ -461,8 +461,8 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		this.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
 		
 		// Render all the tracks
-		this.prepareTrackRenderList(comp, frame_id);
-		this.renderAllTracks(comp, frame_id);
+		this.prepareTrackRenderList(comp, time);
+		this.renderAllTracks(comp, time);
 		
 		// Compose them, on the dest framebuffer
 		this.gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, dest.fbo);
@@ -483,7 +483,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		for(int i = 0; i < tracks.size(); i++) {
 			Track t = tracks.get(i);
 			
-			if(!t.isEnabled() || !t.isActiveAt(frame_id) || t.getEffectCount() == 0) continue;
+			if(!t.isEnabled() || !t.isActiveAt(time) || t.getEffectCount() == 0) continue;
 			
 			// Don't compose if there's no effect
 			boolean noEffect = true;
@@ -536,7 +536,6 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) { }
 
 	public void clearColorChanged(Composition comp) {
-		this.mainRenderer.makeCompositionDirty(comp);
 	}
 
 	public void lengthChanged(Composition comp) {

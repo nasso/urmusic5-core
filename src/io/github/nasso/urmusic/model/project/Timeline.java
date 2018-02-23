@@ -13,27 +13,34 @@ public class Timeline {
 	
 	private List<TimelineListener> timelineListeners = new ArrayList<>();
 	
-	private int length = 2400; // 1:20 @ 30fps
-	private int framerate = 60;
+	private float duration = 60; // 1 minute
+	private float framerate = 60;
 	
 	public Timeline() {
 	}
 
-	public int getLength() {
-		return this.length;
-	}
-
-	public void setLength(int length) {
-		if(this.length == length) return;
-		this.length = length;
-		this.notifyLengthChanged();
+	/**
+	 * @return The duration expressed in frames, aka the total frame count in this timeline.
+	 */
+	public int getTotalFrameCount() {
+		return (int) (this.duration * this.framerate);
 	}
 	
-	public int getFramerate() {
+	public float getDuration() {
+		return this.duration;
+	}
+
+	public void setDuration(float dur) {
+		if(this.duration == dur) return;
+		this.duration = dur;
+		this.notifyDurationChanged();
+	}
+	
+	public float getFramerate() {
 		return this.framerate;
 	}
 
-	public void setFramerate(int framerate) {
+	public void setFramerate(float framerate) {
 		if(this.framerate == framerate) return;
 		this.framerate = framerate;
 		this.notifyFramerateChanged();
@@ -85,9 +92,9 @@ public class Timeline {
 		this.removeTrack(i);
 	}
 
-	private void notifyLengthChanged() {
+	private void notifyDurationChanged() {
 		for(TimelineListener l : this.timelineListeners) {
-			l.lengthChanged(this);
+			l.durationChanged(this);
 		}
 	}
 	

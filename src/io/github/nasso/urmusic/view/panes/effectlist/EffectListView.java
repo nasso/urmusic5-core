@@ -10,6 +10,7 @@ import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.common.event.FocusListener;
@@ -36,8 +37,8 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 	public EffectListView() {
 		// -- menu -- 
 		// Add
-		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add"),
-			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add.effect")) {
+		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + EffectListView.VIEW_NAME + ".menu.add"),
+			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + EffectListView.VIEW_NAME + ".menu.add.effect")) {
 				public void actionPerformed(ActionEvent e) {
 					EffectListView.this.showAddEffectDialog();
 				}
@@ -98,7 +99,7 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 	private void buildUI() {
 		this.effectListContainer.setLayout(this.effectListCards);
 		
-		this.add(new JScrollPane(this.effectListContainer, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		this.add(new JScrollPane(this.effectListContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 	}
 
 	public void trackAdded(Timeline src, int index, Track track) {
@@ -116,7 +117,7 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 	}
 	
 
-	public void lengthChanged(Timeline src) {
+	public void durationChanged(Timeline src) {
 	}
 	
 

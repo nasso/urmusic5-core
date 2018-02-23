@@ -16,7 +16,7 @@ public abstract class PreviewParamControl<T extends EffectParam<?>> extends JCom
 		this.param = param;
 	}
 	
-	public abstract void updateComponentLayout(int frame);
+	public abstract void updateComponentLayout();
 	public abstract void dispose();
 	
 	public T getParam() {

@@ -52,10 +52,10 @@ public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
 		}
 		
 		public void applyVideo(GL3 gl, EffectArgs args) {
-			RGBA32 color = this.color.getValue(args.frame);
-			Vector4fc bounds = this.bounds.getValue(args.frame);
-			int blending = this.blendingMode.getValue(args.frame);
-			BoolValue invert = this.invert.getValue(args.frame);
+			RGBA32 color = this.color.getValue(args.time);
+			Vector4fc bounds = this.bounds.getValue(args.time);
+			int blending = this.blendingMode.getValue(args.time);
+			BoolValue invert = this.invert.getValue(args.time);
 			
 			gl.glUseProgram(RectangleMaskVFX.this.prog);
 			RectangleMaskVFX.this.glu.uniformTexture(gl, RectangleMaskVFX.this.loc_inputTex, args.texInput, 0);

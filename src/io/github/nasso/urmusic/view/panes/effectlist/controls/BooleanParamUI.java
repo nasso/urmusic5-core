@@ -8,7 +8,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 
 import io.github.nasso.urmusic.common.BoolValue;
-import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.BooleanParam;
 
@@ -22,14 +22,14 @@ public class BooleanParamUI extends EffectParamUI<BooleanParam> {
 		this.add(this.box, BorderLayout.EAST);
 	}
 
-	public void updateControl(int frame) {
-		this.box.setSelected(this.getParam().getValue(frame) == BoolValue.TRUE);
+	public void updateControl() {
+		this.box.setSelected(UrmusicController.getParamValueNow(this.getParam()) == BoolValue.TRUE);
 	}
 
 	public JComponent buildUI() {
 		this.box = new JCheckBox(new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				BooleanParamUI.this.getParam().setValue(BooleanParamUI.this.box.isSelected() ? BoolValue.TRUE : BoolValue.FALSE, UrmusicModel.getFrameCursor());
+				UrmusicController.setParamValueNow(BooleanParamUI.this.getParam(), BooleanParamUI.this.box.isSelected() ? BoolValue.TRUE : BoolValue.FALSE);
 			}
 		});
 		this.box.setOpaque(false);

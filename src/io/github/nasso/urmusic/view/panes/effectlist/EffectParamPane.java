@@ -20,7 +20,6 @@ import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.KeyFrameListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
-import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
@@ -41,7 +40,7 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 	public EffectParamPane(TrackEffectInstance fx, EffectParam<?> param, int i) {
 		this.param = param;
 		
-		this.setBackground(UrmusicController.isFocused(param) ? PARAM_LINE_SELECTED_COLOR : PARAM_LINE_COLOR);
+		this.setBackground(UrmusicController.isFocused(param) ? EffectParamPane.PARAM_LINE_SELECTED_COLOR : EffectParamPane.PARAM_LINE_COLOR);
 		this.setBorder(BorderFactory.createCompoundBorder(
 			BorderFactory.createMatteBorder(0, 0, 1, 0, Color.GRAY),
 			BorderFactory.createEmptyBorder(4, 4, 4, 4)
@@ -50,7 +49,7 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		this.controlNameLabel = new JLabel();
 		this.controlNameLabel.setText(UrmusicStrings.getString("effect." + fx.getEffectClass().getEffectClassName() + ".param." + param.getName() + ".name"));
 		this.controlNameLabel.setFont(this.controlNameLabel.getFont().deriveFont(Font.PLAIN, 12));
-		this.controlNameLabel.setBackground(PARAM_LINE_SELECTED_COLOR);
+		this.controlNameLabel.setBackground(EffectParamPane.PARAM_LINE_SELECTED_COLOR);
 		this.controlNameLabel.setBorder(BorderFactory.createEmptyBorder(1, 3, 1, 3));
 		this.controlNameLabel.setOpaque(false);
 		
@@ -58,7 +57,7 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		this.keyframeIconLabel.addMouseListener(new MouseAdapter() {
 			public void mouseReleased(MouseEvent e) {
 				if(MathUtils.boxContains(e.getX(), e.getY(), 0, 0, e.getComponent().getWidth(), e.getComponent().getHeight()))
-					EffectParamPane.this.toggleKeyFrame();
+					UrmusicController.toggleKeyFrame(EffectParamPane.this.param);
 			}
 		});
 		
@@ -76,25 +75,14 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		
 		this.addMouseListener(this);
 		this.param.addEffectParamListener(this);
-		UrmusicModel.addFrameCursorListener(this);
+		UrmusicController.addFrameCursorListener(this);
 		UrmusicController.addEffectParameterFocusListener(this);
 		
 		for(int j = 0; j < this.param.getKeyFrameCount(); j++) {
 			this.param.getKeyFrame(j).addKeyFrameListener(this);
 		}
 		
-		this.update(UrmusicModel.getFrameCursor());
-	}
-	
-	private void toggleKeyFrame() {
-		EffectParam param = this.param;
-		int frame = UrmusicModel.getFrameCursor();
-		
-		KeyFrame kf;
-		if((kf = param.getKeyFrameAt(frame)) != null)
-			param.removeKeyFrame(kf);
-		else
-			param.addKeyFrame(UrmusicModel.getFrameCursor());
+		this.update();
 	}
 	
 	public void focusChanged(EffectParam<?> oldFocus, EffectParam<?> newFocus) {
@@ -122,10 +110,10 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 			});
 	}
 	
-	private void update(int frame) {
-		if(this.controlui != null) this.controlui.updateControl(frame);
+	private void update() {
+		if(this.controlui != null) this.controlui.updateControl();
 		
-		if(this.param.getKeyFrameAt(frame) != null)
+		if(this.param.getKeyFrameAt(UrmusicController.getTimePosition()) != null)
 			this.keyframeIconLabel.setIcon(UrmusicUIRes.KEY_FRAME_ICON_RED);
 		else if(this.param.getKeyFrameCount() != 0)
 			this.keyframeIconLabel.setIcon(UrmusicUIRes.KEY_FRAME_ICON_BLUE);
@@ -144,38 +132,38 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		}
 		
 		this.param.removeEffectParamListener(this);
-		UrmusicModel.removeFrameCursorListener(this);
+		UrmusicController.removeFrameCursorListener(this);
 		UrmusicController.removeEffectParameterFocusListener(this);
 	}
 	
 	public void frameChanged(int oldPosition, int newPosition) {
-		SwingUtilities.invokeLater(() -> this.update(newPosition));
+		SwingUtilities.invokeLater(() -> this.update());
 	}
 
 	public void valueChanged(EffectParam source, Object newVal) {
-		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
+		SwingUtilities.invokeLater(() -> this.update());
 	}
 
 	public void keyFrameAdded(EffectParam source, KeyFrame kf) {
 		kf.addKeyFrameListener(this);
-		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
+		SwingUtilities.invokeLater(() -> this.update());
 	}
 
 	public void keyFrameRemoved(EffectParam source, KeyFrame kf) {
 		kf.removeKeyFrameListener(this);
-		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
+		SwingUtilities.invokeLater(() -> this.update());
 	}
 	
 	public void valueChanged(KeyFrame source, Object newValue) {
-		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
+		SwingUtilities.invokeLater(() -> this.update());
 	}
 
-	public void frameChanged(KeyFrame source, int newFrame) {
-		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
+	public void positionChanged(KeyFrame source, float newPos) {
+		SwingUtilities.invokeLater(() -> this.update());
 	}
 
 	public void interpChanged(KeyFrame source, EasingFunction newInterp) {
-		SwingUtilities.invokeLater(() -> this.update(UrmusicModel.getFrameCursor()));
+		SwingUtilities.invokeLater(() -> this.update());
 	}
 	
 	public void mouseClicked(MouseEvent e) {

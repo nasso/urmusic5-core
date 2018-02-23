@@ -13,7 +13,7 @@ import javax.swing.JComponent;
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.MutableRGBA32;
 import io.github.nasso.urmusic.common.RGBA32;
-import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 
@@ -92,8 +92,8 @@ public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 		super(fx, param);
 	}
 
-	public void updateControl(int frame) {
-		this.colorButton.setColor(this.getParam().getValue(frame));
+	public void updateControl() {
+		this.colorButton.setColor(UrmusicController.getParamValueNow(this.getParam()));
 	}
 
 	public JComponent buildUI() {
@@ -102,8 +102,7 @@ public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 			
 			if(c != null) {
 				this._rgba32.setRGBA(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
-				this.getParam().setValue(this._rgba32, UrmusicModel.getFrameCursor());
-				this.updateControl(UrmusicModel.getFrameCursor());
+				UrmusicController.setParamValueNow(this.getParam(), this._rgba32);
 			}
 		});
 		

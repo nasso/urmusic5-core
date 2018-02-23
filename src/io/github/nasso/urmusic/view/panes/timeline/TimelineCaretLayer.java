@@ -33,7 +33,7 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 		int hscroll = Math.round(this.view.getHorizontalScroll());
 		int hscalei = Math.round(this.view.getHorizontalScale());
 		
-		int frameIndex = UrmusicModel.getFrameCursor();
+		int frameIndex = UrmusicController.getFrameCursor();
 		int frameXOffset = (int) (frameIndex * this.view.getHorizontalScale() + this.view.getHorizontalScroll());
 		
 		Graphics2D g2d = (Graphics2D) g.create();
@@ -60,8 +60,8 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 		for(int i = 0; i < renderedFrames.length; i++) {
 			CachedFrame f = renderedFrames[i];
 			
-			int x = Math.round(f.frame_id * this.view.getHorizontalScale() + hscroll);
-			int w = Math.round((f.frame_id + 1) * this.view.getHorizontalScale() + hscroll) - x;
+			int x = Math.round(f.frame_pos * this.view.getHorizontalScale() + hscroll);
+			int w = Math.round((f.frame_pos + 1) * this.view.getHorizontalScale() + hscroll) - x;
 			
 			if(x < -hscalei || x > c.getWidth()) continue;
 			
@@ -73,11 +73,11 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 		for(EffectParam<?> param : UrmusicController.getFocusedEffectParameters()) {
 			int keyframesCount = param.getKeyFrameCount();
 			
-			g2d.setColor(KEY_FRAME_COLOR);
+			g2d.setColor(TimelineCaretLayer.KEY_FRAME_COLOR);
 			for(int i = 0; i < keyframesCount; i++) {
 				KeyFrame<?> kf = param.getKeyFrame(i);
 
-				int x = Math.round(kf.getFrame() * this.view.getHorizontalScale() + hscroll);
+				int x = Math.round((kf.getPosition() * comp.getTimeline().getFramerate()) * this.view.getHorizontalScale() + hscroll);
 				if(x < -hscalei || x > c.getWidth()) continue;
 				
 				g2d.fillRect(x, 0, hscalei + 1, TimelineView.FRAME_CARET_HEADER_HEIGHT);

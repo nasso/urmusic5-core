@@ -79,14 +79,15 @@ public class TimelineTrackRangesBar extends JPanel implements
 		
 		int w = this.getWidth();
 		int h = this.getHeight();
-		int workingWidth = this.framesToPixels(UrmusicController.getFocusedComposition().getTimeline().getLength());
+		int workingWidth = this.timePosToPixels(UrmusicController.getFocusedComposition().getTimeline().getDuration());
 		
-		g2d.setColor(UrmusicController.getFocusedTrack() == this.getTrack() ? COMP_FOCUSED_BACKGROUND : COMP_BACKGROUND);
+		g2d.setColor(UrmusicController.getFocusedTrack() == this.track ? TimelineTrackRangesBar.COMP_FOCUSED_BACKGROUND : TimelineTrackRangesBar.COMP_BACKGROUND);
 		g2d.fillRect(0, 0, w, h);
 		
-		g2d.setColor(UrmusicController.getFocusedTrack() == this.getTrack() ? TRACK_FOCUSED_BACKGROUND : TRACK_BACKGROUND);
+		g2d.setColor(UrmusicController.getFocusedTrack() == this.track ? TimelineTrackRangesBar.TRACK_FOCUSED_BACKGROUND : TimelineTrackRangesBar.TRACK_BACKGROUND);
 		g2d.fillRect(0, 0, Math.min(workingWidth, w), h);
 		
+		float framerate = UrmusicController.getFocusedComposition().getTimeline().getFramerate();
 		if(this.track != null) {
 			List<TrackActivityRange> ranges = this.track.getActivityRangesLengths();
 			
@@ -94,23 +95,26 @@ public class TimelineTrackRangesBar extends JPanel implements
 			
 			g2d.translate(this.view.getHorizontalScroll(), 0);
 			
-			g2d.setStroke(RANGE_BORDER_STROKE);
+			g2d.setStroke(TimelineTrackRangesBar.RANGE_BORDER_STROKE);
 			for(int i = 0; i < ranges.size(); i++) {
 				TrackActivityRange r = ranges.get(i);
 
-				g2d.setColor(UrmusicController.getFocusedTrackActivityRange() == r ? RANGE_FOCUS_COLOR : RANGE_COLOR);
+				float start = r.getStart() * framerate;
+				float len = r.getLength() * framerate;
+				
+				g2d.setColor(UrmusicController.getFocusedTrackActivityRange() == r ? TimelineTrackRangesBar.RANGE_FOCUS_COLOR : TimelineTrackRangesBar.RANGE_COLOR);
 				g2d.fillRect(
-					(int) (r.getStart() * s) + 1,
+					(int) (start * s) + 1,
 					1,
-					(int) ((r.getLength() + 1) * s) - 3,
+					(int) (len * s) - 3,
 					this.getHeight() - 3
 				);
 				
-				g2d.setColor(RANGE_BORDER_COLOR);
+				g2d.setColor(TimelineTrackRangesBar.RANGE_BORDER_COLOR);
 				g2d.drawRect(
-					(int) (r.getStart() * s) + 1,
+					(int) (start * s) + 1,
 					1,
-					(int) ((r.getLength() + 1) * s) - 3,
+					(int) (len * s) - 3,
 					this.getHeight() - 3
 				);
 			}
@@ -119,10 +123,6 @@ public class TimelineTrackRangesBar extends JPanel implements
 		g2d.dispose();
 	}
 	
-	public Track getTrack() {
-		return this.track;
-	}
-
 	public void setTrack(Track track) {
 		if(this.track != null) {
 			this.track.removeTrackListener(this);
@@ -143,20 +143,20 @@ public class TimelineTrackRangesBar extends JPanel implements
 		SwingUtilities.invokeLater(this::repaint);
 	}
 
-	private int framesToPixels(int f) {
-		return (int) (f * this.view.getHorizontalScale() + this.view.getHorizontalScroll());
+	private int timePosToPixels(float t) {
+		return (int) (t * UrmusicController.getFocusedComposition().getTimeline().getFramerate() * this.view.getHorizontalScale() + this.view.getHorizontalScroll());
 	}
 	
-	private int pixelToFrames(int x) {
-		return (int) ((x - this.view.getHorizontalScroll()) / this.view.getHorizontalScale());
+	private float pixelToTimePos(int x) {
+		return (x - this.view.getHorizontalScroll()) / this.view.getHorizontalScale() / UrmusicController.getFocusedComposition().getTimeline().getFramerate();
 	}
 	
-	private TrackActivityRange findRangeEndAt(int x) {
-		List<TrackActivityRange> ranges = this.getTrack().getActivityRangesLengths();
+	private TrackActivityRange findRangeEndAt(float x) {
+		List<TrackActivityRange> ranges = this.track.getActivityRangesLengths();
 		
 		TrackActivityRange r = null;
 		for(int i = 0; i < ranges.size(); i++) {
-			if(Math.abs(this.framesToPixels((r = ranges.get(i)).getEnd() + 1) - x) < 4)
+			if(Math.abs(this.timePosToPixels((r = ranges.get(i)).getEnd()) - x) < 4)
 				break;
 			
 			r = null;
@@ -170,10 +170,10 @@ public class TimelineTrackRangesBar extends JPanel implements
 			if(this.pressedOnRange != null) {
 				switch(this.rangeDragAction) {
 					case MOVE:
-						this.pressedOnRange.moveTo(this.pressedOnRange.getStart() + this.pixelToFrames(e.getX()) - this.pixelToFrames(this.pressedAtX));
+						UrmusicController.moveTrackActivityRange(this.pressedOnRange, this.pressedOnRange.getStart() + this.pixelToTimePos(e.getX()) - this.pixelToTimePos(this.pressedAtX));
 						break;
 					case RESIZE_END:
-						this.pressedOnRange.setEnd(this.pixelToFrames(e.getX() - (int) (this.view.getHorizontalScale() / 2)));
+						UrmusicController.setTrackActivityRangeEnd(this.pressedOnRange, this.pixelToTimePos(e.getX() - (int) (this.view.getHorizontalScale() / 2)));
 						break;
 				}
 				
@@ -187,11 +187,11 @@ public class TimelineTrackRangesBar extends JPanel implements
 		TrackActivityRange r = this.findRangeEndAt(e.getX());
 		
 		if(r != null) {
-			this.setCursor(Cursor.getPredefinedCursor(e.getX() < this.framesToPixels(r.getEnd() + 1) ? Cursor.W_RESIZE_CURSOR : Cursor.E_RESIZE_CURSOR));
+			this.setCursor(Cursor.getPredefinedCursor(e.getX() < this.timePosToPixels(r.getEnd()) ? Cursor.W_RESIZE_CURSOR : Cursor.E_RESIZE_CURSOR));
 			return;
 		}
 		
-		r = this.getTrack().getRangeAt(this.pixelToFrames(e.getX()));
+		r = this.track.getRangeAt(this.pixelToTimePos(e.getX()));
 		if(r != null) {
 			if(this.getCursor().getType() != Cursor.MOVE_CURSOR) this.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
 			return;
@@ -211,14 +211,14 @@ public class TimelineTrackRangesBar extends JPanel implements
 			
 			TrackActivityRange r = null;
 			if((r = this.findRangeEndAt(e.getX())) != null) this.rangeDragAction = RangeDragAction.RESIZE_END;
-			else if((r = this.getTrack().getRangeAt(this.pixelToFrames(e.getX()))) != null) this.rangeDragAction = RangeDragAction.MOVE;
+			else if((r = this.track.getRangeAt(this.pixelToTimePos(e.getX()))) != null) this.rangeDragAction = RangeDragAction.MOVE;
 			
 			// Keep track of where we clicked
 			this.pressedOnRange = r;
 			this.pressedAtX = e.getX();
 			
 			// This will focus or unfocus if needed 
-			UrmusicController.focusTrack(this.getTrack());
+			UrmusicController.focusTrack(this.track);
 			UrmusicController.focusTrackActivityRange(r);
 		}
 		
@@ -267,8 +267,5 @@ public class TimelineTrackRangesBar extends JPanel implements
 	}
 
 	public void nameChanged(Track source, String newName) {
-	}
-
-	public void dirtyFlagged(Track source) {
 	}
 }

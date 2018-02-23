@@ -41,10 +41,10 @@ public class AffineTransformVFX extends TrackEffect implements VideoEffect {
 		}
 
 		public void applyVideo(GL3 gl, EffectArgs args) {
-			Vector2fc translation = this.translation.getValue(args.frame);
-			float rotation = this.rotation.getValue(args.frame);
-			Vector2fc scale = this.scale.getValue(args.frame);
-			float opacity = this.opacity.getValue(args.frame);
+			Vector2fc translation = this.translation.getValue(args.time);
+			float rotation = this.rotation.getValue(args.time);
+			Vector2fc scale = this.scale.getValue(args.time);
+			float opacity = this.opacity.getValue(args.time);
 			
 			this.xform.identity();
 			this.xform.translate(translation.x() / args.width * 2f, -translation.y() / args.height * 2f, 0.0f);

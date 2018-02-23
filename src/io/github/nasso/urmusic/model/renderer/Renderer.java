@@ -11,7 +11,7 @@ import com.jogamp.opengl.awt.GLCanvas;
 import com.jogamp.opengl.awt.GLJPanel;
 
 import io.github.nasso.urmusic.common.event.RendererListener;
-import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect;
@@ -111,7 +111,7 @@ public class Renderer implements Runnable {
 		public void queueRender(Composition comp, int frame, int frameCount) {
 			synchronized(this.commands) {
 				for(int i = 0; i < frameCount; i++) {
-					this.commands.add(RCMD_RENDER_FRAME);
+					this.commands.add(Renderer.RCMD_RENDER_FRAME);
 					this.commands.add(comp);
 					this.commands.add(frame + i);
 					
@@ -122,7 +122,7 @@ public class Renderer implements Runnable {
 		
 		public void queueEffectLoad(TrackEffect fx) {
 			synchronized(this.commands) {
-				this.commands.add(RCMD_LOAD_EFFECT);
+				this.commands.add(Renderer.RCMD_LOAD_EFFECT);
 				this.commands.add(fx);
 				
 				this.pushCommand();
@@ -131,7 +131,7 @@ public class Renderer implements Runnable {
 		
 		public void queueEffectUnload(TrackEffect fx) {
 			synchronized(this.commands) {
-				this.commands.add(RCMD_UNLOAD_EFFECT);
+				this.commands.add(Renderer.RCMD_UNLOAD_EFFECT);
 				this.commands.add(fx);
 	
 				this.pushCommand();
@@ -140,7 +140,7 @@ public class Renderer implements Runnable {
 		
 		public void queueEffectInstanceUnload(TrackEffectInstance fx) {
 			synchronized(this.commands) {
-				this.commands.add(RCMD_UNLOAD_EFFECT_INSTANCE);
+				this.commands.add(Renderer.RCMD_UNLOAD_EFFECT_INSTANCE);
 				this.commands.add(fx);
 	
 				this.pushCommand();
@@ -149,7 +149,7 @@ public class Renderer implements Runnable {
 		
 		public void queueTrackDispose(Track t) {
 			synchronized(this.commands) {
-				this.commands.add(RCMD_UNLOAD_TRACK);
+				this.commands.add(Renderer.RCMD_UNLOAD_TRACK);
 				this.commands.add(t);
 	
 				this.pushCommand();
@@ -287,25 +287,28 @@ public class Renderer implements Runnable {
 	}
 	
 	public void queueFrameASAP(Composition comp, int frame) {
+		float time = frame / comp.getTimeline().getFramerate();
+
 		int cache = this.getCacheFor(comp, frame);
 		if(cache != -1) {
-			this.notifyFrameReady(comp, frame);
+			this.notifyFrameReady(comp, time);
 			return;
 		}
 		
-		this.renderQueue.clearCommandsOfType(RCMD_RENDER_FRAME);
+		this.renderQueue.clearCommandsOfType(Renderer.RCMD_RENDER_FRAME);
 		this.queueFrameRange(comp, frame, 1);
 	}
 	
 	private void doFrame(Composition comp, int frame) {
 		// -- ( runs on the rendering thread ) --
 		
+		float time = frame / comp.getTimeline().getFramerate();
 		int cache = this.getCacheFor(comp, frame);
 		
 		// If there's no cached frame, do the render
 		if(cache == -1) {
-			this.destCacheFrame = this.freeFrameCache(comp, frame);
-			this.gpuCache[this.destCacheFrame].frame_id = frame;
+			this.destCacheFrame = this.freeFrameCache(comp);
+			this.gpuCache[this.destCacheFrame].frame_pos = frame;
 			this.gpuCache[this.destCacheFrame].comp = comp;
 			this.gpuCache[this.destCacheFrame].dirty = true;
 			
@@ -314,7 +317,7 @@ public class Renderer implements Runnable {
 			this.gpuCache[this.destCacheFrame].dirty = false;
 		}
 		
-		this.notifyFrameReady(comp, frame);
+		this.notifyFrameReady(comp, time);
 	}
 	
 	public CachedFrame[] getCachedFrames() {
@@ -346,16 +349,11 @@ public class Renderer implements Runnable {
 	}
 	
 	public void makeCompositionDirty(Composition comp) {
-		boolean needUpdate = false;
 		for(int i = 0; i < this.gpuCache.length; i++) {
 			this.gpuCache[i].dirty = true;
-			needUpdate |= this.gpuCache[i].frame_id == UrmusicModel.getFrameCursor();
 		}
 		
 		this.glRenderer.makeCompositionDirty(comp);
-		
-		if(needUpdate)
-			this.queueFrameASAP(comp, UrmusicModel.getFrameCursor());
 	}
 	
 	public int getLastCacheFor(Composition comp, int frame) {
@@ -363,8 +361,8 @@ public class Renderer implements Runnable {
 		
 		for(int i = 0; i < this.gpuCache.length; i++) {
 			if(this.gpuCache[i].comp == comp && !this.gpuCache[i].dirty) {
-				if(this.gpuCache[i].frame_id == frame) return i;
-				if(this.gpuCache[i].frame_id < frame && (lastCache == -1 || this.gpuCache[i].frame_id > this.gpuCache[lastCache].frame_id)) lastCache = i;
+				if(this.gpuCache[i].frame_pos == frame) return i;
+				if(this.gpuCache[i].frame_pos < frame && (lastCache == -1 || this.gpuCache[i].frame_pos > this.gpuCache[lastCache].frame_pos)) lastCache = i;
 			}
 		}
 		
@@ -373,14 +371,14 @@ public class Renderer implements Runnable {
 	
 	public int getCacheFor(Composition comp, int frame) {
 		for(int i = 0; i < this.gpuCache.length; i++) {
-			if(this.gpuCache[i].comp == comp && this.gpuCache[i].frame_id == frame && !this.gpuCache[i].dirty) return i;
+			if(this.gpuCache[i].comp == comp && this.gpuCache[i].frame_pos == frame && !this.gpuCache[i].dirty) return i;
 		}
 		
 		return -1;
 	}
 	
-	private int freeFrameCache(Composition comp, int frame) {
-		int curs = UrmusicModel.getFrameCursor();
+	private int freeFrameCache(Composition comp) {
+		int curs = UrmusicController.getFrameCursor();
 		int bestChoice = 0;
 		
 		for(int i = 0; i < this.gpuCache.length; i++) {
@@ -394,9 +392,9 @@ public class Renderer implements Runnable {
 			
 			// Compare
 			if(
-				(f.frame_id < curs && c.frame_id > curs) ||
-				(f.frame_id < c.frame_id && c.frame_id < curs) ||
-				(f.frame_id > c.frame_id && c.frame_id > curs)
+				(f.frame_pos < curs && c.frame_pos > curs) ||
+				(f.frame_pos < c.frame_pos && c.frame_pos < curs) ||
+				(f.frame_pos > c.frame_pos && c.frame_pos > curs)
 			) bestChoice = i;
 		}
 		
@@ -446,9 +444,9 @@ public class Renderer implements Runnable {
 		this.listeners.remove(l);
 	}
 	
-	private void notifyFrameReady(Composition comp, int frame) {
+	private void notifyFrameReady(Composition comp, float time) {
 		for(RendererListener l : this.listeners) {
-			l.frameRendered(comp, frame);
+			l.frameRendered(comp, time);
 		}
 	}
 	

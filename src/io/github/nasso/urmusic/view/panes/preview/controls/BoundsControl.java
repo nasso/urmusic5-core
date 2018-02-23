@@ -20,7 +20,7 @@ import org.joml.Vector4fc;
 
 import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.MathUtils;
-import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.param.BoundsParam;
 import io.github.nasso.urmusic.view.panes.preview.PreviewView;
 
@@ -49,9 +49,7 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 		
 		this.setLayout(null);
 		this.add(this.topLeft = new DraggablePoint(true, (p, shift) -> {
-			int frame = UrmusicModel.getFrameCursor();
-			
-			this._vec4.set(this.getParam().getValue(frame));
+			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			
 			p.value.x = Math.min(p.value.x, this._vec4.x + this._vec4.z);
 			p.value.y = Math.max(p.value.y, this._vec4.y);
@@ -66,13 +64,11 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 			this._vec4.z = width;
 			this._vec4.w = height;
 			
-			this.getParam().setValue(this._vec4, frame);
+			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 		}));
 		
 		this.add(this.topRight = new DraggablePoint(true, (p, shift) -> {
-			int frame = UrmusicModel.getFrameCursor();
-			
-			this._vec4.set(this.getParam().getValue(frame));
+			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			
 			float width = p.value.x - this._vec4.x;
 			float height = p.value.y - this._vec4.y;
@@ -83,13 +79,11 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 			this._vec4.z = width;
 			this._vec4.w = height;
 			
-			this.getParam().setValue(this._vec4, frame);
+			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 		}));
 		
 		this.add(this.botLeft = new DraggablePoint(true, (p, shift) -> {
-			int frame = UrmusicModel.getFrameCursor();
-			
-			this._vec4.set(this.getParam().getValue(frame));
+			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			
 			p.value.x = Math.min(p.value.x, this._vec4.x + this._vec4.z);
 			p.value.y = Math.min(p.value.y, this._vec4.y + this._vec4.w);
@@ -105,14 +99,12 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 			this._vec4.z = width;
 			this._vec4.w = height;
 			
-			this.getParam().setValue(this._vec4, frame);
+			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 		}));
 		
 		this.add(this.botRight = new DraggablePoint(true, (p, shift) -> {
-			int frame = UrmusicModel.getFrameCursor();
+			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			
-			this._vec4.set(this.getParam().getValue(frame));
-
 			p.value.x = Math.max(p.value.x, this._vec4.x);
 			p.value.y = Math.min(p.value.y, this._vec4.y + this._vec4.w);
 			
@@ -126,7 +118,7 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 			this._vec4.z = width;
 			this._vec4.w = height;
 			
-			this.getParam().setValue(this._vec4, frame);
+			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 		}));
 		
 		this.addMouseListener(this);
@@ -155,8 +147,8 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 		g2d.dispose();
 	}
 	
-	public void updateComponentLayout(int frame) {
-		Vector4fc p = this.getParam().getValue(frame);
+	public void updateComponentLayout() {
+		Vector4fc p = UrmusicController.getParamValueNow(this.getParam());
 		
 		if(this._vec4.z != 0 && this._vec4.w != 0) this.lastValidRatio = this._vec4.z / this._vec4.w;
 		
@@ -302,13 +294,11 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 			int relx = e.getXOnScreen() - this.pressPoint.x;
 			int rely = e.getYOnScreen() - this.pressPoint.y;
 			
-			int frame = UrmusicModel.getFrameCursor();
-			
-			this._vec4.set(this.getParam().getValue(frame));
+			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			this._vec4.x += relx;
 			this._vec4.y -= rely;
 			
-			this.getParam().setValue(this._vec4, frame);
+			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 			
 			this.pressPoint.setLocation(e.getLocationOnScreen());
 		}

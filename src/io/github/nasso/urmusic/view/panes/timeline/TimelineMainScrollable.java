@@ -69,18 +69,18 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		this.addMouseWheelListener(this);
 		
 		UrmusicController.getFocusedComposition().getTimeline().addTracklistListener(this);
-		UrmusicModel.addFrameCursorListener(this);
-		UrmusicModel.getRenderer().addRendererListener(this);
+		UrmusicController.addFrameCursorListener(this);
 		UrmusicController.addCompositionFocusListener(this);
 		UrmusicController.addEffectParameterFocusListener(this);
+		UrmusicModel.getRenderer().addRendererListener(this);
 	}
 	
 	public void dispose() {
 		UrmusicController.getFocusedComposition().getTimeline().removeTracklistListener(this);
-		UrmusicModel.removeFrameCursorListener(this);
-		UrmusicModel.getRenderer().removeRendererListener(this);
+		UrmusicController.removeFrameCursorListener(this);
 		UrmusicController.removeCompositionFocusListener(this);
 		UrmusicController.removeEffectParameterFocusListener(this);
+		UrmusicModel.getRenderer().removeRendererListener(this);
 		
 		for(Component c : this.infoPane.getComponents()) {
 			if(c instanceof TimelineTrackHead) ((TimelineTrackHead) c).dispose();
@@ -146,7 +146,7 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		SwingUtilities.invokeLater(() -> this.removeTrack(index));
 	}
 	
-	public void lengthChanged(Timeline src) {
+	public void durationChanged(Timeline src) {
 	}
 
 	public void framerateChanged(Timeline src) {
@@ -165,7 +165,7 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		SwingUtilities.invokeLater(this.timelineLayer::repaint);
 	}
 	
-	public void frameRendered(Composition comp, int frame) {
+	public void frameRendered(Composition comp, float time) {
 		SwingUtilities.invokeLater(this.timelineLayer::repaint);
 	}
 	
@@ -222,6 +222,8 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 			}
 			
 			/*
+			Local zooming:
+			
 			Zooms on the timeline but also changes the hscroll so
 			it zooms "where the cursor is". Solving the equation:
 			

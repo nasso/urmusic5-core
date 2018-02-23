@@ -18,7 +18,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.FileParam;
 import io.github.nasso.urmusic.view.components.UrmEditableLabel;
@@ -35,7 +35,7 @@ public class FileParamUI extends EffectParamUI<FileParam> {
 	
 	public JComponent buildUI() {
 		this.container = new JPanel(new BorderLayout(2, 2));
-		this.urlField = new UrmEditableLabel((f) -> this.getParam().setValue(Paths.get(f.getValue()), UrmusicModel.getFrameCursor()));
+		this.urlField = new UrmEditableLabel((f) -> UrmusicController.setParamValueNow(this.getParam(), Paths.get(f.getValue())));
 		this.browseButton = new JButton(new AbstractAction("...") {
 			private JFileChooser fileChooser;
 			
@@ -53,7 +53,7 @@ public class FileParamUI extends EffectParamUI<FileParam> {
 						File f = this.fileChooser.getSelectedFile();
 						
 						if(f != null)
-							FileParamUI.this.getParam().setValue(f.toPath(), UrmusicModel.getFrameCursor());
+							UrmusicController.setParamValueNow(FileParamUI.this.getParam(), f.toPath());
 					}
 					
 					UIManager.setLookAndFeel(laf);
@@ -76,8 +76,9 @@ public class FileParamUI extends EffectParamUI<FileParam> {
 		return this.container;
 	}
 	
-	public void updateControl(int frame) {
-		Path p = this.getParam().getValue(frame);
+	public void updateControl() {
+		Path p = UrmusicController.getParamValueNow(this.getParam());
+		
 		this.urlField.setValue(
 			p == null ?
 				UrmusicStrings.getString(
