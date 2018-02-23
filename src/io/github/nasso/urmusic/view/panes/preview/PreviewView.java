@@ -26,8 +26,8 @@ import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
-import io.github.nasso.urmusic.model.renderer.GLPreviewRenderer.ViewMode;
 import io.github.nasso.urmusic.model.renderer.GLPreviewer;
+import io.github.nasso.urmusic.model.renderer.GLPreviewer.ViewMode;
 import io.github.nasso.urmusic.view.components.UrmMenu;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
@@ -47,24 +47,24 @@ public class PreviewView extends UrmViewPane implements
 	private Component glPane;
 	
 	public PreviewView() {
-		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.view"),
-			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.view.fit")) {
+		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + PreviewView.VIEW_NAME + ".menu.view"),
+			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + PreviewView.VIEW_NAME + ".menu.view.fit")) {
 				public void actionPerformed(ActionEvent e) {
 					PreviewView.this.setViewMode(ViewMode.FIT);
 				}
 			}),
-			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.view.fitMax")) {
+			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + PreviewView.VIEW_NAME + ".menu.view.fitMax")) {
 				public void actionPerformed(ActionEvent e) {
 					PreviewView.this.setViewMode(ViewMode.FIT_MAX);
 				}
 			}),
-			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.view.original")) {
+			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + PreviewView.VIEW_NAME + ".menu.view.original")) {
 				public void actionPerformed(ActionEvent e) {
 					PreviewView.this.setViewMode(ViewMode.ORIGINAL);
 				}
 			}),
 			new JSeparator(),
-			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.view.center")) {
+			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + PreviewView.VIEW_NAME + ".menu.view.center")) {
 				public void actionPerformed(ActionEvent e) {
 					PreviewView.this.centerView();
 				}
@@ -145,77 +145,19 @@ public class PreviewView extends UrmViewPane implements
 	}
 
 	public int xPosToUI(float x) {
-		float sw = this.getWidth();
-		float sh = this.getHeight();
-		float rw = UrmusicController.getFocusedComposition().getWidth();
-		float rh = UrmusicController.getFocusedComposition().getHeight();
-		
-		float s = Math.min(sw / rw, sh / rh);
-		float w = rw * s;
-		float bx = (sw - w) * 0.5f;
-		float uix = bx + (x / rw + 0.5f) * w;
-		
-		uix -= sw * 0.5f;
-		uix *= this.camZoom;
-		uix += sw * 0.5f;
-		uix -= this.camX;
-		
-		return Math.round(uix);
+		return this.previewer.xPosToUI(x, this.getWidth(), this.getHeight());
 	}
 	
 	public int yPosToUI(float y) {
-		float sw = this.getWidth();
-		float sh = this.getHeight();
-		float rw = UrmusicController.getFocusedComposition().getWidth();
-		float rh = UrmusicController.getFocusedComposition().getHeight();
-		
-		float s = Math.min(sw / rw, sh / rh);
-		float h = rh * s;
-		float by = (sh - h) * 0.5f;
-		float uiy = by + (-y / rh + 0.5f) * h;
-
-		uiy -= sh * 0.5f;
-		uiy *= this.camZoom;
-		uiy += sh * 0.5f;
-		uiy -= this.camY;
-		
-		return Math.round(uiy);
+		return this.previewer.yPosToUI(y, this.getWidth(), this.getHeight());
 	}
 	
 	public float xUIToPos(int x) {
-		float sw = this.getWidth();
-		float sh = this.getHeight();
-		float rw = UrmusicController.getFocusedComposition().getWidth();
-		float rh = UrmusicController.getFocusedComposition().getHeight();
-		
-		float s = Math.min(sw / rw, sh / rh);
-		float w = rw * s;
-		float bx = (sw - w) / 2f;
-		float uix = x + this.camX;
-		
-		uix -= sw * 0.5f;
-		uix /= this.camZoom;
-		uix += sw * 0.5f;
-		
-		return ((uix - bx) / w - 0.5f) * rw;
+		return this.previewer.xUIToPos(x, this.getWidth(), this.getHeight());
 	}
 	
 	public float yUIToPos(int y) {
-		float sw = this.getWidth();
-		float sh = this.getHeight();
-		float rw = UrmusicController.getFocusedComposition().getWidth();
-		float rh = UrmusicController.getFocusedComposition().getHeight();
-		
-		float s = Math.min(sw / rw, sh / rh);
-		float h = rh * s;
-		float by = (sh - h) / 2f;
-		float uiy = y + this.camY;
-		
-		uiy -= sh * 0.5f;
-		uiy /= this.camZoom;
-		uiy += sh * 0.5f;
-		
-		return -((uiy - by) / h - 0.5f) * rh;
+		return this.previewer.yUIToPos(y, this.getWidth(), this.getHeight());
 	}
 	
 	// -- Camera controls
