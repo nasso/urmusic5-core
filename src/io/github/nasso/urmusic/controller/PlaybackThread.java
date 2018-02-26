@@ -28,9 +28,12 @@ public class PlaybackThread extends Thread {
 					
 					// Queue frames to render if we can
 					int playbackStartFrame = UrmusicController.getFrameCursor();
-					int cacheSize = UrmusicModel.getRenderer().getCacheSize();
+					int cacheSize = UrmusicModel.getVideoRenderer().getCacheSize();
 					int cacheSizeFifth = cacheSize / 5;
-					UrmusicModel.getRenderer().queueFrameRange(UrmusicModel.getCurrentProject().getMainComposition(), playbackStartFrame, cacheSize);
+					UrmusicModel.getVideoRenderer().queueFrameRange(UrmusicModel.getCurrentProject().getMainComposition(), playbackStartFrame, cacheSize);
+					
+					UrmusicModel.getAudioRenderer().seek(UrmusicController.getTimePosition());
+					UrmusicModel.getAudioRenderer().play();
 					
 					int cacheForNext = -1;
 					while(this.isPlayingBack()) {
@@ -38,14 +41,17 @@ public class PlaybackThread extends Thread {
 						idealFrameTime = (long) (PlaybackThread.SECOND_NANO / this.fps);
 						
 						// Advance cursor
-						if((cacheForNext = UrmusicModel.getRenderer().getCacheFor(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicController.getFrameCursor() + 1)) >= 0
-								&& !UrmusicModel.getRenderer().getCachedFrames()[cacheForNext].dirty)
+						if((cacheForNext = UrmusicModel.getVideoRenderer().getCacheFor(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicController.getFrameCursor() + 1)) >= 0
+								&& !UrmusicModel.getVideoRenderer().getCachedFrames()[cacheForNext].dirty)
 							UrmusicController.setFrameCursor(UrmusicController.getFrameCursor() + 1);
 						
 						if(UrmusicController.getFrameCursor() - playbackStartFrame > cacheSizeFifth) {
-							UrmusicModel.getRenderer().queueFrameRange(UrmusicModel.getCurrentProject().getMainComposition(), playbackStartFrame + cacheSize, cacheSizeFifth);
+							UrmusicModel.getVideoRenderer().queueFrameRange(UrmusicModel.getCurrentProject().getMainComposition(), playbackStartFrame + cacheSize, cacheSizeFifth);
 							playbackStartFrame += cacheSizeFifth;
 						}
+
+						// Sync audio
+						UrmusicModel.getAudioRenderer().sync(UrmusicController.getTimePosition());
 						
 						frameEndTime = System.nanoTime();
 						sleepTime = idealFrameTime - frameEndTime + frameStartTime;
@@ -57,6 +63,8 @@ public class PlaybackThread extends Thread {
 							}
 						}
 					}
+
+					UrmusicModel.getAudioRenderer().stop();
 				}
 			}
 		} catch(InterruptedException e1) {

@@ -9,13 +9,13 @@ import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.VideoEffect;
+import io.github.nasso.urmusic.model.project.VideoEffectArgs;
 import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.project.param.BooleanParam;
 import io.github.nasso.urmusic.model.project.param.BoundsParam;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
 import io.github.nasso.urmusic.model.project.param.RGBA32Param;
-import io.github.nasso.urmusic.model.renderer.EffectArgs;
-import io.github.nasso.urmusic.model.renderer.GLUtils;
+import io.github.nasso.urmusic.model.renderer.video.GLUtils;
 
 public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
 	private GLUtils glu = new GLUtils();
@@ -51,7 +51,7 @@ public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
 		public void setupVideo(GL3 gl) {
 		}
 		
-		public void applyVideo(GL3 gl, EffectArgs args) {
+		public void applyVideo(GL3 gl, VideoEffectArgs args) {
 			RGBA32 color = this.color.getValue(args.time);
 			Vector4fc bounds = this.bounds.getValue(args.time);
 			int blending = this.blendingMode.getValue(args.time);

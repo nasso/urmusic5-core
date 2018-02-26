@@ -27,7 +27,6 @@ import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.panes.effectlist.EffectListView;
 import io.github.nasso.urmusic.view.panes.preview.PreviewView;
-import io.github.nasso.urmusic.view.panes.project.ProjectView;
 import io.github.nasso.urmusic.view.panes.timeline.TimelineView;
 
 public class SplittablePane extends JPanel {
@@ -56,7 +55,6 @@ public class SplittablePane extends JPanel {
 	}
 	
 	private ViewPaneEntry[] viewPaneEntries = {
-			new ViewPaneEntry(ProjectView.class, UrmusicStrings.getString("view." + ProjectView.VIEW_NAME + ".name")),
 			new ViewPaneEntry(PreviewView.class, UrmusicStrings.getString("view." + PreviewView.VIEW_NAME + ".name")),
 			new ViewPaneEntry(EffectListView.class, UrmusicStrings.getString("view." + EffectListView.VIEW_NAME + ".name")),
 			new ViewPaneEntry(TimelineView.class, UrmusicStrings.getString("view." + TimelineView.VIEW_NAME + ".name")),

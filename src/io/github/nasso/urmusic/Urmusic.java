@@ -52,8 +52,8 @@ public class Urmusic {
 		
 		UrmusicController.addTrack();
 		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
-		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[2]);
-		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[3]);
+		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[2]); // rect
+		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[3]); // xform
 	}
 	
 	public static void main(String[] args) {

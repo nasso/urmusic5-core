@@ -15,6 +15,7 @@ import io.github.nasso.urmusic.common.event.EffectParamListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.VideoEffect;
+import io.github.nasso.urmusic.model.project.VideoEffectArgs;
 import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.project.param.BoundsParam;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
@@ -22,8 +23,7 @@ import io.github.nasso.urmusic.model.project.param.FileParam;
 import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
-import io.github.nasso.urmusic.model.renderer.EffectArgs;
-import io.github.nasso.urmusic.model.renderer.GLUtils;
+import io.github.nasso.urmusic.model.renderer.video.GLUtils;
 
 public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 	private GLUtils glu = new GLUtils();
@@ -102,7 +102,7 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE);
 		}
 		
-		public void applyVideo(GL3 gl, EffectArgs args) {
+		public void applyVideo(GL3 gl, VideoEffectArgs args) {
 			Path src = this.source.getValue(args.time);
 			Vector4fc bounds = this.bounds.getValue(args.time);
 			int blendingMode = this.blendingMode.getValue(args.time);

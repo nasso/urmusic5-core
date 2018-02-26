@@ -14,7 +14,7 @@ import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
-import io.github.nasso.urmusic.model.renderer.CachedFrame;
+import io.github.nasso.urmusic.model.renderer.video.CachedFrame;
 
 public class TimelineCaretLayer extends LayerUI<JPanel> {
 	private static final Color KEY_FRAME_COLOR = new Color(0x0099FF);
@@ -56,7 +56,7 @@ public class TimelineCaretLayer extends LayerUI<JPanel> {
 		}
 		
 		g2d.setColor(Color.GREEN);
-		CachedFrame[] renderedFrames = UrmusicModel.getRenderer().getCachedFrames();
+		CachedFrame[] renderedFrames = UrmusicModel.getVideoRenderer().getCachedFrames();
 		for(int i = 0; i < renderedFrames.length; i++) {
 			CachedFrame f = renderedFrames[i];
 			

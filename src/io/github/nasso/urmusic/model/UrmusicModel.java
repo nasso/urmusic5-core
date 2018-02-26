@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
-import io.github.nasso.urmusic.common.event.RendererListener;
+import io.github.nasso.urmusic.common.event.VideoRendererListener;
 import io.github.nasso.urmusic.model.effect.AffineTransformVFX;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
 import io.github.nasso.urmusic.model.effect.ImageDisplayVFX;
@@ -19,7 +19,8 @@ import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.VideoEffect;
 import io.github.nasso.urmusic.model.project.VideoEffectInstance;
-import io.github.nasso.urmusic.model.renderer.Renderer;
+import io.github.nasso.urmusic.model.renderer.audio.AudioRenderer;
+import io.github.nasso.urmusic.model.renderer.video.VideoRenderer;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 /**
@@ -29,8 +30,6 @@ import io.github.nasso.urmusic.view.UrmusicView;
  * @author nasso
  */
 public class UrmusicModel {
-	public static final float FRAME_TIME_PRECISION = 0.0f;
-	
 	public static final TrackEffect[] STOCK_EFFECTS = new TrackEffect[] {
 		new ImageDisplayVFX(),
 		new CircleMaskVFX(),
@@ -41,16 +40,18 @@ public class UrmusicModel {
 	private UrmusicModel() { }
 
 	private static Project project;
-	private static Renderer renderer;
+	private static VideoRenderer videoRenderer;
+	private static AudioRenderer audioRenderer;
 	
 	private static List<TrackEffect> loadedEffects = new ArrayList<>();
 	private static List<TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableList(UrmusicModel.loadedEffects);
 	
 	public static void init() {
 		// TODO: User prefs
-		UrmusicModel.renderer = new Renderer(200);
+		UrmusicModel.videoRenderer = new VideoRenderer(200);
+		UrmusicModel.audioRenderer = new AudioRenderer(8192);
 		
-		UrmusicModel.renderer.addRendererListener(new RendererListener() {
+		UrmusicModel.videoRenderer.addVideoRendererListener(new VideoRendererListener() {
 			public void frameRendered(Composition comp, float time) {
 			}
 			
@@ -76,7 +77,8 @@ public class UrmusicModel {
 		UrmusicView.saveViewState();
 		
 		UrmusicModel.loadProject(null);
-		UrmusicModel.renderer.dispose();
+		UrmusicModel.videoRenderer.dispose();
+		UrmusicModel.audioRenderer.dispose();
 		
 		UrmusicView.dispose();
 		
@@ -94,7 +96,7 @@ public class UrmusicModel {
 		
 		fx.effectMain();
 		if(fx instanceof VideoEffect) {
-			UrmusicModel.renderer.initEffect(fx);
+			UrmusicModel.videoRenderer.initEffect(fx);
 		}
 	}
 	
@@ -102,7 +104,7 @@ public class UrmusicModel {
 		if(!UrmusicModel.isEffectLoaded(fx)) return;
 
 		if(fx instanceof VideoEffect) {
-			UrmusicModel.renderer.disposeEffect(fx);
+			UrmusicModel.videoRenderer.disposeEffect(fx);
 		}
 	}
 	
@@ -119,14 +121,18 @@ public class UrmusicModel {
 		
 		if(f == null) {
 			UrmusicModel.project = new Project();
-			UrmusicModel.renderer.queueFrameASAP(UrmusicModel.project.getMainComposition(), 0);
+			UrmusicModel.videoRenderer.queueFrameASAP(UrmusicModel.project.getMainComposition(), 0);
 			
 			UrmusicModel.notifyProjectLoaded(UrmusicModel.project);
 		}
 	}
 	
-	public static Renderer getRenderer() {
-		return UrmusicModel.renderer;
+	public static VideoRenderer getVideoRenderer() {
+		return UrmusicModel.videoRenderer;
+	}
+	
+	public static AudioRenderer getAudioRenderer() {
+		return UrmusicModel.audioRenderer;
 	}
 	
 	public static Project getCurrentProject() {
@@ -134,12 +140,12 @@ public class UrmusicModel {
 	}
 	
 	public static void disposeTrack(Track track) {
-		UrmusicModel.renderer.disposeTrack(track);
+		UrmusicModel.videoRenderer.disposeTrack(track);
 	}
 	
 	public static void disposeEffect(TrackEffectInstance fx) {
 		if(fx instanceof VideoEffectInstance) {
-			UrmusicModel.renderer.disposeEffectInstance(fx);
+			UrmusicModel.videoRenderer.disposeEffectInstance(fx);
 		}
 	}
 	

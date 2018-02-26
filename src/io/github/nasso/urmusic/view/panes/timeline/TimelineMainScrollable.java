@@ -20,7 +20,7 @@ import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
-import io.github.nasso.urmusic.common.event.RendererListener;
+import io.github.nasso.urmusic.common.event.VideoRendererListener;
 import io.github.nasso.urmusic.common.event.TimelineListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
@@ -31,7 +31,7 @@ import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
-public class TimelineMainScrollable extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, TimelineListener, FrameCursorListener, RendererListener, FocusListener<Composition>, MultiFocusListener<EffectParam<?>> {
+public class TimelineMainScrollable extends JPanel implements MouseListener, MouseMotionListener, MouseWheelListener, TimelineListener, FrameCursorListener, VideoRendererListener, FocusListener<Composition>, MultiFocusListener<EffectParam<?>> {
 	private TimelineView view;
 	private JPanel infoPane, timelinePane;
 	private TimelineCaretLayer caretPane;
@@ -72,7 +72,7 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		UrmusicController.addFrameCursorListener(this);
 		UrmusicController.addCompositionFocusListener(this);
 		UrmusicController.addEffectParameterFocusListener(this);
-		UrmusicModel.getRenderer().addRendererListener(this);
+		UrmusicModel.getVideoRenderer().addVideoRendererListener(this);
 	}
 	
 	public void dispose() {
@@ -80,7 +80,7 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		UrmusicController.removeFrameCursorListener(this);
 		UrmusicController.removeCompositionFocusListener(this);
 		UrmusicController.removeEffectParameterFocusListener(this);
-		UrmusicModel.getRenderer().removeRendererListener(this);
+		UrmusicModel.getVideoRenderer().removeRendererListener(this);
 		
 		for(Component c : this.infoPane.getComponents()) {
 			if(c instanceof TimelineTrackHead) ((TimelineTrackHead) c).dispose();
@@ -252,4 +252,6 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		TimelineMainScrollable.this.repaint();
 	}
 
+	public void audioSampleRateChanged(Timeline src) {
+	}
 }

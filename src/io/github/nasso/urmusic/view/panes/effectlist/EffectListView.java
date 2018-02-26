@@ -124,5 +124,6 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 	public void framerateChanged(Timeline src) {
 	}
 
-
+	public void audioSampleRateChanged(Timeline src) {
+	}
 }

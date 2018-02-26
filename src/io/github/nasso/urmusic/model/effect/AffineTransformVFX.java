@@ -9,12 +9,12 @@ import com.jogamp.opengl.GL3;
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.VideoEffect;
+import io.github.nasso.urmusic.model.project.VideoEffectArgs;
 import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.model.project.param.Point2DParam;
 import io.github.nasso.urmusic.model.project.param.Vector2DParam;
-import io.github.nasso.urmusic.model.renderer.EffectArgs;
-import io.github.nasso.urmusic.model.renderer.GLUtils;
+import io.github.nasso.urmusic.model.renderer.video.GLUtils;
 
 public class AffineTransformVFX extends TrackEffect implements VideoEffect {
 	private GLUtils glu = new GLUtils();
@@ -40,7 +40,7 @@ public class AffineTransformVFX extends TrackEffect implements VideoEffect {
 		public void setupVideo(GL3 gl) {
 		}
 
-		public void applyVideo(GL3 gl, EffectArgs args) {
+		public void applyVideo(GL3 gl, VideoEffectArgs args) {
 			Vector2fc translation = this.translation.getValue(args.time);
 			float rotation = this.rotation.getValue(args.time);
 			Vector2fc scale = this.scale.getValue(args.time);

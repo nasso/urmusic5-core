@@ -1,5 +1,6 @@
 package io.github.nasso.urmusic.view;
 
+import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -17,12 +18,20 @@ import java.util.Locale;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import io.github.nasso.urmusic.common.DataUtils;
 import io.github.nasso.urmusic.controller.UrmusicController;
@@ -41,10 +50,11 @@ import io.github.nasso.urmusic.view.dialog.UrmusicAboutDialog;
  */
 public class UrmusicView {
 	private static List<JFrame> frames = new ArrayList<>();
+	private static JDialog audioLoadingDialog = null;
 	
 	private static UrmusicViewState viewState = null;
 	
-	private static Action menuExitAction, menuAboutAction;
+	private static Action menuLoadSongAction, menuExitAction, menuAboutAction;
 	
 	private static boolean keyEventBlocked = false;
 	
@@ -57,11 +67,24 @@ public class UrmusicView {
 		UrmusicView.buildMenu();
 		
 		UrmusicView.loadViewState();
-
+		
+		UrmusicView.audioLoadingDialog = new JDialog();
+		UrmusicView.audioLoadingDialog.setTitle(UrmusicStrings.getString("dialog.loadingSong.title"));
+		UrmusicView.audioLoadingDialog.setLocationRelativeTo(null);
+		UrmusicView.audioLoadingDialog.setContentPane(new JPanel() {
+			{
+				this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+			}
+		});
+		UrmusicView.audioLoadingDialog.getContentPane().add(new JProgressBar() {
+			{
+				this.setIndeterminate(true);
+			}
+		});
+		UrmusicView.audioLoadingDialog.pack();
+		
 		SwingUtilities.invokeLater(() -> {
-			KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher((e) -> {
-							return UrmusicView.keyEvent(e);
-			});
+			KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(UrmusicView::keyEvent);
 			
 			if(UrmusicView.viewState == null || UrmusicView.viewState.getPaneStates().length == 0) {
 				SplittablePane.popupNew();
@@ -130,6 +153,35 @@ public class UrmusicView {
 	}
 	
 	private static void setupActions() {
+		UrmusicView.menuLoadSongAction = new AbstractAction(UrmusicStrings.getString("menu.file.loadSong")) {
+			private JFileChooser fileChooser;
+			
+			public void actionPerformed(ActionEvent e) {
+				LookAndFeel laf = UIManager.getLookAndFeel();
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					
+					if(this.fileChooser == null) this.fileChooser = new JFileChooser();
+					SwingUtilities.updateComponentTreeUI(this.fileChooser);
+					this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+					int action = this.fileChooser.showOpenDialog(e.getSource() instanceof Component ? (Component) e.getSource() : null);
+					
+					if(action == JFileChooser.APPROVE_OPTION) {
+						File f = this.fileChooser.getSelectedFile();
+						
+						if(f != null) {
+							UrmusicView.showAudioLoadingDialog();
+							UrmusicController.setCurrentSong(f.toPath(), UrmusicView::closeAudioLoadingDialog);
+						}
+					}
+					
+					UIManager.setLookAndFeel(laf);
+				} catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
+					e1.printStackTrace();
+				}
+			}
+		};
+		
 		UrmusicView.menuExitAction = new AbstractAction(UrmusicStrings.getString("menu.file.quit")) {
 			public void actionPerformed(ActionEvent e) {
 				UrmusicController.requestExit();
@@ -149,6 +201,8 @@ public class UrmusicView {
 		JMenuBar mb = new JMenuBar();
 		
 		JMenu fileMenu = new JMenu(UrmusicStrings.getString("menu.file"));
+		fileMenu.add(new JMenuItem(UrmusicView.menuLoadSongAction));
+		fileMenu.addSeparator();
 		fileMenu.add(new JMenuItem(UrmusicView.menuExitAction));
 		
 		JMenu helpMenu = new JMenu(UrmusicStrings.getString("menu.help"));
@@ -158,6 +212,18 @@ public class UrmusicView {
 		mb.add(helpMenu);
 		
 		return mb;
+	}
+	
+	private static void showAudioLoadingDialog() {
+		SwingUtilities.invokeLater(() -> {
+			UrmusicView.audioLoadingDialog.setVisible(true);
+		});
+	}
+	
+	private static void closeAudioLoadingDialog() {
+		SwingUtilities.invokeLater(() -> {
+			UrmusicView.audioLoadingDialog.setVisible(false);
+		});
 	}
 	
 	public static void loadViewState() {
@@ -202,6 +268,15 @@ public class UrmusicView {
 	
 	public static boolean keyEvent(KeyEvent e) {
 		if(UrmusicView.keyEventBlocked) return false;
+		
+		boolean nofocus = true;
+		for(JFrame frame : UrmusicView.frames) {
+			if(frame.isFocused()) {
+				nofocus = false;
+				break;
+			}
+		}
+		if(nofocus) return false;
 		
 		if(e.getID() == KeyEvent.KEY_PRESSED) {
 			switch(e.getKeyCode()) {

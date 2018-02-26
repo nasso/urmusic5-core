@@ -19,22 +19,22 @@ import javax.swing.SwingUtilities;
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.event.EffectParamListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
-import io.github.nasso.urmusic.common.event.RendererListener;
+import io.github.nasso.urmusic.common.event.VideoRendererListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
-import io.github.nasso.urmusic.model.renderer.GLPreviewer;
-import io.github.nasso.urmusic.model.renderer.GLPreviewer.ViewMode;
+import io.github.nasso.urmusic.model.renderer.video.GLPreviewer;
+import io.github.nasso.urmusic.model.renderer.video.GLPreviewer.ViewMode;
 import io.github.nasso.urmusic.view.components.UrmMenu;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class PreviewView extends UrmViewPane implements
-													RendererListener,
+													VideoRendererListener,
 													MultiFocusListener<EffectParam<?>>,
 													EffectParamListener,
 													MouseListener,
@@ -77,7 +77,7 @@ public class PreviewView extends UrmViewPane implements
 		OverlayLayout ol = new OverlayLayout(this);
 		this.setLayout(ol);
 		
-		this.previewer = UrmusicModel.getRenderer().createGLJPanelPreview();
+		this.previewer = UrmusicModel.getVideoRenderer().createGLJPanelPreview();
 		this.glPane = this.previewer.getPanel();
 		
 		this.add(this.controlPane = new PreviewParameterControlsPane(this), Integer.valueOf(1));
@@ -87,7 +87,7 @@ public class PreviewView extends UrmViewPane implements
 		this.addMouseWheelListener(this);
 		this.addMouseMotionListener(this);
 		
-		UrmusicModel.getRenderer().addRendererListener(this);
+		UrmusicModel.getVideoRenderer().addVideoRendererListener(this);
 		UrmusicController.addEffectParameterFocusListener(this);
 		
 		for(EffectParam<?> param : UrmusicController.getFocusedEffectParameters()) {
@@ -96,7 +96,7 @@ public class PreviewView extends UrmViewPane implements
 	}
 	
 	public void dispose() {
-		UrmusicModel.getRenderer().removeRendererListener(this);
+		UrmusicModel.getVideoRenderer().removeRendererListener(this);
 		UrmusicController.removeEffectParameterFocusListener(this);
 		
 		this.previewer.dispose();
@@ -104,7 +104,7 @@ public class PreviewView extends UrmViewPane implements
 	}
 
 	public void frameRendered(Composition comp, float time) {
-		if(time - UrmusicController.getTimePosition() > UrmusicModel.FRAME_TIME_PRECISION) return;
+		if(time == UrmusicController.getTimePosition()) return;
 		
 		SwingUtilities.invokeLater(() -> {
 			this.controlPane.update();

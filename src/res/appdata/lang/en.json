@@ -1,46 +1,48 @@
 {
 	"locale_name": "English (United-States)",
-	
+
 	"map": {
 		"title": "urmusic",
-		
+
 		"menu.file": "File",
+		"menu.file.loadSong": "Set music file",
 		"menu.file.quit": "Quit",
 		"menu.help": "Help",
 		"menu.help.about": "About",
-		
+
 		"dialog.global.ok": "OK",
 		"dialog.global.cancel": "Cancel",
+		"dialog.loadingSong.title": "Loading music file...",
 		"dialog.about.title": "About",
-		
+
 		"frame.multiCloseWarning.title": "Closing a window",
 		"frame.multiCloseWarning.message": "Would you like to close only this window or close all?",
 		"frame.multiCloseWarning.closeOne": "Close only this one",
 		"frame.multiCloseWarning.closeAll": "Close all",
 		"frame.multiCloseWarning.cancel": "Cancel",
-		
+
 		"view.preview.name": "Preview",
 		"view.preview.menu.view": "View",
 		"view.preview.menu.view.fit": "Fit",
 		"view.preview.menu.view.fitMax": "Fit up to 100%",
 		"view.preview.menu.view.original": "Original (100%)",
 		"view.preview.menu.view.center": "Center",
-		
+
 		"view.project.name": "Project",
 		"view.project.menu.add": "Add",
 		"view.project.menu.add.importFile": "Import File",
 		"view.project.menu.add.newDirectory": "New Folder",
 		"view.project.dialog.importFile.title": "Import File",
-		
+
 		"view.timeline.name": "Timeline",
 		"view.timeline.menu.add": "Add",
 		"view.timeline.menu.add.track": "Track",
-		
+
 		"view.effectList.name": "Effects",
 		"view.effectList.menu.add": "Add",
 		"view.effectList.menu.add.effect": "Effect",
 		"view.effectList.dialog.add.title": "Pick an effect to add",
-		
+
 		"effect.image_display.name": "Image Display",
 		"effect.image_display.param.source.name": "Source",
 		"effect.image_display.param.source.empty": "none",
@@ -58,7 +60,7 @@
 		"effect.image_display.param.blendingMode.option.add": "Add",
 		"effect.image_display.param.blendingMode.option.xor": "XOR",
 		"effect.image_display.param.opacity.name": "Opacity",
-		
+
 		"effect.circle_mask.name": "Circle Mask",
 		"effect.circle_mask.param.position.name": "Position",
 		"effect.circle_mask.param.color.name": "Color",
@@ -79,7 +81,7 @@
 		"effect.circle_mask.param.blendingMode.option.add": "Add",
 		"effect.circle_mask.param.blendingMode.option.xor": "XOR",
 		"effect.circle_mask.param.invert.name": "Invert",
-		
+
 		"effect.rectangle_mask.name": "Rectangle Mask",
 		"effect.rectangle_mask.param.color.name": "Color",
 		"effect.rectangle_mask.param.bounds.name": "Bounds",
@@ -96,7 +98,7 @@
 		"effect.rectangle_mask.param.blendingMode.option.add": "Add",
 		"effect.rectangle_mask.param.blendingMode.option.xor": "XOR",
 		"effect.rectangle_mask.param.invert.name": "Invert",
-		
+
 		"effect.affine_transform.name": "Affine Transform",
 		"effect.affine_transform.param.translation.name": "Translate",
 		"effect.affine_transform.param.rotation.name": "Rotation",

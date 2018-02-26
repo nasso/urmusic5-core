@@ -1,5 +1,6 @@
 package io.github.nasso.urmusic.controller;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,7 +10,6 @@ import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
-import io.github.nasso.urmusic.model.project.ProjectFileSystem;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
@@ -38,7 +38,7 @@ public class UrmusicController {
 		UrmusicController.focusComposition(UrmusicModel.getCurrentProject().getMainComposition());
 		
 		UrmusicController.addFrameCursorListener((oldPosition, newPosition)  -> {
-			UrmusicModel.getRenderer().queueFrameASAP(UrmusicController.getFocusedComposition(), newPosition);
+			UrmusicModel.getVideoRenderer().queueFrameASAP(UrmusicController.getFocusedComposition(), newPosition);
 		});
 		
 		UrmusicController.addTrackEffectInstanceFocusListener(new FocusListener<TrackEffect.TrackEffectInstance>() {
@@ -54,13 +54,13 @@ public class UrmusicController {
 		});
 	}
 	
-	public static void forceImmediateRender() {
-		UrmusicModel.getRenderer().queueFrameASAP(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicController.getFrameCursor());
+	public static void forceImmediateVideoRender() {
+		UrmusicModel.getVideoRenderer().queueFrameASAP(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicController.getFrameCursor());
 	}
 	
-	public static void markDirty() {
-		UrmusicModel.getRenderer().makeCompositionDirty(UrmusicModel.getCurrentProject().getMainComposition());
-		UrmusicController.forceImmediateRender();
+	public static void markVideoDirty() {
+		UrmusicModel.getVideoRenderer().makeCompositionDirty(UrmusicModel.getCurrentProject().getMainComposition());
+		UrmusicController.forceImmediateVideoRender();
 	}
 	
 	public static void requestExit() {
@@ -171,14 +171,8 @@ public class UrmusicController {
 	}
 	
 	// -- Project --
-	public static void importFile(String absoluteFilePath) {
-		ProjectFileSystem fs = UrmusicModel.getCurrentProject().getFileSystem();
-		fs.root().add(fs.createFile(absoluteFilePath));
-	}
-	
-	public static void newDirectory(String dirName) {
-		ProjectFileSystem fs = UrmusicModel.getCurrentProject().getFileSystem();
-		fs.root().add(fs.createDirectory(dirName));
+	public static void setCurrentSong(Path filePath, Runnable callback) {
+		UrmusicModel.getAudioRenderer().setAudioBufferSource(filePath, callback);
 	}
 	
 	// -- Edit --
@@ -189,7 +183,7 @@ public class UrmusicController {
 	public static <T> void setParamValueNow(EffectParam<T> param, T value) {
 		param.setValue(value, UrmusicController.getTimePosition());
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 
 	public static <T> void toggleKeyFrame(EffectParam<T> param) {
@@ -199,7 +193,7 @@ public class UrmusicController {
 		else
 			param.addKeyFrame(UrmusicController.getTimePosition());
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void addEffect(TrackEffect e) {
@@ -210,7 +204,7 @@ public class UrmusicController {
 		
 		t.addEffect(e.instance());
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void addEffects(List<TrackEffect> elist) {
@@ -222,12 +216,12 @@ public class UrmusicController {
 		for(TrackEffect e : elist)
 			t.addEffect(e.instance());
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void moveEffect(Track track, TrackEffectInstance fx, int index) {
 		track.moveEffect(fx, index);
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void moveEffectUp(Track track, TrackEffectInstance fx) {
@@ -242,7 +236,7 @@ public class UrmusicController {
 		if(fx.isEnabled() == enabled) return;
 		
 		fx.setEnabled(enabled);
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void addTrack() {
@@ -258,7 +252,7 @@ public class UrmusicController {
 	public static void setTrackEnabled(Track t, boolean isEnabled) {
 		t.setEnabled(isEnabled);
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void renameTrack(Track t, String newName) {
@@ -281,19 +275,19 @@ public class UrmusicController {
 	public static void moveTrackActivityRange(TrackActivityRange range, float position) {
 		range.moveTo(position);
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void setTrackActivityRangeStart(TrackActivityRange range, float start) {
 		range.setStart(start);
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void setTrackActivityRangeEnd(TrackActivityRange range, float end) {
 		range.setEnd(end);
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void deleteTrack(Track t) {
@@ -314,7 +308,7 @@ public class UrmusicController {
 		
 		UrmusicModel.deleteTrack(comp, i);
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void deleteTrackEffect(Track t, TrackEffectInstance fx) {
@@ -329,7 +323,7 @@ public class UrmusicController {
 		
 		t.removeEffect(fx);
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void deleteFocusedTrackActivityRange() {
@@ -337,7 +331,7 @@ public class UrmusicController {
 		UrmusicController.focusTrackActivityRange(null);
 		UrmusicModel.deleteTrackActivityRange(r);
 		
-		UrmusicController.markDirty();
+		UrmusicController.markVideoDirty();
 	}
 	
 	public static void deleteFocusedTrack() {

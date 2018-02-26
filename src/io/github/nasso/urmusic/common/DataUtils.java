@@ -151,7 +151,7 @@ public class DataUtils {
 	
 	public static InputStream getFileInputStream(String filePath, boolean inJar) throws IOException {
 		if(inJar) return DataUtils.class.getClassLoader().getResourceAsStream(filePath);
-		else return new BufferedInputStream(new FileInputStream(new File(Urmusic.URM_HOME, filePath)));
+		else return new BufferedInputStream(new FileInputStream(new File(filePath)));
 	}
 	
 	public static void exportResource(String resPath, String destPath) throws IOException {
