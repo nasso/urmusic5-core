@@ -1,9 +1,8 @@
 package io.github.nasso.urmusic.model.effect;
 
-import static com.jogamp.opengl.GL.*;
-
 import org.joml.Vector2fc;
 
+import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.common.MathUtils;
@@ -23,7 +22,7 @@ public class AudioScopeVFX extends TrackEffect implements VideoEffect {
 		private Point2DParam endPoint = new Point2DParam("endPoint", +400, 0);
 		private FloatParam millisOffset = new FloatParam("millisOffset", 0.0f, 1.0f);
 		private FloatParam duration = new FloatParam("duration", 200.0f, 1.0f);
-		private FloatParam lineWidth = new FloatParam("lineWIdth", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
+		private FloatParam lineWidth = new FloatParam("lineWidth", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
 		private IntParam precision = new IntParam("precision", 512, 1, 2, 32768);
 
 		private GLVG vg;
@@ -56,7 +55,7 @@ public class AudioScopeVFX extends TrackEffect implements VideoEffect {
 			
 			UrmusicModel.getAudioRenderer().getSamples(args.time + millisOffset / 1000.0f, duration / 1000.0f, this.audioData);
 			
-			gl.glClear(GL_COLOR_BUFFER_BIT);
+			gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 			
 			this.vg.begin(gl, args.width, args.height);
 			this.vg.setLineWidth(lineWidth);

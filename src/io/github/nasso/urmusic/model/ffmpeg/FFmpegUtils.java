@@ -3,14 +3,13 @@ package io.github.nasso.urmusic.model.ffmpeg;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.github.nasso.urmusic.Urmusic;
 
 public class FFmpegUtils {
-	public static final Path FFMPEG_LOCATION = Paths.get(System.getProperty("ffmpegLocation")).toAbsolutePath();
+	public static final Path FFMPEG_LOCATION = Urmusic.URM_STATIC_LIB_FOLDER.toPath().resolve("ffmpeg").toAbsolutePath();
 	public static final Path FFMPEG_OUTPUT_LOG = Urmusic.URM_HOME.toPath().resolve("log").resolve("ffmpeg_out.txt");
 	
 	private FFmpegUtils() { }

@@ -13,6 +13,7 @@ import io.github.nasso.urmusic.view.UrmusicView;
 
 public class Urmusic {
 	public static final boolean URM_FORCE_RES_EXPORT = true;
+	public static final File URM_STATIC_LIB_FOLDER = new File(System.getProperty("staticLibFolder"));
 	public static final File URM_HOME = new File(System.getProperty("user.home") + File.separatorChar + ".urmusic");
 	
 	private Urmusic() {
