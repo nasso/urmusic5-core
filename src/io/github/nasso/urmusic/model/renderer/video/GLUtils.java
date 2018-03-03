@@ -38,8 +38,11 @@ public class GLUtils {
 		"fs",
 		"fshader",
 		
+		"geom",
 		"gl",
 		"glsl",
+		"gs",
+		"gshader",
 		
 		"vert",
 		"vs",
@@ -62,6 +65,7 @@ public class GLUtils {
 	private final TIntList buffers = new TIntArrayList();
 	private final TIntList vaos = new TIntArrayList();
 	private final TIntList textures = new TIntArrayList();
+	private final TIntList renderbuffers = new TIntArrayList();
 	private final TIntList framebuffers = new TIntArrayList();
 	private final TIntList programs = new TIntArrayList();
 	
@@ -77,6 +81,11 @@ public class GLUtils {
 	
 	public final int genTexture(GL3 gl) {
 		this.genTextures(gl, 1, this.buf1a);
+		return this.buf1a.get(0);
+	}
+	
+	public final int genRenderbuffer(GL3 gl) {
+		this.genRenderbuffers(gl, 1, this.buf1a);
 		return this.buf1a.get(0);
 	}
 	
@@ -98,6 +107,11 @@ public class GLUtils {
 	public final void genTextures(GL3 gl, int count, IntBuffer dest) {
 		gl.glGenTextures(count, dest);
 		for(int i = 0; i < count; i++) this.textures.add(dest.get(i));
+	}
+	
+	public final void genRenderbuffers(GL3 gl, int count, IntBuffer dest) {
+		gl.glGenRenderbuffers(count, dest);
+		for(int i = 0; i < count; i++) this.renderbuffers.add(dest.get(i));
 	}
 	
 	public final void genFramebuffers(GL3 gl, int count, IntBuffer dest) {
@@ -393,8 +407,7 @@ public class GLUtils {
 	 * Generates a VAO containing 1 VBO of 2D positions for a full screen quad. The vertices are ordered so a render can be done simply by doing:
 	 * <pre>
 	 *     gl.glBindVertexArray(this.quadVAO);
-	 *     gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-	 * </pre>
+	 *     gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);</pre>
 	 * The simplest vertex shader you can have with this would be:
 	 * <pre>
 	 *     #version 330 core
@@ -403,8 +416,7 @@ public class GLUtils {
 	 *     
 	 *     void main() {
 	 *         gl_Position = vec4(position_quad, 0.0, 1.0);
-	 *     }
-	 * </pre>
+	 *     }</pre>
 	 * The generated VAO and VBO are left bound (to <code>GL_ARRAY_BUFFER</code> for the VBO).
 	 * 
 	 * @param gl

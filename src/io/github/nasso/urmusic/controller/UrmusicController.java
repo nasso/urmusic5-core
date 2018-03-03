@@ -172,7 +172,10 @@ public class UrmusicController {
 	
 	// -- Project --
 	public static void setCurrentSong(Path filePath, Runnable callback) {
-		UrmusicModel.getAudioRenderer().setAudioBufferSource(filePath, callback);
+		UrmusicModel.getAudioRenderer().setAudioBufferSource(filePath, () -> {
+			markVideoDirty();
+			callback.run();
+		});
 	}
 	
 	// -- Edit --

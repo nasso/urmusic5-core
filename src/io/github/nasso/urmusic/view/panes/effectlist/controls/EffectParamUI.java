@@ -12,6 +12,7 @@ import io.github.nasso.urmusic.model.project.param.BoundsParam;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.FileParam;
 import io.github.nasso.urmusic.model.project.param.FloatParam;
+import io.github.nasso.urmusic.model.project.param.IntParam;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
 import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.project.param.Vector2DParam;
@@ -49,6 +50,8 @@ public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
 	public static EffectParamUI<?> createParamUI(TrackEffectInstance fx, EffectParam<?> param) {
 		if(param instanceof FloatParam) {
 			return new FloatParamUI(fx, (FloatParam) param);
+		} else if(param instanceof IntParam) {
+			return new IntParamUI(fx, (IntParam) param);
 		} else if(param instanceof RGBA32Param) {
 			return new RGBA32ParamUI(fx, (RGBA32Param) param);
 		} else if(param instanceof Vector2DParam) {

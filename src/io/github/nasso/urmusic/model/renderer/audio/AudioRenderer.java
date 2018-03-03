@@ -53,51 +53,62 @@ public class AudioRenderer implements Runnable {
 		}
 	}
 	
-	public void getSampleData(float startTime, float duration, float[] data) {
-		if(this.accessLoader == null || this.accessBuffer == null || !this.accessLoader.isLoaded()) {
+	public void getSamples(float startTime, float duration, float[] data) {
+		if(
+			duration <= 0.0f ||
+			this.accessLoader == null ||
+			this.accessBuffer == null ||
+			!this.accessLoader.isLoaded()) {
 			Arrays.fill(data, 0.0f);
 			return;
 		}
 		
 		synchronized(this.accessLoader) {
 			long startSample = this.timeToSamples(startTime);
-			long samplesToRead = this.timeToSamples(duration);
-			long position = 0;
-			long samplesRead = 0;
+			long sampleRange = this.timeToSamples(duration);
 			
 			try {
-				do { 
-					samplesRead = this.accessLoader.loadSamples(startSample + samplesRead, this.accessBuffer);
+				long lastReadPosition = startSample;
+				long bufferPosition = startSample;
+				
+				for(int i = 0; i < data.length; i++) {
+					long targetPosition = startSample + (int) ((float) i / (data.length - 1) * sampleRange);
 					
-					for(long i = position; i < Math.min(position + samplesRead, samplesToRead); i++) {
-						// i here is the position in samples, starting from startSample
-						// To down mix to mono, we average all channels
-						
-						float sample = 0.0f;
-						for(int c = 0; c < this.accessLoader.getChannels(); c++) {
-							if(this.accessLoader.getBitsPerSample() == 8) {
-								int bi = (int) (i - position);
-								sample += (float) this.accessBuffer[bi] / Byte.MAX_VALUE;
-							} else if(this.accessLoader.getBitsPerSample() == 16) {
-								int bi = (int) (i - position) * 2;
-								
-								byte a = this.accessBuffer[bi];
-								byte b = this.accessBuffer[bi + 1];
-								
-								if(this.accessLoader.isBigEndian()) {
-									sample += (float) ((a << 8) | b) / Short.MAX_VALUE;
-								} else {
-									sample += (float) ((b << 8) | a) / Short.MAX_VALUE;
-								}
-							}
-						}
-						
-						sample /= this.accessLoader.getChannels();
-						data[(int) ((float) i / samplesToRead * data.length)] = sample;
+					// First, check if the target sample offset is outside of the current buffer
+					if(targetPosition >= this.accessLoader.getSampleCount()) {
+						data[i] = 0;
+						continue;
 					}
 					
-					position += samplesRead; // advance
-				} while(position < samplesToRead);
+					if(targetPosition >= lastReadPosition) {
+						bufferPosition = targetPosition;
+						lastReadPosition = bufferPosition + this.accessLoader.loadSamples(bufferPosition, this.accessBuffer);
+					}
+					
+					float sample = 0.0f;
+					for(int c = 0; c < this.accessLoader.getChannels(); c++) {
+						int bi = (int) (targetPosition - bufferPosition) * this.accessLoader.getChannels() + c;
+						
+						if(this.accessLoader.getBitsPerSample() == 8) {
+							sample += (float) this.accessBuffer[bi] / Byte.MAX_VALUE;
+						} else if(this.accessLoader.getBitsPerSample() == 16) {
+							bi *= 2;
+							
+							byte a = this.accessBuffer[bi];
+							byte b = this.accessBuffer[bi + 1];
+							
+							if(this.accessLoader.isBigEndian()) {
+								sample += (float) ((a << 8) | b) / Short.MAX_VALUE;
+							} else {
+								sample += (float) ((b << 8) | a) / Short.MAX_VALUE;
+							}
+						}
+					}
+					
+					sample /= this.accessLoader.getChannels();
+					
+					data[i] = sample;
+				}
 			} catch(IOException e) {
 				e.printStackTrace();
 			}

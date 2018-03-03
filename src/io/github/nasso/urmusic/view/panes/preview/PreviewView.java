@@ -104,7 +104,7 @@ public class PreviewView extends UrmViewPane implements
 	}
 
 	public void frameRendered(Composition comp, float time) {
-		if(time == UrmusicController.getTimePosition()) return;
+		if(time != UrmusicController.getTimePosition()) return;
 		
 		SwingUtilities.invokeLater(() -> {
 			this.controlPane.update();

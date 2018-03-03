@@ -29,5 +29,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="libs/trove/trove-3.1a1.jar"/>
+	<classpathentry kind="lib" path="libs/JTransforms/JTransforms-3.1-with-dependencies.jar" sourcepath="libs/JTransforms/JTransforms-3.1-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

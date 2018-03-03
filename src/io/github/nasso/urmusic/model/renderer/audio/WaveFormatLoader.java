@@ -205,6 +205,17 @@ public class WaveFormatLoader {
 	}
 	
 	public int loadSamples(long sampleOffset, byte[] dest) throws IOException {
+		int offset = 0;
+		if(sampleOffset * this.blockAlign <= -dest.length) {
+			Arrays.fill(dest, (byte) 0x00);
+		} else if(sampleOffset < 0) {
+			offset = (int) -(sampleOffset * this.blockAlign);
+			
+			Arrays.fill(dest, 0, offset, (byte) 0x00);
+			
+			sampleOffset = 0;
+		}
+		
 		this.fc.position(this.dataPosition + sampleOffset * this.blockAlign);
 		
 		int numRead = this.fc.read(this.readBuffer);
@@ -212,17 +223,16 @@ public class WaveFormatLoader {
 			Arrays.fill(dest, (byte) 0x00);
 			return -1;
 		}
-		
 		this.readBuffer.flip();
 		
-		this.readBuffer.get(dest, 0, numRead);
-		this.readBuffer.flip();
+		this.readBuffer.get(dest, offset, Math.min(numRead, dest.length - offset));
+		this.readBuffer.clear();
 		
 		for(int i = numRead; i < dest.length; i++) {
 			dest[i] = 0x00;
 		}
 		
-		return numRead / this.blockAlign;
+		return dest.length / this.blockAlign;
 	}
 	
 	public void close() throws IOException {

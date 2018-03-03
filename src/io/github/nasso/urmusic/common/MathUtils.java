@@ -1,6 +1,8 @@
 package io.github.nasso.urmusic.common;
 
 import org.joml.Matrix3f;
+import org.joml.Vector2f;
+import org.joml.Vector2fc;
 
 public class MathUtils {
 	public static final float PI = (float) Math.PI;
@@ -173,5 +175,94 @@ public class MathUtils {
 	
 	public static boolean boxContains(float x, float y, float boxX, float boxY, float boxWidth, float boxHeight) {
 		return rangeContains(x, boxX, boxX + boxWidth) && rangeContains(y, boxY, boxY + boxHeight);
+	}
+	
+	public static boolean colinear(float v0x, float v0y, float v1x, float v1y) {
+		return v0x * v1y == v0y * v1x;
+	}
+	
+	public static boolean colinear(Vector2fc a, Vector2fc b) {
+		return colinear(a.x(), a.y(), b.x(), b.y());
+	}
+	
+	public static boolean aligned(float x0, float y0, float x1, float y1, float x2, float y2) {
+		return colinear(x1 - x0, y1 - y0, x2 - x0, y2 - y0);
+	}
+	
+	/**
+	 * Stores the intersection between [AB] and [CD] if any, in dest.
+	 * Returns false when the lines do not intersect, leaving <tt>dest</tt> as-is, true otherwise.<br />
+	 */
+	public static boolean intersection(float ax, float ay, float bx, float by, float cx, float cy, float dx, float dy, Vector2f dest) {
+		// 1. Define the lines such as:
+		// AB: a1 * x + b1 * y + c1 = 0
+		// CD: a2 * x + b2 * y + c2 = 0
+		
+		float
+			a1, b1, c1,
+			a2, b2, c2;
+		
+		a1 = by - ay;
+		a2 = dy - cy;
+		
+		b1 = ax - bx;
+		b2 = cx - dx;
+		
+		c1 = -a1 * ax - b1 * ay;
+		c2 = -a2 * cx - b2 * cy;
+		
+		// 2. Find that point
+		// See: https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Using_homogeneous_coordinates
+		float w = a1 * b2 - a2 * b1;
+		if(w == 0) return false;
+		
+		dest.x = (b1 * c2 - b2 * c1) / w;
+		dest.y = (a2 * c1 - a1 * c2) / w;
+		
+		return 
+				rangeContains(dest.x, Math.min(ax, bx), Math.max(ax, bx)) &&
+				rangeContains(dest.x, Math.min(cx, dx), Math.max(cx, dx));
+	}
+	
+	public static void applyBlackmanWindow(float[] buffer, int length) {
+		float factor = MathUtils.PI / (length - 1);
+		
+		for(int i = 0; i < length; ++i)
+			buffer[i] = buffer[i] * (float) (0.42 - (0.5 * Math.cos(2 * factor * i)) + (0.08 * Math.cos(4 * factor * i)));
+	}
+	
+	public static float addressArray(float[] array, int i, float outValue) {
+		if(i < 0 || i >= array.length) {
+			return outValue;
+		} else {
+			return array[i];
+		}
+	}
+	
+	public static float getValue(float[] array, float index, boolean quadInterpolation, float minValue) {
+		if(quadInterpolation) {
+			int rdn = (int) Math.floor(index + 0.5);
+			
+			// @format:off
+			return quadCurve(
+					lerp(
+							addressArray(array, rdn - 1, minValue),
+							addressArray(array, rdn, minValue),
+							0.5f),
+						addressArray(array, rdn, minValue),
+						lerp(addressArray(array, rdn, minValue),
+							addressArray(array, rdn + 1, minValue),
+							0.5f),
+						index - rdn + 0.5f);
+			// @format:on
+		} else {
+			int flr = (int) Math.floor(index);
+			int cel = (int) Math.ceil(index);
+			
+			float flrv = addressArray(array, flr, minValue);
+			float celv = addressArray(array, cel, minValue);
+			
+			return lerp(flrv, celv, index - flr);
+		}
 	}
 }

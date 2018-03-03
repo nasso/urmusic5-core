@@ -437,16 +437,22 @@ public class VideoRenderer implements Runnable {
 	}
 	
 	public void addVideoRendererListener(VideoRendererListener l) {
-		this.listeners.add(l);
+		synchronized(this.listeners) {
+			this.listeners.add(l);
+		}
 	}
 	
 	public void removeRendererListener(VideoRendererListener l) {
-		this.listeners.remove(l);
+		synchronized(this.listeners) {
+			this.listeners.remove(l);
+		}
 	}
 	
 	private void notifyFrameReady(Composition comp, float time) {
-		for(VideoRendererListener l : this.listeners) {
-			l.frameRendered(comp, time);
+		synchronized(this.listeners) {
+			for(VideoRendererListener l : this.listeners) {
+				l.frameRendered(comp, time);
+			}
 		}
 	}
 	

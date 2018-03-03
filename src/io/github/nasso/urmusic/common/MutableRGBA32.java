@@ -125,7 +125,7 @@ public class MutableRGBA32 implements RGBA32 {
 		return (float) this.getAlpha() / 0xFF;
 	}
 	
-	public RGBA32 clone() {
+	public MutableRGBA32 clone() {
 		return new MutableRGBA32(this);
 	}
 	

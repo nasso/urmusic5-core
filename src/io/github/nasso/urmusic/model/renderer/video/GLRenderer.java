@@ -1,5 +1,8 @@
 package io.github.nasso.urmusic.model.renderer.video;
 
+import static com.jogamp.opengl.GL.*;
+import static com.jogamp.opengl.GL2ES3.*;
+
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.GLAutoDrawable;
 import com.jogamp.opengl.GLContext;
@@ -61,12 +63,12 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			for(int i = 0; i <= GLRenderer.this.cacheSize; i++) {
 				int t = i == GLRenderer.this.cacheSize ? this.textureAlt : GLRenderer.this.bufTex.get(i);
 
-				GLRenderer.this.gl.glBindTexture(GL.GL_TEXTURE_2D, t);
-				GLRenderer.this.gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, this.width, this.height, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, null);
-				GLRenderer.this.gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-				GLRenderer.this.gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-				GLRenderer.this.gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE);
-				GLRenderer.this.gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE);
+				GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, t);
+				GLRenderer.this.gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+				GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			}
 			
 			GLRenderer.this.bufTex.get(this.texture);
@@ -83,8 +85,8 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				this.height = comp.getHeight();
 				
 				for(int i = 0; i <= this.texture.length; i++) {
-					GLRenderer.this.gl.glBindTexture(GL.GL_TEXTURE_2D, i == this.texture.length ? this.textureAlt : this.texture[i]);
-					GLRenderer.this.gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, this.width, this.height, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, null);
+					GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, i == this.texture.length ? this.textureAlt : this.texture[i]);
+					GLRenderer.this.gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
 				}
 			}
 			
@@ -100,9 +102,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			int alt = this.textureAlt;
 			this.textureAlt = this.texture[i];
 			this.texture[i] = alt;
-
-			gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, this.fbo);
-			gl.glFramebufferTexture(GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, this.texture[i], 0);
+			
+			gl.glBindFramebuffer(GL_FRAMEBUFFER, this.fbo);
+			gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, this.texture[i], 0);
 		}
 
 		public void dispose() {
@@ -118,6 +120,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		public Composition comp;
 		
 		public int tex_id[] = new int[2];
+		public int depth_id = 0;
 		public int width, height;
 		
 		public TrackRenderTexture(Composition comp) {
@@ -147,21 +150,34 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			return this.tex_id[this.tex_id.length - 1];
 		}
 		
+		public int getDepthBuffer() {
+			return this.depth_id;
+		}
+		
 		public TrackRenderTexture update() {
+			boolean allocRenderBuffer = this.depth_id == 0 || this.width != this.comp.getWidth() || this.height != this.comp.getHeight();
+			
+			if(this.depth_id == 0) this.depth_id = GLRenderer.this.glu.genRenderbuffer(GLRenderer.this.gl);
+			
+			if(allocRenderBuffer) {
+				GLRenderer.this.gl.glBindRenderbuffer(GL_RENDERBUFFER, this.depth_id);
+				GLRenderer.this.gl.glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, this.comp.getWidth(), this.comp.getHeight());
+			}
+			
 			for(int i = 0; i < this.tex_id.length; i++) {
 				if(this.tex_id[i] != 0 && this.width == this.comp.getWidth() && this.height == this.comp.getHeight()) continue;
 				
 				if(this.tex_id[i] == 0) {
 					this.tex_id[i] = GLRenderer.this.glu.genTexture(GLRenderer.this.gl);
 					
-					GLRenderer.this.gl.glBindTexture(GL.GL_TEXTURE_2D, this.tex_id[i]);
-					GLRenderer.this.gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-					GLRenderer.this.gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-					GLRenderer.this.gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE);
-					GLRenderer.this.gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE);
-				} else GLRenderer.this.gl.glBindTexture(GL.GL_TEXTURE_2D, this.tex_id[i]);
+					GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, this.tex_id[i]);
+					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				} else GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, this.tex_id[i]);
 				
-				GLRenderer.this.gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, this.comp.getWidth(), this.comp.getHeight(), 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, null);
+				GLRenderer.this.gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.comp.getWidth(), this.comp.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
 			}
 			
 			this.width = this.comp.getWidth();
@@ -318,7 +334,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		this.compose_quadVAO = this.glu.createFullQuadVAO(this.gl);
 		
 		this.gl.glBindVertexArray(0);
-		this.gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+		this.gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	
 	public void dispose(GLAutoDrawable drawable) {
@@ -356,7 +372,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		
 		this.renderComposition(dest.comp, dest.frame_pos / dest.comp.getTimeline().getFramerate(), dest.index);
 		
-		this.gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0);
+		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	
 	private void prepareTrackRenderList(Composition comp, float time) {
@@ -383,14 +399,6 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	private void renderTrack(Composition comp, Track t, float time) {
 		TrackRenderTexture dest = this.getTrackTexture(comp, t);
 		
-		// We bind the framebuffer and the first dest buffer
-		this.gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, this.trackRenderingFBO);
-		this.gl.glFramebufferTexture(GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, dest.getDestBuffer(), 0);
-		
-		// We clear the first dest buffer
-		this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		this.gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-
 		// Clear the args before starting
 		this.fxArgs.clear();
 		
@@ -414,12 +422,16 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				dest.swapBuffers();
 				
 				// Bind the framebuffer and the dest buffer
-				this.gl.glFramebufferTexture(GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, dest.getDestBuffer(), 0);
+				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.trackRenderingFBO);
+				this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.getDestBuffer(), 0);
+				this.gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dest.getDepthBuffer());
 			}
 			
 			// Clear the dest buffer
 			this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			this.gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+			this.gl.glClearStencil(0x00);
+			this.gl.glClearDepth(1.0);
+			this.gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 			
 			// Effect arguments
 			this.fxArgs.clear();
@@ -428,6 +440,8 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			this.fxArgs.time = time;
 			this.fxArgs.texInput = dest.getBackBuffer();
 			this.fxArgs.fboOutput = this.trackRenderingFBO;
+			
+			this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.trackRenderingFBO);
 			
 			// DO IT TO EM
 			vfx.applyVideo(this.gl, this.fxArgs);
@@ -458,16 +472,16 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		this.gl.glViewport(0, 0, dest.width, dest.height);
 		
 		// Disable blending before doing shit
-		this.gl.glDisable(GL.GL_BLEND);
-		this.gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+		this.gl.glDisable(GL_BLEND);
+		this.gl.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		
 		// Render all the tracks
 		this.prepareTrackRenderList(comp, time);
 		this.renderAllTracks(comp, time);
 		
 		// Compose them, on the dest framebuffer
-		this.gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, dest.fbo);
-		this.gl.glFramebufferTexture(GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, dest.texture[cacheIndex], 0);
+		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, dest.fbo);
+		this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.texture[cacheIndex], 0);
 		
 		this.gl.glClearColor(
 			comp.getClearColor().getRedf(),
@@ -475,7 +489,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			comp.getClearColor().getBluef(),
 			comp.getClearColor().getAlphaf()
 		);
-		this.gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+		this.gl.glClear(GL_COLOR_BUFFER_BIT);
 		
 		this.gl.glUseProgram(this.compose_prog);
 		this.gl.glBindVertexArray(this.compose_quadVAO);
@@ -498,15 +512,15 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			if(noEffect) continue;
 			
 			// We render to the alt texture and then swap it to the used cache slot
-			this.gl.glFramebufferTexture(GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, dest.textureAlt, 0);
+			this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.textureAlt, 0);
 			
 			this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			this.gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+			this.gl.glClear(GL_COLOR_BUFFER_BIT);
 			
 			// We use the current cache slot as input
 			this.glu.uniformTexture(this.gl, this.compose_loc_inputComp, dest.texture[cacheIndex], 1);
 			this.glu.uniformTexture(this.gl, this.compose_loc_inputTex, this.getTrackTexture(comp, t).getBackBuffer(), 0);
-			this.gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
+			this.gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
 			// We then swap the alt texture we just rendered to with the cache slot
 			dest.swapAlt(this.gl, cacheIndex);

@@ -17,9 +17,9 @@
 struct Parameters {
 	vec4 color;
 	vec4 points;
-	
+
 	int blending;
-	
+
 	bool invert;
 };
 
@@ -38,22 +38,22 @@ in vec2 pass_quad_uv;
 out vec4 out_color;
 
 float doMask() {
-	vec2 pixelCoords = (pass_quad_uv * 1.0 - 0.5) * colorSize;
-	
+	vec2 pixelCoords = (pass_quad_uv - 0.5) * colorSize;
+
 	float minx = min(u_pointA.x, u_pointB.x);
 	float maxx = max(u_pointA.x, u_pointB.x);
 	float miny = min(u_pointA.y, u_pointB.y);
 	float maxy = max(u_pointA.y, u_pointB.y);
-	
+
 	return step(minx, pixelCoords.x) * step(pixelCoords.x, maxx) * step(miny, pixelCoords.y) * step(pixelCoords.y, maxy);
 }
 
 void main() {
 	float maskvalue = doMask();
 	if(u_invert) maskvalue = 1.0 - maskvalue;
-	
+
 	vec4 a = u_color * vec4(1.0, 1.0, 1.0, maskvalue);
 	vec4 b = texture(inputTex, pass_quad_uv);
-	
+
 	out_color = PD_compose(a, b, u_blending);
 }

@@ -30,7 +30,7 @@ public class PlaybackThread extends Thread {
 					int playbackStartFrame = UrmusicController.getFrameCursor();
 					int cacheSize = UrmusicModel.getVideoRenderer().getCacheSize();
 					int cacheSizeFifth = cacheSize / 5;
-					UrmusicModel.getVideoRenderer().queueFrameRange(UrmusicModel.getCurrentProject().getMainComposition(), playbackStartFrame, cacheSize);
+					UrmusicModel.getVideoRenderer().queueFrameRange(UrmusicController.getFocusedComposition(), playbackStartFrame, cacheSize);
 					
 					UrmusicModel.getAudioRenderer().seek(UrmusicController.getTimePosition());
 					UrmusicModel.getAudioRenderer().play();
@@ -40,13 +40,19 @@ public class PlaybackThread extends Thread {
 						frameStartTime = System.nanoTime();
 						idealFrameTime = (long) (PlaybackThread.SECOND_NANO / this.fps);
 						
+						// Stop playback when we reach the end
+						if(UrmusicController.getFrameCursor() == UrmusicController.getFocusedComposition().getTimeline().getTotalFrameCount() - 1) {
+							this.stopPlayback();
+							break;
+						}
+						
 						// Advance cursor
-						if((cacheForNext = UrmusicModel.getVideoRenderer().getCacheFor(UrmusicModel.getCurrentProject().getMainComposition(), UrmusicController.getFrameCursor() + 1)) >= 0
+						if((cacheForNext = UrmusicModel.getVideoRenderer().getCacheFor(UrmusicController.getFocusedComposition(), UrmusicController.getFrameCursor() + 1)) >= 0
 								&& !UrmusicModel.getVideoRenderer().getCachedFrames()[cacheForNext].dirty)
 							UrmusicController.setFrameCursor(UrmusicController.getFrameCursor() + 1);
 						
 						if(UrmusicController.getFrameCursor() - playbackStartFrame > cacheSizeFifth) {
-							UrmusicModel.getVideoRenderer().queueFrameRange(UrmusicModel.getCurrentProject().getMainComposition(), playbackStartFrame + cacheSize, cacheSizeFifth);
+							UrmusicModel.getVideoRenderer().queueFrameRange(UrmusicController.getFocusedComposition(), playbackStartFrame + cacheSize, cacheSizeFifth);
 							playbackStartFrame += cacheSizeFifth;
 						}
 
