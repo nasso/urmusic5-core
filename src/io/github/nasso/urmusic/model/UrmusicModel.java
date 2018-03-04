@@ -9,6 +9,7 @@ import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.common.event.VideoRendererListener;
 import io.github.nasso.urmusic.model.effect.AffineTransformVFX;
 import io.github.nasso.urmusic.model.effect.AudioScopeVFX;
+import io.github.nasso.urmusic.model.effect.AudioSpectrumVFX;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
 import io.github.nasso.urmusic.model.effect.ImageDisplayVFX;
 import io.github.nasso.urmusic.model.effect.RectangleMaskVFX;
@@ -38,6 +39,7 @@ public class UrmusicModel {
 		new AffineTransformVFX(),
 		
 		new AudioScopeVFX(),
+		new AudioSpectrumVFX()
 	};
 	
 	private UrmusicModel() { }

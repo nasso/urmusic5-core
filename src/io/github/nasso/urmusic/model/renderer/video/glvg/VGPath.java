@@ -27,7 +27,9 @@ class VGPath implements Cloneable {
 	/**
 	 * Returns a new path representing the stroke of this path
 	 */
-	public VGPath trace(float lineWidth, LineCap caps, LineJoin joins) {
+	public VGPath trace(float lineWidth, VGLineCap caps, VGLineJoin joins) {
+		float lineWidthHalf = lineWidth * 0.5f;
+		
 		VGPathBuilder p = new VGPathBuilder();
 		
 		VGSubPath sub = null;
@@ -72,7 +74,7 @@ class VGPath implements Cloneable {
 				
 				// Calc extend vector
 				prevExtend.set(extend);
-				extend.set(nextPt.y - currPt.y, currPt.x - nextPt.x).normalize().mul(lineWidth);
+				extend.set(nextPt.y - currPt.y, currPt.x - nextPt.x).normalize().mul(lineWidthHalf);
 				
 				// Draw line like that
 				/*
@@ -131,7 +133,7 @@ class VGPath implements Cloneable {
 				
 				// Handle intersections of the edges with the next line
 				if(nextNextPt != null) {
-					nextExtend.set(nextNextPt.y - nextPt.y, nextPt.x - nextNextPt.x).normalize().mul(lineWidth);
+					nextExtend.set(nextNextPt.y - nextPt.y, nextPt.x - nextNextPt.x).normalize().mul(lineWidthHalf);
 					
 					float nax, nay, nbx, nby, ncx, ncy, ndx, ndy;
 					nax = nextPt.x - nextExtend.x;
@@ -166,14 +168,99 @@ class VGPath implements Cloneable {
 					}
 				}
 				
-				// Trace the line
-				// moveTo if first point
-				if(j == 0) p.moveTo(ax, ay);
-				else p.lineTo(ax, ay);
+				// Caps and joins first
+				if(j == 0 && !sub.closed) {
+					switch(caps) {
+						case BUTT:
+							p.moveTo(ax, ay);
+							p.lineTo(bx, by);
+							break;
+						case ROUND:
+							// Draw arc
+							float startAngle = (float) Math.atan2(-extend.x, extend.y);
+							float angOffset, cs, sn;
+							
+							int steps = GLVG.getArcSteps(lineWidthHalf) / 2; // Half the step cuz half the circle
+							
+							for(int a = 0; a < steps; a++) {
+								angOffset = (float) a / steps * MathUtils.HALF_PI;
+								
+								cs = (float) Math.cos(startAngle - angOffset) * lineWidthHalf;
+								sn = (float) Math.sin(startAngle - angOffset) * lineWidthHalf;
+								
+								if(a == 0) p.moveTo(currPt.x + cs, currPt.y + sn);
+								else p.lineTo(currPt.x + cs, currPt.y + sn);
+								
+								cs = (float) Math.cos(startAngle + angOffset) * lineWidthHalf;
+								sn = (float) Math.sin(startAngle + angOffset) * lineWidthHalf;
+								
+								p.lineTo(currPt.x + cs, currPt.y + sn);
+							}
+							
+							p.lineTo(ax, ay);
+							p.lineTo(bx, by);
+							break;
+						case SQUARE:
+							p.moveTo(ax + extend.y, ay - extend.x);
+							p.lineTo(bx + extend.y, by - extend.x);
+							break;
+					}
+				} else {
+					switch(joins) {
+						case BEVEL:
+							break;
+						case MITER:
+							break;
+						case ROUND:
+							break;
+					}
+					
+					// Trace join
+					p.lineTo(ax, ay);
+					p.lineTo(bx, by);
+				}
 				
-				p.lineTo(bx, by);
+				// Trace the rest of the line
 				p.lineTo(cx, cy);
 				p.lineTo(dx, dy);
+				
+				// End cap if the end has been reached
+				if(next == sub.points.size() - 1) {
+					if(!sub.closed) {
+						switch(caps) {
+							case BUTT:
+								p.moveTo(ax, ay);
+								p.lineTo(bx, by);
+								break;
+							case ROUND:
+								// Draw arc
+								float startAngle = (float) Math.atan2(extend.x, extend.y);
+								float angOffset, cs, sn;
+								
+								int steps = GLVG.getArcSteps(lineWidthHalf) / 2; // Half the step cuz half the circle
+								
+								for(int a = 0; a <= steps; a++) {
+									angOffset = (float) a / steps * MathUtils.HALF_PI;
+									
+									cs = (float) Math.cos(startAngle + angOffset) * lineWidthHalf;
+									sn = (float) Math.sin(startAngle + angOffset) * lineWidthHalf;
+									
+									if(a == 0) p.moveTo(nextPt.x + cs, nextPt.y + sn);
+									else p.lineTo(nextPt.x + cs, nextPt.y + sn);
+									
+									cs = (float) Math.cos(startAngle + MathUtils.PI - angOffset) * lineWidthHalf;
+									sn = (float) Math.sin(startAngle + MathUtils.PI - angOffset) * lineWidthHalf;
+									
+									p.lineTo(nextPt.x + cs, nextPt.y + sn);
+								}
+								break;
+							case SQUARE:
+								p.moveTo(ax + extend.y, ay - extend.x);
+								p.lineTo(bx + extend.y, by - extend.x);
+								break;
+						}
+					}
+				}
 			}
 		}
 		

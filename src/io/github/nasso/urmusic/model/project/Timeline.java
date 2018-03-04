@@ -13,7 +13,7 @@ public class Timeline {
 	
 	private List<TimelineListener> timelineListeners = new ArrayList<>();
 	
-	private float duration = 60; // 1 minute
+	private float duration = 180; // 3 minute
 	private float framerate = 60;
 	private int audioSampleRate = 48000;
 	

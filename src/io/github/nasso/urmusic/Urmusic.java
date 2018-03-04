@@ -53,7 +53,7 @@ public class Urmusic {
 		
 		UrmusicController.addTrack();
 		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
-		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[4]);
+		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[5]);
 	}
 	
 	public static void main(String[] args) {

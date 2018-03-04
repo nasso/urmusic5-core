@@ -8,8 +8,8 @@ class VGState implements Cloneable {
 	Matrix3f transform;
 	VGPathBuilder path;
 	float lineWidth, miterLimit, globalAlpha;
-	LineJoin lineJoin;
-	LineCap lineCap;
+	VGLineJoin lineJoins;
+	VGLineCap lineCaps;
 	MutableRGBA32 fillStyle, strokeStyle;
 	
 	private VGState(boolean noinit) {
@@ -23,8 +23,8 @@ class VGState implements Cloneable {
 		 this.lineWidth = 1.0f;
 		 this.miterLimit = 10.0f;
 		 this.globalAlpha = 1.0f;
-		 this.lineJoin = LineJoin.MITER;
-		 this.lineCap = LineCap.BUTT;
+		 this.lineJoins = VGLineJoin.MITER;
+		 this.lineCaps = VGLineCap.BUTT;
 		 
 		 this.fillStyle = new MutableRGBA32(0x000000FF);
 		 this.strokeStyle = new MutableRGBA32(0x000000FF);
@@ -38,8 +38,8 @@ class VGState implements Cloneable {
 		copy.lineWidth = this.lineWidth;
 		copy.miterLimit = this.miterLimit;
 		copy.globalAlpha = this.globalAlpha;
-		copy.lineJoin = this.lineJoin;
-		copy.lineCap = this.lineCap;
+		copy.lineJoins = this.lineJoins;
+		copy.lineCaps = this.lineCaps;
 		copy.fillStyle = this.fillStyle.clone();
 		copy.strokeStyle = this.strokeStyle.clone();
 		

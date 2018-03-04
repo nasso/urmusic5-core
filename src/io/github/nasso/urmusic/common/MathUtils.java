@@ -6,9 +6,9 @@ import org.joml.Vector2fc;
 
 public class MathUtils {
 	public static final float PI = (float) Math.PI;
-	public static final float PI_2 = PI * 2.0f;
-	public static final float HALF_PI = PI * 0.5f;
-	public static final float PI_INV = 1.0f / PI;
+	public static final float PI_2 = MathUtils.PI * 2.0f;
+	public static final float HALF_PI = MathUtils.PI * 0.5f;
+	public static final float PI_INV = 1.0f / MathUtils.PI;
 	
 	private static Matrix3f _mat3 = new Matrix3f();
 	
@@ -63,27 +63,27 @@ public class MathUtils {
 	}
 	
 	public static Matrix3f skewX(Matrix3f mat, float angle) {
-		return mat.mul(setSkewX(_mat3, angle));
+		return mat.mul(MathUtils.setSkewX(MathUtils._mat3, angle));
 	}
 	
 	public static Matrix3f skewY(Matrix3f mat, float angle) {
-		return mat.mul(setSkewY(_mat3, angle));
+		return mat.mul(MathUtils.setSkewY(MathUtils._mat3, angle));
 	}
 	
 	public static Matrix3f translate(Matrix3f mat, float x, float y) {
-		return mat.mul(translation(_mat3, x, y));
+		return mat.mul(MathUtils.translation(MathUtils._mat3, x, y));
 	}
 	
 	public static Matrix3f rotate(Matrix3f mat, float a) {
-		return mat.mul(rotation(_mat3, a));
+		return mat.mul(MathUtils.rotation(MathUtils._mat3, a));
 	}
 	
 	public static Matrix3f scale(Matrix3f mat, float x, float y) {
-		return mat.mul(scaling(_mat3, x, y));
+		return mat.mul(MathUtils.scaling(MathUtils._mat3, x, y));
 	}
 	
 	public static Matrix3f apply(Matrix3f mat, float a, float b, float c, float d, float e, float f) {
-		return mat.mul(set(_mat3, a, b, c, d, e, f));
+		return mat.mul(MathUtils.set(MathUtils._mat3, a, b, c, d, e, f));
 	}
 	
 	public static float quadCurve(float p0, float cp, float p1, float t) {
@@ -91,7 +91,7 @@ public class MathUtils {
 	}
 	
 	public static float cubicBezier(float p0, float cp0, float cp1, float p1, float t) {
-		return (1.0f - t) * quadCurve(p0, cp0, cp1, t) + t * quadCurve(cp0, cp1, p1, t);
+		return (1.0f - t) * MathUtils.quadCurve(p0, cp0, cp1, t) + t * MathUtils.quadCurve(cp0, cp1, p1, t);
 	}
 	
 	public static void intersectRects(float[] dest, float ax, float ay, float aw, float ah, float bx, float by, float bw, float bh) {
@@ -174,7 +174,7 @@ public class MathUtils {
 	}
 	
 	public static boolean boxContains(float x, float y, float boxX, float boxY, float boxWidth, float boxHeight) {
-		return rangeContains(x, boxX, boxX + boxWidth) && rangeContains(y, boxY, boxY + boxHeight);
+		return MathUtils.rangeContains(x, boxX, boxX + boxWidth) && MathUtils.rangeContains(y, boxY, boxY + boxHeight);
 	}
 	
 	public static boolean colinear(float v0x, float v0y, float v1x, float v1y) {
@@ -182,11 +182,11 @@ public class MathUtils {
 	}
 	
 	public static boolean colinear(Vector2fc a, Vector2fc b) {
-		return colinear(a.x(), a.y(), b.x(), b.y());
+		return MathUtils.colinear(a.x(), a.y(), b.x(), b.y());
 	}
 	
 	public static boolean aligned(float x0, float y0, float x1, float y1, float x2, float y2) {
-		return colinear(x1 - x0, y1 - y0, x2 - x0, y2 - y0);
+		return MathUtils.colinear(x1 - x0, y1 - y0, x2 - x0, y2 - y0);
 	}
 	
 	/**
@@ -220,38 +220,34 @@ public class MathUtils {
 		dest.y = (a2 * c1 - a1 * c2) / w;
 		
 		return 
-				rangeContains(dest.x, Math.min(ax, bx), Math.max(ax, bx)) &&
-				rangeContains(dest.x, Math.min(cx, dx), Math.max(cx, dx));
+				MathUtils.rangeContains(dest.x, Math.min(ax, bx), Math.max(ax, bx)) &&
+				MathUtils.rangeContains(dest.x, Math.min(cx, dx), Math.max(cx, dx));
 	}
 	
 	public static void applyBlackmanWindow(float[] buffer, int length) {
 		float factor = MathUtils.PI / (length - 1);
 		
 		for(int i = 0; i < length; ++i)
-			buffer[i] = buffer[i] * (float) (0.42 - (0.5 * Math.cos(2 * factor * i)) + (0.08 * Math.cos(4 * factor * i)));
+			buffer[i] *= (float) (0.42 - (0.5 * Math.cos(2 * factor * i)) + (0.08 * Math.cos(4 * factor * i)));
 	}
 	
-	public static float addressArray(float[] array, int i, float outValue) {
-		if(i < 0 || i >= array.length) {
-			return outValue;
-		} else {
-			return array[i];
-		}
+	public static float addressArray(float[] array, int i) {
+		return array[MathUtils.clamp(i, 0, array.length - 1)];
 	}
 	
-	public static float getValue(float[] array, float index, boolean quadInterpolation, float minValue) {
+	public static float getValue(float[] array, float index, boolean quadInterpolation) {
 		if(quadInterpolation) {
 			int rdn = (int) Math.floor(index + 0.5);
 			
 			// @format:off
-			return quadCurve(
-					lerp(
-							addressArray(array, rdn - 1, minValue),
-							addressArray(array, rdn, minValue),
+			return MathUtils.quadCurve(
+					MathUtils.lerp(
+							MathUtils.addressArray(array, rdn - 1),
+							MathUtils.addressArray(array, rdn),
 							0.5f),
-						addressArray(array, rdn, minValue),
-						lerp(addressArray(array, rdn, minValue),
-							addressArray(array, rdn + 1, minValue),
+						MathUtils.addressArray(array, rdn),
+						MathUtils.lerp(MathUtils.addressArray(array, rdn),
+							MathUtils.addressArray(array, rdn + 1),
 							0.5f),
 						index - rdn + 0.5f);
 			// @format:on
@@ -259,10 +255,10 @@ public class MathUtils {
 			int flr = (int) Math.floor(index);
 			int cel = (int) Math.ceil(index);
 			
-			float flrv = addressArray(array, flr, minValue);
-			float celv = addressArray(array, cel, minValue);
+			float flrv = MathUtils.addressArray(array, flr);
+			float celv = MathUtils.addressArray(array, cel);
 			
-			return lerp(flrv, celv, index - flr);
+			return MathUtils.lerp(flrv, celv, index - flr);
 		}
 	}
 }

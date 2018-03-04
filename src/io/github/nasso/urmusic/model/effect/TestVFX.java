@@ -10,6 +10,7 @@ import io.github.nasso.urmusic.model.project.VideoEffectArgs;
 import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.project.param.Point2DParam;
 import io.github.nasso.urmusic.model.renderer.video.glvg.GLVG;
+import io.github.nasso.urmusic.model.renderer.video.glvg.VGLineCap;
 
 public class TestVFX extends TrackEffect implements VideoEffect {
 	private class TestVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
@@ -32,7 +33,8 @@ public class TestVFX extends TrackEffect implements VideoEffect {
 			this.vg.setFillColor(0xFF0000FF);
 			this.vg.setStrokeColor(0xFF0000FF);
 			
-			this.vg.setLineWidth(16);
+			this.vg.setLineWidth(64);
+			this.vg.setLineCaps(VGLineCap.ROUND);
 			
 			this.vg.beginPath();
 			this.vg.moveTo(pt0.x(), -pt0.y());

@@ -111,6 +111,20 @@
 		"effect.audio_scope.param.millisOffset.name": "Time Offset (ms)",
 		"effect.audio_scope.param.duration.name": "Duration",
 		"effect.audio_scope.param.lineWidth.name": "Line Width",
-		"effect.audio_scope.param.precision.name": "Precision"
+		"effect.audio_scope.param.precision.name": "Precision",
+		
+		"effect.audio_spectrum.name": "Audio Spectrum",
+		"effect.audio_spectrum.param.startPoint.name": "Start Point",
+		"effect.audio_spectrum.param.endPoint.name": "End Point",
+		"effect.audio_spectrum.param.millisOffset.name": "Time Offset (ms)",
+		"effect.audio_spectrum.param.duration.name": "Duration",
+		"effect.audio_spectrum.param.minDecibel.name": "Min Decibel",
+		"effect.audio_spectrum.param.maxDecibel.name": "Max Decibel",
+		"effect.audio_spectrum.param.minFreq.name": "Min Frequency (%)",
+		"effect.audio_spectrum.param.maxFreq.name": "Max Frequency (%)",
+		"effect.audio_spectrum.param.height.name": "Height",
+		"effect.audio_spectrum.param.exponent.name": "Exponent",
+		"effect.audio_spectrum.param.lineWidth.name": "Line Width",
+		"effect.audio_spectrum.param.lineCount.name": "Line Count"
 	}
 }

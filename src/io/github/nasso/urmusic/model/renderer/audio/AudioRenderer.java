@@ -20,7 +20,7 @@ public class AudioRenderer implements Runnable {
 	private Thread audioThread;
 	
 	private int bufferSize;
-	private long syncPrecision = 24000;
+	private long syncPrecision = 8000;
 	
 	// PCM Data Access
 	private WaveFormatLoader accessLoader = new WaveFormatLoader();
