@@ -15,7 +15,7 @@ public class FFTContext {
 		this.fft.realForward(data);
 		
 		for(int i = 0, l = data.length / 2; i < l; i++)
-			data[i] = (float) Math.hypot(data[i * 2], data[i * 2 + 1]);
+			data[data.length - 1 - i] = data[i] = (float) Math.hypot(data[i * 2], data[i * 2 + 1]);
 		
 		if(convertToDb) {
 			for(int i = 0; i < data.length; i++) {

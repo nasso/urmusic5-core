@@ -5,7 +5,7 @@ public class OptionParam extends EffectParam<Integer> {
 	
 	private Integer value = 0;
 	
-	public OptionParam(String name, String... values) {
+	public OptionParam(String name, int defaultValue, String... values) {
 		super(name);
 		
 		this.options = new String[values.length];

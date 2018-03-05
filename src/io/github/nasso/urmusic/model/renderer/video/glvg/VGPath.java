@@ -47,7 +47,7 @@ class VGPath implements Cloneable {
 			
 			// Remove the useless stuff
 			if(sub.points.size() < 2) continue;
-
+			
 			pointsLoop: for(int j = 0, next = 0, nextnext = 0; j < sub.points.size(); j = next) {
 				prevPt = currPt;
 				currPt = sub.points.get(j);

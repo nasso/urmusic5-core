@@ -114,6 +114,11 @@
 		"effect.audio_scope.param.precision.name": "Precision",
 		
 		"effect.audio_spectrum.name": "Audio Spectrum",
+		"effect.audio_spectrum.param.mode.name": "Mode",
+		"effect.audio_spectrum.param.mode.option.outline": "Outline",
+		"effect.audio_spectrum.param.mode.option.lines": "Lines",
+		"effect.audio_spectrum.param.mode.option.fill": "Fill",
+		"effect.audio_spectrum.param.mode.option.dots": "Dots",
 		"effect.audio_spectrum.param.startPoint.name": "Start Point",
 		"effect.audio_spectrum.param.endPoint.name": "End Point",
 		"effect.audio_spectrum.param.millisOffset.name": "Time Offset (ms)",

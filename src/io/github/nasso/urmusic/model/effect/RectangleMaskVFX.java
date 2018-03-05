@@ -26,7 +26,7 @@ public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
 	public class RectangleMaskVFXInstance extends TrackEffectInstance implements VideoEffectInstance  {
 		private RGBA32Param color = new RGBA32Param("color", 0xffffffff);
 		private BoundsParam bounds = new BoundsParam("bounds", -50, -50, 100, 100);
-		private OptionParam blendingMode = new OptionParam("blendingMode",
+		private OptionParam blendingMode = new OptionParam("blendingMode", 0,
 				"srcOver",
 				"dstOver",
 				"srcIn",

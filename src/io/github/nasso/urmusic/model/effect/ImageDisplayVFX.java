@@ -34,7 +34,7 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 	public class ImageDisplayVFXInstance extends TrackEffectInstance implements VideoEffectInstance  {
 		private FileParam source = new FileParam("source");
 		private BoundsParam bounds = new BoundsParam("bounds", 0, 0, 256, 256, 1, 1, 1, 1, true);
-		private OptionParam blendingMode = new OptionParam("blendingMode",
+		private OptionParam blendingMode = new OptionParam("blendingMode", 0,
 			"srcOver",
 			"dstOver",
 			"srcIn",

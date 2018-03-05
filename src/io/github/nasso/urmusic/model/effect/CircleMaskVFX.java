@@ -31,7 +31,7 @@ public class CircleMaskVFX extends TrackEffect implements VideoEffect {
 		private FloatParam outerFade = new FloatParam("outerFade", 1.0f, 1.0f, 0.0f, Float.MAX_VALUE);
 		private FloatParam innerRadius = new FloatParam("innerRadius", 0.0f, 1.0f, 0.0f, Float.MAX_VALUE);
 		private FloatParam innerFade = new FloatParam("innerFade", 0.0f, 1.0f, 0.0f, Float.MAX_VALUE);
-		private OptionParam blendingMode = new OptionParam("blendingMode",
+		private OptionParam blendingMode = new OptionParam("blendingMode", 0,
 			"srcOver",
 			"dstOver",
 			"srcIn",

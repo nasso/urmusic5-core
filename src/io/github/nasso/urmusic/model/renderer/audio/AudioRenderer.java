@@ -43,6 +43,10 @@ public class AudioRenderer implements Runnable {
 		this.audioThread.start();
 	}
 	
+	public int getSampleRate() {
+		return this.sampleRate;
+	}
+	
 	public void dispose() {
 		this.shouldStop = true;
 		
@@ -124,7 +128,7 @@ public class AudioRenderer implements Runnable {
 	}
 	
 	public void sync(float time) {
-		long syncOffset = this.timeToSamples(time); 
+		long syncOffset = this.timeToSamples(time);
 		
 		if(this.playing && this.sampleOffset - syncOffset >= this.syncPrecision) {
 			this.sampleOffset = syncOffset;

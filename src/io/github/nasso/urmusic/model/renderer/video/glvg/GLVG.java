@@ -20,7 +20,7 @@ import io.github.nasso.urmusic.model.renderer.video.GLUtils;
  * @author nasso
  */
 public class GLVG implements VGPathMethods {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final float ARC_EDGE_SIZE = 16;
 	private static final int DEFAULT_BUFFER_SIZE = 32;
 	
@@ -150,13 +150,37 @@ public class GLVG implements VGPathMethods {
 	}
 	
 	public void fill() {
+		// Clear the stencil buffer
+		this.gl.glEnable(GL.GL_STENCIL_TEST);
+		this.gl.glClear(GL.GL_STENCIL_BUFFER_BIT);
+		
+		// Render to stencil
 		this.loadPathVertices(this.state().path.getPath());
+		this.stencilPolygon();
+		
+		// Fill
 		this.stencilFill(this.state().fillStyle);
+		
+		this.gl.glDisable(GL.GL_STENCIL_TEST);
 	}
 	
 	public void stroke() {
-		this.loadPathVertices(this.state().path.getPath().trace(this.state().lineWidth, this.state().lineCaps, this.state().lineJoins));
-		this.stencilStroke(this.state().strokeStyle);
+		VGPath trace = this.state().path.getPath().trace(this.state().lineWidth, this.state().lineCaps, this.state().lineJoins);
+
+		// Clear the stencil buffer
+		this.gl.glEnable(GL.GL_STENCIL_TEST);
+		this.gl.glClear(GL.GL_STENCIL_BUFFER_BIT);
+		
+		for(int i = 0; i < trace.subPaths.size(); i++) {
+			// Draw each sub paths separately
+			this.loadSubPathVertices(trace.subPaths.get(i));
+			this.stencilStroke();
+		}
+		
+		// Fill
+		this.stencilFill(this.state().strokeStyle);
+		
+		this.gl.glDisable(GL.GL_STENCIL_TEST);
 	}
 	
 	// CanvasPathMethods
@@ -173,11 +197,33 @@ public class GLVG implements VGPathMethods {
 	}
 	
 	// Actual rendering
+	private void loadSubPathVertices(VGSubPath path) {
+		this.nverts = path.points.size();
+		
+		int bufSize = this.nverts * 2;
+		if(this.vertBuffer.capacity() < bufSize) {
+			// Allocate more spACE
+			this.vertBuffer = FloatBuffer.allocate(bufSize);
+		}
+		
+		this.vertBuffer.clear();
+		for(int i = 0; i < path.points.size(); i++) {
+			VGPoint p = path.points.get(i);
+			
+			this.vertBuffer.put(p.x);
+			this.vertBuffer.put(p.y);
+		}
+		
+		this.vertBuffer.flip();
+		
+		this.gl.glBindBuffer(GL.GL_ARRAY_BUFFER, this.gl_vbo_verts);
+		this.gl.glBufferData(GL.GL_ARRAY_BUFFER, this.vertBuffer.remaining() << 4, this.vertBuffer, GL2ES2.GL_STREAM_DRAW);
+	}
+	
 	private void loadPathVertices(VGPath path) {
 		this.nverts = 0;
 		for(int i = 0; i < path.subPaths.size(); i++) {
-			VGSubPath sub = path.subPaths.get(i);
-			this.nverts += sub.points.size();
+			this.nverts += path.subPaths.get(i).points.size();
 		}
 		
 		int bufSize = this.nverts * 2;
@@ -204,12 +250,9 @@ public class GLVG implements VGPathMethods {
 		this.gl.glBufferData(GL.GL_ARRAY_BUFFER, this.vertBuffer.remaining() << 4, this.vertBuffer, GL2ES2.GL_STREAM_DRAW);
 	}
 	
-	private void stencilFill(RGBA32 rgba) {
+	// Used for normal polygons
+	private void stencilPolygon() {
 		// -- Stencil pass
-		// Clear the stencil buffer
-		this.gl.glEnable(GL.GL_STENCIL_TEST);
-		this.gl.glClear(GL.GL_STENCIL_BUFFER_BIT);
-		
 		// Stencil invert mode
 		this.gl.glColorMask(false, false, false, false);
 		this.gl.glStencilMask(0xFF);
@@ -227,35 +270,13 @@ public class GLVG implements VGPathMethods {
 		this.gl.glStencilMask(0xFF);
 		this.gl.glStencilFunc(GL.GL_NOTEQUAL, 0, 0xFF);
 		this.gl.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP);
-		
-		// -- Filling pass
-		this.gl.glUseProgram(this.gl_prog_fill);
-		this.gl.glUniform4f(this.gl_prog_fill_vec4_fillRGBA, rgba.getRedf(), rgba.getGreenf(), rgba.getBluef(), rgba.getAlphaf());
-		
-		this.gl.glBindVertexArray(this.gl_vao_quad);
-		this.gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
-		
-		this.gl.glDisable(GL.GL_STENCIL_TEST);
-		
-		if(GLVG.DEBUG) {
-			this.gl.glUseProgram(this.gl_prog_stencil);
-			this.gl.glUniform2f(this.gl_prog_stencil_vec2_surfaceSize, this.width, this.height);
-
-			this.gl.glBindVertexArray(this.gl_vao_path);
-			this.gl.glDrawArrays(GL.GL_LINE_LOOP, 0, this.nverts);
-			return;
-		}
 	}
 	
 	// Used for strokes ONLY (the thing you get from VGPath::trace())
 	// Notable differences are the use of GL_REPLACE instead of GL_INVERT in
 	// stencil pass and GL_TRIANGLE_STRIP because of the layout differences in the path description
-	private void stencilStroke(RGBA32 rgba) {
+	private void stencilStroke() {
 		// -- Stencil pass
-		// Clear the stencil buffer
-		this.gl.glEnable(GL.GL_STENCIL_TEST);
-		this.gl.glClear(GL.GL_STENCIL_BUFFER_BIT);
-		
 		// Stencil invert mode
 		this.gl.glColorMask(false, false, false, false);
 		this.gl.glStencilMask(0xFF);
@@ -273,7 +294,9 @@ public class GLVG implements VGPathMethods {
 		this.gl.glStencilMask(0xFF);
 		this.gl.glStencilFunc(GL.GL_NOTEQUAL, 0, 0xFF);
 		this.gl.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_KEEP);
-		
+	}
+	
+	private void stencilFill(RGBA32 rgba) {
 		// -- Filling pass
 		this.gl.glUseProgram(this.gl_prog_fill);
 		this.gl.glUniform4f(this.gl_prog_fill_vec4_fillRGBA, rgba.getRedf(), rgba.getGreenf(), rgba.getBluef(), rgba.getAlphaf());
@@ -281,9 +304,9 @@ public class GLVG implements VGPathMethods {
 		this.gl.glBindVertexArray(this.gl_vao_quad);
 		this.gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
 		
-		this.gl.glDisable(GL.GL_STENCIL_TEST);
-		
 		if(GLVG.DEBUG) {
+			this.gl.glDisable(GL.GL_STENCIL_TEST);
+			
 			this.gl.glUseProgram(this.gl_prog_stencil);
 			this.gl.glUniform2f(this.gl_prog_stencil_vec2_surfaceSize, this.width, this.height);
 
@@ -293,6 +316,8 @@ public class GLVG implements VGPathMethods {
 			this.gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, this.nverts);
 			
 			this.gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_FILL);
+			
+			this.gl.glEnable(GL.GL_STENCIL_TEST);
 			return;
 		}
 	}
