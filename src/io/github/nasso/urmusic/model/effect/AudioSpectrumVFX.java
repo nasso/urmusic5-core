@@ -151,6 +151,8 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 				case 3: // DOTS
 					break;
 			}
+			
+			this.vg.end(args.fboOutput);
 		}
 		
 		public void disposeVideo(GL3 gl) {

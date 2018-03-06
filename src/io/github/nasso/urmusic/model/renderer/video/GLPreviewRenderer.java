@@ -15,11 +15,10 @@ public class GLPreviewRenderer implements GLEventListener {
 	
 	private int quadProg, quadVAO, quadProgTextureLocation, loc_xform;
 	
-	private GLUtils glu;
+	private GLUtils glu = new GLUtils("preview renderer");
 	
 	public GLPreviewRenderer(GLPreviewer previewer) {
 		this.previewer = previewer;
-		this.glu = new GLUtils();
 	}
 
 	public void init(GLAutoDrawable drawable) {

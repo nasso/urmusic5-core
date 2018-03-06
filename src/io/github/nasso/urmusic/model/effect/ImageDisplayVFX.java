@@ -26,7 +26,7 @@ import io.github.nasso.urmusic.model.project.param.OptionParam;
 import io.github.nasso.urmusic.model.renderer.video.GLUtils;
 
 public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
-	private GLUtils glu = new GLUtils();
+	private GLUtils glu = new GLUtils("image display global");
 	
 	private int prog, quadVAO;
 	private int loc_xform, loc_inputTex, loc_imageTex, loc_blending, loc_opacity;

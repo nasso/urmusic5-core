@@ -71,6 +71,8 @@ public class AudioScopeVFX extends TrackEffect implements VideoEffect {
 				this.vg.lineTo(x, y);
 			}
 			this.vg.stroke();
+			
+			this.vg.end(args.fboOutput);
 		}
 
 		public void disposeVideo(GL3 gl) {

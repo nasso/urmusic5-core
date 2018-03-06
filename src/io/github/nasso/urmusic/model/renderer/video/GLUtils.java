@@ -1,5 +1,7 @@
 package io.github.nasso.urmusic.model.renderer.video;
 
+import static com.jogamp.opengl.GL.*;
+import static com.jogamp.opengl.GL2ES2.*;
 
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -14,8 +16,6 @@ import java.util.List;
 import org.joml.Matrix4f;
 
 import com.jogamp.common.nio.Buffers;
-import com.jogamp.opengl.GL;
-import com.jogamp.opengl.GL2ES2;
 import com.jogamp.opengl.GL3;
 import com.jogamp.opengl.util.glsl.ShaderUtil;
 
@@ -26,6 +26,8 @@ import io.github.nasso.urmusic.common.parsing.Token;
 import io.github.nasso.urmusic.common.parsing.Tokenizer;
 
 public class GLUtils {
+	public static final boolean DEBUG = true;
+	
 	private static enum GLSLPreprocessorToken {
 		PRE_INCLUDE,
 		PRE_INCLUDE_LOCAL_PATH,
@@ -68,6 +70,12 @@ public class GLUtils {
 	private final TIntList renderbuffers = new TIntArrayList();
 	private final TIntList framebuffers = new TIntArrayList();
 	private final TIntList programs = new TIntArrayList();
+	
+	private final String name;
+	
+	public GLUtils(String name) {
+		this.name = name;
+	}
 	
 	public final int genBuffer(GL3 gl) {
 		this.genBuffers(gl, 1, this.buf1a);
@@ -132,19 +140,19 @@ public class GLUtils {
 			int tex = bufTex.get(i);
 			int fbo = bufFBO.get(i);
 			
-			gl.glBindTexture(GL.GL_TEXTURE_2D, tex);
-			gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, width, height, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, null);
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_NEAREST);
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE);
-			gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE);
+			gl.glBindTexture(GL_TEXTURE_2D, tex);
+			gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			
-			gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, fbo);
-			gl.glFramebufferTexture(GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0, tex, 0);
+			gl.glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+			gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tex, 0);
 		}
 		
-		gl.glBindTexture(GL.GL_TEXTURE_2D, 0);
-		gl.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0);
+		gl.glBindTexture(GL_TEXTURE_2D, 0);
+		gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	
 	private final void readGLSLSourceLines(String wdir, String shaderPath, StringBuilder lines) throws IOException {
@@ -210,8 +218,8 @@ public class GLUtils {
 	 * @return
 	 */
 	public final int createProgram(GL3 gl, String dir, String vsName, String fsName) {
-		int vs = gl.glCreateShader(GL2ES2.GL_VERTEX_SHADER);
-		int fs = gl.glCreateShader(GL2ES2.GL_FRAGMENT_SHADER);
+		int vs = gl.glCreateShader(GL_VERTEX_SHADER);
+		int fs = gl.glCreateShader(GL_FRAGMENT_SHADER);
 		
 		try {
 			gl.glShaderSource(vs, 1, new String[] {
@@ -228,16 +236,16 @@ public class GLUtils {
 		gl.glCompileShader(vs);
 		gl.glCompileShader(fs);
 		
-		gl.glGetShaderiv(vs, GL2ES2.GL_COMPILE_STATUS, this.buf1a);
-		if(this.buf1a.get(0) == GL.GL_FALSE) {
+		gl.glGetShaderiv(vs, GL_COMPILE_STATUS, this.buf1a);
+		if(this.buf1a.get(0) == GL_FALSE) {
 			System.err.println("Compilation error in " + vsName + ":\n" + ShaderUtil.getShaderInfoLog(gl, vs));
 			gl.glDeleteShader(vs);
 			gl.glDeleteShader(fs);
 			return 0;
 		}
 		
-		gl.glGetShaderiv(fs, GL2ES2.GL_COMPILE_STATUS, this.buf1a);
-		if(this.buf1a.get(0) == GL.GL_FALSE) {
+		gl.glGetShaderiv(fs, GL_COMPILE_STATUS, this.buf1a);
+		if(this.buf1a.get(0) == GL_FALSE) {
 			System.err.println("Compilation error in " + fsName + ":\n" + ShaderUtil.getShaderInfoLog(gl, fs));
 			gl.glDeleteShader(vs);
 			gl.glDeleteShader(fs);
@@ -248,9 +256,9 @@ public class GLUtils {
 		gl.glAttachShader(progID, vs);
 		gl.glAttachShader(progID, fs);
 		gl.glLinkProgram(progID);
-
-		gl.glGetProgramiv(vs, GL2ES2.GL_COMPILE_STATUS, this.buf1a);
-		if(this.buf1a.get(0) == GL.GL_FALSE) {
+		
+		gl.glGetProgramiv(progID, GL_LINK_STATUS, this.buf1a);
+		if(this.buf1a.get(0) == GL_FALSE) {
 			System.err.println(ShaderUtil.getProgramInfoLog(gl, progID));
 			gl.glDeleteProgram(progID);
 			gl.glDeleteShader(vs);
@@ -264,14 +272,16 @@ public class GLUtils {
 		gl.glDeleteShader(vs);
 		gl.glDeleteShader(fs);
 		
+		this.dumpError(gl, "createProgram");
+		
 		return progID;
 	}
 	
 	public final void uniformTexture(GL3 gl, int loc, int texID, int texUnit) {
 		gl.glUniform1i(loc, texUnit + 1);
-		gl.glActiveTexture(GL.GL_TEXTURE0 + texUnit + 1);
-		gl.glBindTexture(GL.GL_TEXTURE_2D, texID);
-		gl.glActiveTexture(GL.GL_TEXTURE0);
+		gl.glActiveTexture(GL_TEXTURE0 + texUnit + 1);
+		gl.glBindTexture(GL_TEXTURE_2D, texID);
+		gl.glActiveTexture(GL_TEXTURE0);
 	}
 	
 	public final void uniformMatrix(GL3 gl, int loc, Matrix4f mat4) {
@@ -378,6 +388,31 @@ public class GLUtils {
 	}
 	
 	// Misc utils
+	public final void dumpError(GL3 gl, String tag) {
+		if(!DEBUG) return;
+		
+		int err;
+		while((err = gl.glGetError()) != GL_NO_ERROR) {
+			switch(err) {
+				case GL_INVALID_ENUM:
+					System.out.println("opengl error for '" + this.name + "' at '" + tag + "': GL_INVALID_ENUM");
+					break;
+				case GL_INVALID_VALUE:
+					System.out.println("opengl error for '" + this.name + "' at '" + tag + "': GL_INVALID_VALUE");
+					break;
+				case GL_INVALID_OPERATION:
+					System.out.println("opengl error for '" + this.name + "' at '" + tag + "': GL_INVALID_OPERATION");
+					break;
+				case GL_INVALID_FRAMEBUFFER_OPERATION:
+					System.out.println("opengl error for '" + this.name + "' at '" + tag + "': GL_INVALID_FRAMEBUFFER_OPERATION");
+					break;
+				case GL_OUT_OF_MEMORY:
+					System.out.println("opengl error for '" + this.name + "' at '" + tag + "': GL_OUT_OF_MEMORY");
+					break;
+			}
+		}
+	}
+	
 	/**
 	 * Loads an image to a gl texture, optionnaly generating mip maps at the end.
 	 */
@@ -398,9 +433,9 @@ public class GLUtils {
 		
 		data.flip();
 		
-		gl.glBindTexture(GL.GL_TEXTURE_2D, tex);
-		gl.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, width, height, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, data);
-		if(genMipmaps) gl.glGenerateMipmap(GL.GL_TEXTURE_2D);
+		gl.glBindTexture(GL_TEXTURE_2D, tex);
+		gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		if(genMipmaps) gl.glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	
 	/**
@@ -424,18 +459,18 @@ public class GLUtils {
 	 */
 	public final int createFullQuadVAO(GL3 gl) {
 		int quadPos = this.genBuffer(gl);
-		gl.glBindBuffer(GL.GL_ARRAY_BUFFER, quadPos);
-		gl.glBufferData(GL.GL_ARRAY_BUFFER, 8 * 32, FloatBuffer.wrap(new float[] {
+		gl.glBindBuffer(GL_ARRAY_BUFFER, quadPos);
+		gl.glBufferData(GL_ARRAY_BUFFER, 8 * 32, FloatBuffer.wrap(new float[] {
 				-1, -1,
 				1, -1,
 				-1, 1,
 				1, 1
-		}), GL.GL_STATIC_DRAW);
+		}), GL_STATIC_DRAW);
 		
 		int quadVAO = this.genVertexArray(gl);
 		gl.glBindVertexArray(quadVAO);
 		gl.glEnableVertexAttribArray(0);
-		gl.glVertexAttribPointer(0, 2, GL.GL_FLOAT, false, 0, 0);
+		gl.glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);
 		
 		return quadVAO;
 	}

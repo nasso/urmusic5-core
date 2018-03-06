@@ -14,7 +14,7 @@ import io.github.nasso.urmusic.model.renderer.video.glvg.VGLineCap;
 
 public class TestVFX extends TrackEffect implements VideoEffect {
 	private class TestVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
-		private Point2DParam pt0 = new Point2DParam("pt0", -500, 200);
+		private Point2DParam pt0 = new Point2DParam("pt0", -250, 20);
 		private GLVG vg;
 		
 		public TestVFXInstance() {
@@ -33,17 +33,15 @@ public class TestVFX extends TrackEffect implements VideoEffect {
 			this.vg.setFillColor(0xFF0000FF);
 			this.vg.setStrokeColor(0xFF0000FF);
 			
-			this.vg.setLineWidth(64);
+			this.vg.setLineWidth(2);
 			this.vg.setLineCaps(VGLineCap.ROUND);
 			
 			this.vg.beginPath();
-			this.vg.moveTo(pt0.x(), -pt0.y());
-			this.vg.lineTo(-300, -200);
-			this.vg.lineTo(-200, -200);
-			this.vg.lineTo(200, 200);
-			this.vg.lineTo(200, -200);
-			this.vg.lineTo(-200, 200);
+			this.vg.moveTo(0, 0);
+			this.vg.lineTo(pt0.x(), -pt0.y());
 			this.vg.stroke();
+			
+			this.vg.end(args.fboOutput);
 		}
 
 		public void disposeVideo(GL3 gl) {
