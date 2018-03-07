@@ -15,10 +15,10 @@ import io.github.nasso.urmusic.model.project.param.BooleanParam;
 import io.github.nasso.urmusic.model.project.param.BoundsParam;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
 import io.github.nasso.urmusic.model.project.param.RGBA32Param;
-import io.github.nasso.urmusic.model.renderer.video.GLUtils;
+import io.github.nasso.urmusic.model.renderer.video.NGLUtils;
 
 public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
-	private GLUtils glu = new GLUtils("rectangle mask global");
+	private NGLUtils glu = new NGLUtils("rectangle mask global");
 	
 	private int prog, quadVAO;
 	private int loc_inputTex, loc_size, loc_color, loc_points, loc_blending, loc_invert;

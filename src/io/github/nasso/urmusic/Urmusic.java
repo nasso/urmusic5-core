@@ -9,6 +9,7 @@ import java.util.List;
 import io.github.nasso.urmusic.common.DataUtils;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.model.effect.TestVFX;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 public class Urmusic {
@@ -53,7 +54,8 @@ public class Urmusic {
 		
 		UrmusicController.addTrack();
 		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
-		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[5]);
+		// UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[5]);
+		UrmusicController.addEffect(new TestVFX());
 	}
 	
 	public static void main(String[] args) {

@@ -15,7 +15,7 @@ public class GLPreviewRenderer implements GLEventListener {
 	
 	private int quadProg, quadVAO, quadProgTextureLocation, loc_xform;
 	
-	private GLUtils glu = new GLUtils("preview renderer");
+	private NGLUtils glu = new NGLUtils("preview renderer");
 	
 	public GLPreviewRenderer(GLPreviewer previewer) {
 		this.previewer = previewer;

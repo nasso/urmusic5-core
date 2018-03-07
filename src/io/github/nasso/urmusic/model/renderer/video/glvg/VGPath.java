@@ -234,22 +234,22 @@ class VGPath implements Cloneable {
 								break;
 							case ROUND:
 								// Draw arc
-								float startAngle = (float) Math.atan2(extend.x, extend.y);
+								float startAngle = (float) Math.atan2(extend.x, -extend.y);
 								float angOffset, cs, sn;
 								
 								int steps = GLVG.getArcSteps(lineWidthHalf) / 2; // Half the step cuz half the circle
 								
 								for(int a = 0; a <= steps; a++) {
-									angOffset = (float) a / steps * MathUtils.HALF_PI;
+									angOffset = (1.0f - (float) a / steps) * MathUtils.HALF_PI;
 									
-									cs = (float) Math.cos(startAngle + angOffset) * lineWidthHalf;
-									sn = (float) Math.sin(startAngle + angOffset) * lineWidthHalf;
+									cs = (float) Math.cos(startAngle - angOffset) * lineWidthHalf;
+									sn = (float) Math.sin(startAngle - angOffset) * lineWidthHalf;
 									
 									if(a == 0) p.moveTo(nextPt.x + cs, nextPt.y + sn);
 									else p.lineTo(nextPt.x + cs, nextPt.y + sn);
 									
-									cs = (float) Math.cos(startAngle + MathUtils.PI - angOffset) * lineWidthHalf;
-									sn = (float) Math.sin(startAngle + MathUtils.PI - angOffset) * lineWidthHalf;
+									cs = (float) Math.cos(startAngle + angOffset) * lineWidthHalf;
+									sn = (float) Math.sin(startAngle + angOffset) * lineWidthHalf;
 									
 									p.lineTo(nextPt.x + cs, nextPt.y + sn);
 								}
@@ -261,6 +261,24 @@ class VGPath implements Cloneable {
 						}
 					}
 				}
+			}
+			
+			// We must join to the first point if the path is closed
+			if(sub.closed) {
+				VGPoint first = sub.firstPoint();
+				VGPoint last = sub.lastPoint();
+				
+				float ax, ay, bx, by, cx, cy, dx, dy;
+				ax = last.x - extend.x;
+				ay = last.y - extend.y;
+				bx = last.x + extend.x;
+				by = last.y + extend.y;
+				cx = first.x - extend.x;
+				cy = first.y - extend.y;
+				dx = first.x + extend.x;
+				dy = first.y + extend.y;
+				
+				
 			}
 		}
 		

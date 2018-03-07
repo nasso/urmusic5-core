@@ -19,8 +19,8 @@ interface VGPathMethods {
 		float ry = h / 2.0f;
 		
 		int steps = GLVG.getArcSteps(Math.max(rx, ry));
-		for(int i = 0; i < steps; i++) {
-			float p = i / steps;
+		for(int i = 0; i <= steps; i++) {
+			float p = (float) i / steps;
 			
 			float cs = (float) Math.cos(p * Math.PI * 2);
 			float sn = (float) Math.sin(p * Math.PI * 2);
@@ -28,8 +28,7 @@ interface VGPathMethods {
 			cs *= rx;
 			sn *= ry;
 			
-			this.lineTo(cs, sn);
+			lineTo(x + cs, y + sn);
 		}
-		this.closePath();
 	}
 }

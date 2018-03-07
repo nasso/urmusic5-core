@@ -16,10 +16,10 @@ import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
 import io.github.nasso.urmusic.model.project.param.Point2DParam;
 import io.github.nasso.urmusic.model.project.param.RGBA32Param;
-import io.github.nasso.urmusic.model.renderer.video.GLUtils;
+import io.github.nasso.urmusic.model.renderer.video.NGLUtils;
 
 public class CircleMaskVFX extends TrackEffect implements VideoEffect {
-	private GLUtils glu = new GLUtils("circle mask global");
+	private NGLUtils glu = new NGLUtils("circle mask global");
 	
 	private int prog, quadVAO;
 	private int loc_inputTex, loc_size, loc_color, loc_originInOutRadius, loc_inOutFade, loc_blending, loc_invert;

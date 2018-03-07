@@ -14,10 +14,10 @@ import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.model.project.param.Point2DParam;
 import io.github.nasso.urmusic.model.project.param.Vector2DParam;
-import io.github.nasso.urmusic.model.renderer.video.GLUtils;
+import io.github.nasso.urmusic.model.renderer.video.NGLUtils;
 
 public class AffineTransformVFX extends TrackEffect implements VideoEffect {
-	private GLUtils glu = new GLUtils("affine transform global");
+	private NGLUtils glu = new NGLUtils("affine transform global");
 	
 	private int prog, quadVAO;
 	private int loc_inputTex, loc_xform, loc_opacity;

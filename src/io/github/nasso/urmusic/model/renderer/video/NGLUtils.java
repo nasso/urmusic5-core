@@ -13,6 +13,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.List;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 import com.jogamp.common.nio.Buffers;
@@ -25,7 +26,11 @@ import io.github.nasso.urmusic.common.DataUtils;
 import io.github.nasso.urmusic.common.parsing.Token;
 import io.github.nasso.urmusic.common.parsing.Tokenizer;
 
-public class GLUtils {
+/**
+ * NGLU's Not GLU
+ * @author nasso
+ */
+public class NGLUtils {
 	public static final boolean DEBUG = true;
 	
 	private static enum GLSLPreprocessorToken {
@@ -52,17 +57,17 @@ public class GLUtils {
 	};
 	
 	static {
-		GLUtils.glslTokenizer.ignore("\\s");
+		NGLUtils.glslTokenizer.ignore("\\s");
 		
-		GLUtils.glslTokenizer.addToken("#include", GLSLPreprocessorToken.PRE_INCLUDE);
-		GLUtils.glslTokenizer.addToken("<.*>", GLSLPreprocessorToken.PRE_INCLUDE_GLOBAL_PATH);
-		GLUtils.glslTokenizer.addToken("\".*\"", GLSLPreprocessorToken.PRE_INCLUDE_LOCAL_PATH);
+		NGLUtils.glslTokenizer.addToken("#include", GLSLPreprocessorToken.PRE_INCLUDE);
+		NGLUtils.glslTokenizer.addToken("<.*>", GLSLPreprocessorToken.PRE_INCLUDE_GLOBAL_PATH);
+		NGLUtils.glslTokenizer.addToken("\".*\"", GLSLPreprocessorToken.PRE_INCLUDE_LOCAL_PATH);
 	}
 	
 	private final IntBuffer buf1a = Buffers.newDirectIntBuffer(1);
 	private final IntBuffer buf1b = Buffers.newDirectIntBuffer(1);
 	
-	private FloatBuffer _mat4Buf = Buffers.newDirectFloatBuffer(4 * 4);
+	private FloatBuffer _matBuf = Buffers.newDirectFloatBuffer(4 * 4);
 	
 	private final TIntList buffers = new TIntArrayList();
 	private final TIntList vaos = new TIntArrayList();
@@ -73,7 +78,7 @@ public class GLUtils {
 	
 	private final String name;
 	
-	public GLUtils(String name) {
+	public NGLUtils(String name) {
 		this.name = name;
 	}
 	
@@ -161,8 +166,8 @@ public class GLUtils {
 		InputStream in = DataUtils.getFileInputStream(filePath.toString(), true);
 		
 		// If it's still null, try to guess the missing extension
-		for(int i = 0; i < GLUtils.GLSL_FILE_EXTENSIONS.length && in == null; i++)
-			in = DataUtils.getFileInputStream(filePath.toString() + "." + GLUtils.GLSL_FILE_EXTENSIONS[i], true);
+		for(int i = 0; i < NGLUtils.GLSL_FILE_EXTENSIONS.length && in == null; i++)
+			in = DataUtils.getFileInputStream(filePath.toString() + "." + NGLUtils.GLSL_FILE_EXTENSIONS[i], true);
 		
 		// If we couldn't guess the extension, welp rip m8 guess ur file doesn't exist or u have some weird extension
 		if(in == null) {
@@ -175,7 +180,7 @@ public class GLUtils {
 		String line;
 		while((line = reader.readLine()) != null) {
 			if(line.startsWith("#include ")) {
-				List<Token<GLSLPreprocessorToken>> tokens = GLUtils.glslTokenizer.tokenize(line);
+				List<Token<GLSLPreprocessorToken>> tokens = NGLUtils.glslTokenizer.tokenize(line);
 				
 				if(tokens.size() >= 2 && tokens.get(0).getType() == GLSLPreprocessorToken.PRE_INCLUDE) {
 					Token<GLSLPreprocessorToken> val = tokens.get(1);
@@ -284,9 +289,14 @@ public class GLUtils {
 		gl.glActiveTexture(GL_TEXTURE0);
 	}
 	
+	public final void uniformMatrix(GL3 gl, int loc, Matrix3f mat3) {
+		mat3.get(this._matBuf);
+		gl.glUniformMatrix3fv(loc, 1, false, this._matBuf);
+	}
+	
 	public final void uniformMatrix(GL3 gl, int loc, Matrix4f mat4) {
-		mat4.get(this._mat4Buf);
-		gl.glUniformMatrix4fv(loc, this._mat4Buf.remaining() >> 4, false, this._mat4Buf);
+		mat4.get(this._matBuf);
+		gl.glUniformMatrix4fv(loc, 1, false, this._matBuf);
 	}
 	
 	public final void deleteBuffer(GL3 gl, int buf) {

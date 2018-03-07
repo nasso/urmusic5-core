@@ -194,7 +194,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	
 	public final VideoRenderer mainRenderer;
 	private GL3 gl;
-	private GLUtils glu = new GLUtils("gl renderer global");
+	private NGLUtils glu = new NGLUtils("gl renderer global");
 	
 	private VideoEffectArgs fxArgs = new VideoEffectArgs();
 	
