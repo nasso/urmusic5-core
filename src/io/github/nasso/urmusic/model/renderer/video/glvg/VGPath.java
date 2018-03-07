@@ -52,7 +52,8 @@ class VGPath implements Cloneable {
 			currPt = !sub.closed ? null : sub.points.get(sub.points.size() - 2);
 			nextPt = null;
 			nextNextPt = null;
-			extend.set(sub.lastPoint().y - currPt.y, currPt.x - sub.lastPoint().x).normalize().mul(lineWidthHalf);
+			if(sub.closed) extend.set(sub.lastPoint().y - currPt.y, currPt.x - sub.lastPoint().x).normalize().mul(lineWidthHalf);
+			else extend.zero();
 			
 			pointsLoop: for(int j = 0, next = 0, nextnext = 0; j < sub.points.size(); j = next) {
 				currPt = sub.points.get(j);
