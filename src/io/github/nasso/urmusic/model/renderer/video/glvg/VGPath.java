@@ -30,17 +30,18 @@ class VGPath implements Cloneable {
 	public VGPath trace(float lineWidth, VGLineCap caps, VGLineJoin joins) {
 		float lineWidthHalf = lineWidth * 0.5f;
 		
+		float fax = 0;
+		float fay = 0;
+		float fbx = 0;
+		float fby = 0;
+		
 		VGPathBuilder p = new VGPathBuilder();
 		
 		VGSubPath sub = null;
-		VGPoint prevPt = null;
 		VGPoint currPt = null;
 		VGPoint nextPt = null;
 		VGPoint nextNextPt = null;
-		Vector2f prevExtend = new Vector2f();
 		Vector2f extend = new Vector2f();
-		Vector2f nextExtend = new Vector2f();
-		Vector2f turnPt = new Vector2f();
 		
 		for(int i = 0; i < this.subPaths.size(); i++) {
 			sub = this.subPaths.get(i);
@@ -48,8 +49,12 @@ class VGPath implements Cloneable {
 			// Remove the useless stuff
 			if(sub.points.size() < 2) continue;
 			
+			currPt = !sub.closed ? null : sub.points.get(sub.points.size() - 2);
+			nextPt = null;
+			nextNextPt = null;
+			extend.set(sub.lastPoint().y - currPt.y, currPt.x - sub.lastPoint().x).normalize().mul(lineWidthHalf);
+			
 			pointsLoop: for(int j = 0, next = 0, nextnext = 0; j < sub.points.size(); j = next) {
-				prevPt = currPt;
 				currPt = sub.points.get(j);
 				
 				// Merge every consecutive and aligned lines
@@ -57,23 +62,20 @@ class VGPath implements Cloneable {
 					next++;
 					nextnext = next + 1;
 					
-					if(next > sub.points.size()) nextPt = null;
-					else if(next == sub.points.size()) nextPt = sub.closed ? sub.firstPoint() : null;
-					else nextPt = sub.points.get(next);
+					if(next >= sub.points.size() && !sub.closed) nextPt = null;
+					else nextPt = sub.points.get(next % sub.points.size());
 
-					if(nextnext > sub.points.size()) nextNextPt = null;
-					else if(nextnext == sub.points.size()) nextNextPt = sub.closed ? sub.firstPoint() : null;
-					else nextNextPt = sub.points.get(nextnext);
+					if(nextnext >= sub.points.size() && !sub.closed) nextNextPt = null;
+					else nextNextPt = sub.points.get(nextnext % sub.points.size());
 					
 					// Since there can only be at least 2 points, nextPt will only be null
 					// on the last point of a non closed path.
 					// So we break when the next next point is null, and quit the main loop when the next is null
 					if(nextPt == null) break pointsLoop;
 					if(nextNextPt == null) break;
-				} while(MathUtils.aligned(currPt.x, currPt.y, nextPt.x, nextPt.y, nextNextPt.x, nextNextPt.y));
+				} while(MathUtils.alignedInOrder(currPt.x, currPt.y, nextPt.x, nextPt.y, nextNextPt.x, nextNextPt.y));
 				
 				// Calc extend vector
-				prevExtend.set(extend);
 				extend.set(nextPt.y - currPt.y, currPt.x - nextPt.x).normalize().mul(lineWidthHalf);
 				
 				// Draw line like that
@@ -96,76 +98,11 @@ class VGPath implements Cloneable {
 				dx = nextPt.x + extend.x;
 				dy = nextPt.y + extend.y;
 				
-				// Handle intersections of the edges with the previous line
-				if(prevPt != null) {
-					float pax, pay, pbx, pby, pcx, pcy, pdx, pdy;
-					pax = prevPt.x - prevExtend.x;
-					pay = prevPt.y - prevExtend.y;
-					pbx = prevPt.x + prevExtend.x;
-					pby = prevPt.y + prevExtend.y;
-					pcx = currPt.x - prevExtend.x;
-					pcy = currPt.y - prevExtend.y;
-					pdx = currPt.x + prevExtend.x;
-					pdy = currPt.y + prevExtend.y;
-					
-					if(
-						MathUtils.intersection( // Intersection with AC
-								pax, pay,
-								pcx, pcy,
-								ax, ay,
-								cx, cy,
-								turnPt)) {
-						// When found, change A
-						ax = turnPt.x;
-						ay = turnPt.y;
-					} else if(
-						MathUtils.intersection( // Intersection with BD
-							pbx, pby,
-							pdx, pdy,
-							bx, by,
-							dx, dy,
-							turnPt)) {
-						// When found, change B
-						bx = turnPt.x;
-						by = turnPt.y;
-					}
-				}
-				
-				// Handle intersections of the edges with the next line
-				if(nextNextPt != null) {
-					nextExtend.set(nextNextPt.y - nextPt.y, nextPt.x - nextNextPt.x).normalize().mul(lineWidthHalf);
-					
-					float nax, nay, nbx, nby, ncx, ncy, ndx, ndy;
-					nax = nextPt.x - nextExtend.x;
-					nay = nextPt.y - nextExtend.y;
-					nbx = nextPt.x + nextExtend.x;
-					nby = nextPt.y + nextExtend.y;
-					ncx = nextNextPt.x - nextExtend.x;
-					ncy = nextNextPt.y - nextExtend.y;
-					ndx = nextNextPt.x + nextExtend.x;
-					ndy = nextNextPt.y + nextExtend.y;
-					
-					if(
-						MathUtils.intersection( // Intersection with AC
-								ax, ay,
-								cx, cy,
-								nax, nay,
-								ncx, ncy,
-								turnPt)) {
-						// When found, change C
-						cx = turnPt.x;
-						cy = turnPt.y;
-					} else if(
-						MathUtils.intersection( // Intersection with BD
-							bx, by,
-							dx, dy,
-							nbx, nby,
-							ndx, ndy,
-							turnPt)) {
-						// When found, change D
-						dx = turnPt.x;
-						dy = turnPt.y;
-					}
+				if(j == 0) {
+					fax = ax;
+					fay = ay;
+					fbx = bx;
+					fby = by;
 				}
 				
 				// Caps and joins first
@@ -216,7 +153,8 @@ class VGPath implements Cloneable {
 					}
 					
 					// Trace join
-					p.lineTo(ax, ay);
+					if(j == 0) p.moveTo(ax, ay);
+					else p.lineTo(ax, ay);
 					p.lineTo(bx, by);
 				}
 				
@@ -265,20 +203,8 @@ class VGPath implements Cloneable {
 			
 			// We must join to the first point if the path is closed
 			if(sub.closed) {
-				VGPoint first = sub.firstPoint();
-				VGPoint last = sub.lastPoint();
-				
-				float ax, ay, bx, by, cx, cy, dx, dy;
-				ax = last.x - extend.x;
-				ay = last.y - extend.y;
-				bx = last.x + extend.x;
-				by = last.y + extend.y;
-				cx = first.x - extend.x;
-				cy = first.y - extend.y;
-				dx = first.x + extend.x;
-				dy = first.y + extend.y;
-				
-				
+				p.lineTo(fax, fay);
+				p.lineTo(fbx, fby);
 			}
 		}
 		

@@ -189,6 +189,15 @@ public class MathUtils {
 		return MathUtils.colinear(x1 - x0, y1 - y0, x2 - x0, y2 - y0);
 	}
 	
+	public static boolean alignedInOrder(float x0, float y0, float x1, float y1, float x2, float y2) {
+		return 
+			(
+				(x0 <= x1 && x1 <= x2) ||
+				(x0 >= x1 && x1 >= x2) // Technically checking only on 1 component is enough
+			) &&
+			MathUtils.aligned(x0, y0, x1, y1, x2, y2);
+	}
+	
 	/**
 	 * Stores the intersection between [AB] and [CD] if any, in dest.
 	 * Returns false when the lines do not intersect, leaving <tt>dest</tt> as-is, true otherwise.<br />

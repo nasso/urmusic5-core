@@ -43,6 +43,7 @@ public class TestVFX extends TrackEffect implements VideoEffect {
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
 			this.vg.begin(gl, args.width, args.height);
 
+			this.vg.setLineWidth(64);
 
 			this.vg.beginPath();
 			for(int i = 0; i < this.points.length; i++) {
@@ -51,7 +52,7 @@ public class TestVFX extends TrackEffect implements VideoEffect {
 				this.vg.lineTo(p.x(), -p.y());
 			}
 			this.vg.closePath();
-			this.vg.fill();
+			// this.vg.fill();
 			this.vg.stroke();
 			
 			this.vg.end(args.fboOutput);

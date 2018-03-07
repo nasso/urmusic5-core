@@ -14,4 +14,8 @@ class VGPoint {
 		this.y = y;
 		this.ghost = ghost;
 	}
+	
+	public String toString() {
+		return (this.ghost ? "#(" : "(") + this.x + "; " + this.y + ")";
+	}
 }
