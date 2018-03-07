@@ -112,7 +112,7 @@
 		"effect.audio_scope.param.duration.name": "Duration",
 		"effect.audio_scope.param.lineWidth.name": "Line Width",
 		"effect.audio_scope.param.precision.name": "Precision",
-		
+
 		"effect.audio_spectrum.name": "Audio Spectrum",
 		"effect.audio_spectrum.param.mode.name": "Mode",
 		"effect.audio_spectrum.param.mode.option.outline": "Outline",
@@ -121,6 +121,8 @@
 		"effect.audio_spectrum.param.mode.option.dots": "Dots",
 		"effect.audio_spectrum.param.startPoint.name": "Start Point",
 		"effect.audio_spectrum.param.endPoint.name": "End Point",
+		"effect.audio_spectrum.param.faceA.name": "Face A",
+		"effect.audio_spectrum.param.faceB.name": "Face B",
 		"effect.audio_spectrum.param.millisOffset.name": "Time Offset (ms)",
 		"effect.audio_spectrum.param.duration.name": "Duration",
 		"effect.audio_spectrum.param.minDecibel.name": "Min Decibel",
@@ -129,7 +131,7 @@
 		"effect.audio_spectrum.param.maxFreq.name": "Max Frequency (%)",
 		"effect.audio_spectrum.param.height.name": "Height",
 		"effect.audio_spectrum.param.exponent.name": "Exponent",
-		"effect.audio_spectrum.param.lineWidth.name": "Line Width",
+		"effect.audio_spectrum.param.size.name": "Size",
 		"effect.audio_spectrum.param.lineCount.name": "Line Count"
 	}
 }

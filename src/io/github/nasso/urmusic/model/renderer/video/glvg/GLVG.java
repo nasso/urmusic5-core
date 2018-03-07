@@ -178,44 +178,26 @@ public class GLVG implements VGPathMethods {
 		this.state().lineJoins = joins;
 	}
 	
-	// Rectangle stuff
-	public void clearRect(int x, int y, int w, int h) {
-		
-	}
-	
-	public void fillRect(int x, int y, int w, int h) {
-		this.save();
-		
-		this.beginPath();
-		this.rect(x, y, w, h);
-		this.fill();
-		
-		this.restore();
-	}
-	
-	public void strokeRect(int x, int y, int w, int h) {
-		this.save();
-		
-		this.beginPath();
-		this.rect(x, y, w, h);
-		this.stroke();
-		
-		this.restore();
-	}
-	
 	// Drawing paths
 	public void beginPath() {
 		this.state().path.clear();
 	}
 	
 	public void fill() {
+		VGPath path = this.state().path.getPath();
+		
 		// Clear the stencil buffer
 		this.gl.glEnable(GL_STENCIL_TEST);
 		this.gl.glClear(GL_STENCIL_BUFFER_BIT);
 		
 		// Render to stencil
-		this.loadPathVertices(this.state().path.getPath());
-		this.stencilPolygon();
+		this.stencilInvertMode();
+		for(int i = 0; i < path.subPaths.size(); i++) {
+			// Draw each sub paths separately
+			this.loadSubPathVertices(path.subPaths.get(i));
+			this.triangleFan();
+		}
+		this.normalMode();
 		
 		// Fill
 		this.stencilFill(this.state().fillStyle);
@@ -230,11 +212,13 @@ public class GLVG implements VGPathMethods {
 		this.gl.glEnable(GL_STENCIL_TEST);
 		this.gl.glClear(GL_STENCIL_BUFFER_BIT);
 		
+		this.stencilReplaceMode();
 		for(int i = 0; i < trace.subPaths.size(); i++) {
 			// Draw each sub paths separately
 			this.loadSubPathVertices(trace.subPaths.get(i));
-			this.stencilStroke();
+			this.triangleStrip();
 		}
+		this.normalMode();
 		
 		// Fill
 		this.stencilFill(this.state().strokeStyle);
@@ -279,40 +263,8 @@ public class GLVG implements VGPathMethods {
 		this.gl.glBufferData(GL_ARRAY_BUFFER, this.vertBuffer.remaining() << 4, this.vertBuffer, GL_STREAM_DRAW);
 	}
 	
-	private void loadPathVertices(VGPath path) {
-		this.nverts = 0;
-		for(int i = 0; i < path.subPaths.size(); i++) {
-			this.nverts += path.subPaths.get(i).points.size();
-		}
-		
-		int bufSize = this.nverts * 2;
-		if(this.vertBuffer.capacity() < bufSize) {
-			// Allocate more spACE
-			this.vertBuffer = FloatBuffer.allocate(bufSize);
-		}
-		
-		this.vertBuffer.clear();
-		for(int i = 0; i < path.subPaths.size(); i++) {
-			VGSubPath sub = path.subPaths.get(i);
-			
-			for(int j = 0; j < sub.points.size(); j++) {
-				VGPoint p = sub.points.get(j);
-				
-				this.vertBuffer.put(p.x);
-				this.vertBuffer.put(p.y);
-			}
-		}
-		
-		this.vertBuffer.flip();
-		
-		this.gl.glBindBuffer(GL_ARRAY_BUFFER, this.gl_vbo_verts);
-		this.gl.glBufferData(GL_ARRAY_BUFFER, this.vertBuffer.remaining() << 4, this.vertBuffer, GL_STREAM_DRAW);
-	}
-	
 	// Used for normal polygons
-	private void stencilPolygon() {
-		// -- Stencil pass
-		// Stencil invert mode
+	private void stencilInvertMode() {
 		this.gl.glColorMask(false, false, false, false);
 		this.gl.glStencilMask(0xFF);
 		this.gl.glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -322,21 +274,9 @@ public class GLVG implements VGPathMethods {
 		this.gl.glUniform2f(this.gl_prog_stencil_vec2_surfaceSize, this.width, this.height);
 		
 		this.gl.glBindVertexArray(this.gl_vao_path);
-		this.gl.glDrawArrays(GL_TRIANGLE_FAN, 0, this.nverts);
-		
-		// Restore state
-		this.gl.glColorMask(true, true, true, true);
-		this.gl.glStencilMask(0xFF);
-		this.gl.glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
-		this.gl.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	}
 	
-	// Used for strokes ONLY (the thing you get from VGPath::trace())
-	// Notable differences are the use of GL_REPLACE instead of GL_INVERT in
-	// stencil pass and GL_TRIANGLE_STRIP because of the layout differences in the path description
-	private void stencilStroke() {
-		// -- Stencil pass
-		// Stencil invert mode
+	private void stencilReplaceMode() {
 		this.gl.glColorMask(false, false, false, false);
 		this.gl.glStencilMask(0xFF);
 		this.gl.glStencilFunc(GL_ALWAYS, 1, 0xFF);
@@ -346,13 +286,22 @@ public class GLVG implements VGPathMethods {
 		this.gl.glUniform2f(this.gl_prog_stencil_vec2_surfaceSize, this.width, this.height);
 		
 		this.gl.glBindVertexArray(this.gl_vao_path);
-		this.gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, this.nverts);
-		
+	}
+	
+	private void normalMode() {
 		// Restore state
 		this.gl.glColorMask(true, true, true, true);
 		this.gl.glStencilMask(0xFF);
 		this.gl.glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
 		this.gl.glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+	}
+	
+	private void triangleFan() {
+		this.gl.glDrawArrays(GL_TRIANGLE_FAN, 0, this.nverts);
+	}
+	
+	private void triangleStrip() {
+		this.gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, this.nverts);
 	}
 	
 	private void stencilFill(RGBA32 rgba) {

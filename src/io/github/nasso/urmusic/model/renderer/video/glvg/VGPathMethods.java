@@ -13,4 +13,23 @@ interface VGPathMethods {
 		lineTo(x, y + h);
 		closePath();
 	}
+	
+	public default void oval(float x, float y, float w, float h) {
+		float rx = w / 2.0f;
+		float ry = h / 2.0f;
+		
+		int steps = GLVG.getArcSteps(Math.max(rx, ry));
+		for(int i = 0; i < steps; i++) {
+			float p = i / steps;
+			
+			float cs = (float) Math.cos(p * Math.PI * 2);
+			float sn = (float) Math.sin(p * Math.PI * 2);
+			
+			cs *= rx;
+			sn *= ry;
+			
+			this.lineTo(cs, sn);
+		}
+		this.closePath();
+	}
 }

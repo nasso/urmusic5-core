@@ -5,6 +5,7 @@ import org.joml.Vector2fc;
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 
+import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.FFTContext;
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.model.UrmusicModel;
@@ -12,6 +13,7 @@ import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.VideoEffect;
 import io.github.nasso.urmusic.model.project.VideoEffectArgs;
 import io.github.nasso.urmusic.model.project.VideoEffectInstance;
+import io.github.nasso.urmusic.model.project.param.BooleanParam;
 import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.model.project.param.IntParam;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
@@ -23,6 +25,8 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 	
 	private class AudioSpectrumVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
 		private OptionParam mode = new OptionParam("mode", 1, "outline", "lines", "fill", "dots");
+		private BooleanParam faceA = new BooleanParam("faceA", BoolValue.TRUE);
+		private BooleanParam faceB = new BooleanParam("faceB", BoolValue.TRUE);
 		private Point2DParam startPoint = new Point2DParam("startPoint", -400, 0);
 		private Point2DParam endPoint = new Point2DParam("endPoint", +400, 0);
 		private FloatParam millisOffset = new FloatParam("millisOffset", 0.0f, 1.0f);
@@ -33,7 +37,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		private FloatParam maxFreq = new FloatParam("maxFreq", 240.0f, 10.0f, 0.0f, Float.MAX_VALUE);
 		private FloatParam height = new FloatParam("height", 200.0f, 1.0f);
 		private FloatParam exponent = new FloatParam("exponent", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
-		private FloatParam lineWidth = new FloatParam("lineWidth", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
+		private FloatParam size = new FloatParam("size", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
 		private IntParam lineCount = new IntParam("lineCount", 256, 1, 1, Integer.MAX_VALUE);
 
 		private GLVG vg;
@@ -45,6 +49,8 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			this.addParameter(this.mode);
 			this.addParameter(this.startPoint);
 			this.addParameter(this.endPoint);
+			this.addParameter(this.faceA);
+			this.addParameter(this.faceB);
 			this.addParameter(this.millisOffset);
 			this.addParameter(this.duration);
 			this.addParameter(this.minDecibel);
@@ -53,7 +59,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			this.addParameter(this.maxFreq);
 			this.addParameter(this.height);
 			this.addParameter(this.exponent);
-			this.addParameter(this.lineWidth);
+			this.addParameter(this.size);
 			this.addParameter(this.lineCount);
 		}
 		
@@ -64,6 +70,8 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
 			Vector2fc startPoint = this.startPoint.getValue(args.time);
 			Vector2fc endPoint = this.endPoint.getValue(args.time);
+			boolean faceA = this.faceA.getValue(args.time) == BoolValue.TRUE;
+			boolean faceB = this.faceB.getValue(args.time) == BoolValue.TRUE;
 			float millisOffset = this.millisOffset.getValue(args.time);
 			float duration = this.duration.getValue(args.time);
 			float minDecibel = this.minDecibel.getValue(args.time);
@@ -73,8 +81,13 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			float height = this.height.getValue(args.time);
 			float exponent = this.exponent.getValue(args.time);
 			int mode = this.mode.getValue(args.time);
-			float lineWidth = this.lineWidth.getValue(args.time);
+			float size = this.size.getValue(args.time);
 			int lineCount = this.lineCount.getValue(args.time);
+			
+			if(!faceA && !faceB) {
+				args.cancelled = true;
+				return;
+			}
 			
 			{ // In a block so "min" and "max" aren't annoying later if we need to name vars like that
 				float min = Math.min(minDecibel, maxDecibel);
@@ -100,26 +113,45 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			
 			switch(mode) {
 				case 0: // OUTLINE
-					this.vg.setLineWidth(lineWidth);
+					this.vg.setLineWidth(size);
 					this.vg.setStrokeColor(0xFFFFFFFF);
 				case 2: // FILL
 					this.vg.setFillColor(0xFFFFFFFF);
-					
+
 					this.vg.beginPath();
-					this.vg.moveTo(startPoint.x(), -startPoint.y());
-					for(int i = 0; i < lineCount; i++) {
-						float p = (float) i / (lineCount - 1);
-						
-						// [0..1] frequency amplitude
-						float freqVal = MathUtils.clamp(Math.max((MathUtils.getValue(this.audioData, MathUtils.lerp(minFreq, maxFreq, p) * this.audioData.length, true) - minDecibel), 0.0f) / (maxDecibel - minDecibel), 0.0f, 1.0f);
-						freqVal = (float) Math.pow(freqVal, exponent);
-						
-						float x = MathUtils.lerp(startPoint.x(), endPoint.x(), p) - freqVal * expandX;
-						float y = -MathUtils.lerp(startPoint.y(), endPoint.y(), p) + freqVal * expandY;
-						
-						this.vg.lineTo(x, y);
+					if(faceA) {
+						this.vg.moveTo(startPoint.x(), -startPoint.y());
+						for(int i = 0; i < lineCount; i++) {
+							float p = (float) i / (lineCount - 1);
+							
+							// [0..1] frequency amplitude
+							float freqVal = MathUtils.clamp(Math.max((MathUtils.getValue(this.audioData, MathUtils.lerp(minFreq, maxFreq, p) * this.audioData.length, true) - minDecibel), 0.0f) / (maxDecibel - minDecibel), 0.0f, 1.0f);
+							freqVal = (float) Math.pow(freqVal, exponent);
+							
+							float x = MathUtils.lerp(startPoint.x(), endPoint.x(), p) - freqVal * expandX;
+							float y = -MathUtils.lerp(startPoint.y(), endPoint.y(), p) + freqVal * expandY;
+							
+							this.vg.lineTo(x, y);
+						}
+						this.vg.lineTo(endPoint.x(), -endPoint.y());
 					}
-					this.vg.lineTo(endPoint.x(), -endPoint.y());
+
+					if(faceA) {
+						this.vg.moveTo(startPoint.x(), -startPoint.y());
+						for(int i = 0; i < lineCount; i++) {
+							float p = (float) i / (lineCount - 1);
+							
+							// [0..1] frequency amplitude
+							float freqVal = MathUtils.clamp(Math.max((MathUtils.getValue(this.audioData, MathUtils.lerp(minFreq, maxFreq, p) * this.audioData.length, true) - minDecibel), 0.0f) / (maxDecibel - minDecibel), 0.0f, 1.0f);
+							freqVal = (float) Math.pow(freqVal, exponent);
+							
+							float x = MathUtils.lerp(startPoint.x(), endPoint.x(), p) + freqVal * expandX;
+							float y = -MathUtils.lerp(startPoint.y(), endPoint.y(), p) - freqVal * expandY;
+							
+							this.vg.lineTo(x, y);
+						}
+						this.vg.lineTo(endPoint.x(), -endPoint.y());
+					}
 					
 					if(mode == 0)
 						this.vg.stroke();
@@ -127,7 +159,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 						this.vg.fill();
 					break;
 				case 1: // LINES
-					this.vg.setLineWidth(lineWidth);
+					this.vg.setLineWidth(size);
 					this.vg.setStrokeColor(0xFFFFFFFF);
 					
 					this.vg.beginPath();
@@ -140,15 +172,53 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 						
 						float sx = MathUtils.lerp(startPoint.x(), endPoint.x(), p);
 						float sy = -MathUtils.lerp(startPoint.y(), endPoint.y(), p);
-						float x = sx - Math.max(freqVal, 0.01f) * expandX;
-						float y = sy + Math.max(freqVal, 0.01f) * expandY;
+						float xa = sx - Math.max(freqVal, 0.01f) * expandX;
+						float ya = sy + Math.max(freqVal, 0.01f) * expandY;
+						float xb = sx + Math.max(freqVal, 0.01f) * expandX;
+						float yb = sy - Math.max(freqVal, 0.01f) * expandY;
 
-						this.vg.moveTo(sx, sy);
-						this.vg.lineTo(x, y);
+						if(faceA && faceB) {
+							this.vg.moveTo(xa, ya);
+							this.vg.lineTo(xb, yb);
+						} else if(faceA) {
+							this.vg.moveTo(sx, sy);
+							this.vg.lineTo(xa, ya);
+						} else if(faceB) {
+							this.vg.moveTo(sx, sy);
+							this.vg.lineTo(xa, ya);
+						}
 					}
 					this.vg.stroke();
 					break;
 				case 3: // DOTS
+					this.vg.setFillColor(0xFFFFFFFF);
+					
+					this.vg.beginPath();
+					for(int i = 0; i < lineCount; i++) {
+						float p = (float) i / (lineCount - 1);
+						
+						// [0..1] frequency amplitude
+						float freqVal = MathUtils.clamp(Math.max((MathUtils.getValue(this.audioData, MathUtils.lerp(minFreq, maxFreq, p) * this.audioData.length, true) - minDecibel), 0.0f) / (maxDecibel - minDecibel), 0.0f, 1.0f);
+						freqVal = (float) Math.pow(freqVal, exponent);
+						
+						float sx = MathUtils.lerp(startPoint.x(), endPoint.x(), p);
+						float sy = -MathUtils.lerp(startPoint.y(), endPoint.y(), p);
+						float xa = sx - Math.max(freqVal, 0.01f) * expandX;
+						float ya = sy + Math.max(freqVal, 0.01f) * expandY;
+						float xb = sx + Math.max(freqVal, 0.01f) * expandX;
+						float yb = sy - Math.max(freqVal, 0.01f) * expandY;
+
+						if(faceA) {
+							this.vg.moveTo(xa, ya);
+							this.vg.oval(xa, ya, size, size);
+						}
+						
+						if(faceB) {
+							this.vg.moveTo(xb, yb);
+							this.vg.oval(xb, yb, size, size);
+						}
+					}
+					this.vg.fill();
 					break;
 			}
 			
