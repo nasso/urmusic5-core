@@ -119,6 +119,7 @@
 		"effect.audio_spectrum.param.mode.option.lines": "Lines",
 		"effect.audio_spectrum.param.mode.option.fill": "Fill",
 		"effect.audio_spectrum.param.mode.option.dots": "Dots",
+		"effect.audio_spectrum.param.color.name": "Color",
 		"effect.audio_spectrum.param.startPoint.name": "Start Point",
 		"effect.audio_spectrum.param.endPoint.name": "End Point",
 		"effect.audio_spectrum.param.faceA.name": "Face A",

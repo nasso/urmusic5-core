@@ -8,6 +8,7 @@ import com.jogamp.opengl.GL3;
 import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.FFTContext;
 import io.github.nasso.urmusic.common.MathUtils;
+import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.VideoEffect;
@@ -18,6 +19,7 @@ import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.model.project.param.IntParam;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
 import io.github.nasso.urmusic.model.project.param.Point2DParam;
+import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.video.glvg.GLVG;
 
 public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
@@ -25,6 +27,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 	
 	private class AudioSpectrumVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
 		private OptionParam mode = new OptionParam("mode", 1, "outline", "lines", "fill", "dots");
+		private RGBA32Param color = new RGBA32Param("color", 0xFFFFFFFF);
 		private BooleanParam faceA = new BooleanParam("faceA", BoolValue.TRUE);
 		private BooleanParam faceB = new BooleanParam("faceB", BoolValue.TRUE);
 		private Point2DParam startPoint = new Point2DParam("startPoint", -400, 0);
@@ -39,7 +42,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		private FloatParam exponent = new FloatParam("exponent", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
 		private FloatParam size = new FloatParam("size", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
 		private IntParam lineCount = new IntParam("lineCount", 256, 1, 1, Integer.MAX_VALUE);
-
+		
 		private GLVG vg;
 		
 		private FFTContext fft = new FFTContext(AudioSpectrumVFX.FFT_SIZE);
@@ -47,6 +50,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		
 		public AudioSpectrumVFXInstance() {
 			this.addParameter(this.mode);
+			this.addParameter(this.color);
 			this.addParameter(this.startPoint);
 			this.addParameter(this.endPoint);
 			this.addParameter(this.faceA);
@@ -68,6 +72,8 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		}
 		
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
+			int mode = this.mode.getValue(args.time);
+			RGBA32 color = this.color.getValue(args.time);
 			Vector2fc startPoint = this.startPoint.getValue(args.time);
 			Vector2fc endPoint = this.endPoint.getValue(args.time);
 			boolean faceA = this.faceA.getValue(args.time) == BoolValue.TRUE;
@@ -80,7 +86,6 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			float maxFreq = this.maxFreq.getValue(args.time) / UrmusicModel.getAudioRenderer().getSampleRate();
 			float height = this.height.getValue(args.time);
 			float exponent = this.exponent.getValue(args.time);
-			int mode = this.mode.getValue(args.time);
 			float size = this.size.getValue(args.time);
 			int lineCount = this.lineCount.getValue(args.time);
 			
@@ -110,14 +115,13 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 			
 			this.vg.begin(gl, args.width, args.height);
+			this.vg.setLineWidth(size);
+			this.vg.setStrokeColor(color.getRGBA());
+			this.vg.setFillColor(color.getRGBA());
 			
 			switch(mode) {
 				case 0: // OUTLINE
-					this.vg.setLineWidth(size);
-					this.vg.setStrokeColor(0xFFFFFFFF);
 				case 2: // FILL
-					this.vg.setFillColor(0xFFFFFFFF);
-
 					this.vg.beginPath();
 					if(faceA) {
 						this.vg.moveTo(startPoint.x(), -startPoint.y());
@@ -136,7 +140,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 						this.vg.lineTo(endPoint.x(), -endPoint.y());
 					}
 
-					if(faceA) {
+					if(faceB) {
 						this.vg.moveTo(startPoint.x(), -startPoint.y());
 						for(int i = 0; i < lineCount; i++) {
 							float p = (float) i / (lineCount - 1);
@@ -159,9 +163,6 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 						this.vg.fill();
 					break;
 				case 1: // LINES
-					this.vg.setLineWidth(size);
-					this.vg.setStrokeColor(0xFFFFFFFF);
-					
 					this.vg.beginPath();
 					for(int i = 0; i < lineCount; i++) {
 						float p = (float) i / (lineCount - 1);
@@ -172,10 +173,10 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 						
 						float sx = MathUtils.lerp(startPoint.x(), endPoint.x(), p);
 						float sy = -MathUtils.lerp(startPoint.y(), endPoint.y(), p);
-						float xa = sx - Math.max(freqVal, 0.01f) * expandX;
-						float ya = sy + Math.max(freqVal, 0.01f) * expandY;
-						float xb = sx + Math.max(freqVal, 0.01f) * expandX;
-						float yb = sy - Math.max(freqVal, 0.01f) * expandY;
+						float xa = sx - Math.max(freqVal, 0.00f) * expandX;
+						float ya = sy + Math.max(freqVal, 0.00f) * expandY;
+						float xb = sx + Math.max(freqVal, 0.00f) * expandX;
+						float yb = sy - Math.max(freqVal, 0.00f) * expandY;
 
 						if(faceA && faceB) {
 							this.vg.moveTo(xa, ya);
@@ -191,8 +192,6 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 					this.vg.stroke();
 					break;
 				case 3: // DOTS
-					this.vg.setFillColor(0xFFFFFFFF);
-					
 					this.vg.beginPath();
 					for(int i = 0; i < lineCount; i++) {
 						float p = (float) i / (lineCount - 1);
@@ -203,11 +202,11 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 						
 						float sx = MathUtils.lerp(startPoint.x(), endPoint.x(), p);
 						float sy = -MathUtils.lerp(startPoint.y(), endPoint.y(), p);
-						float xa = sx - Math.max(freqVal, 0.01f) * expandX;
-						float ya = sy + Math.max(freqVal, 0.01f) * expandY;
-						float xb = sx + Math.max(freqVal, 0.01f) * expandX;
-						float yb = sy - Math.max(freqVal, 0.01f) * expandY;
-
+						float xa = sx - Math.max(freqVal, 0.00f) * expandX;
+						float ya = sy + Math.max(freqVal, 0.00f) * expandY;
+						float xb = sx + Math.max(freqVal, 0.00f) * expandX;
+						float yb = sy - Math.max(freqVal, 0.00f) * expandY;
+						
 						if(faceA) {
 							this.vg.moveTo(xa, ya);
 							this.vg.oval(xa, ya, size, size);

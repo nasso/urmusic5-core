@@ -144,7 +144,7 @@ public class GLVG implements VGPathMethods {
 		this.gl.glBindFramebuffer(GL_READ_FRAMEBUFFER, this.gl_fbo_dest);
 		this.gl.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, destFBO);
 		this.gl.glBlitFramebuffer(0, 0, this.width, this.height, 0, 0, this.width, this.height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-
+		
 		this.gl.glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 		this.gl.glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, destFBO);
