@@ -11,6 +11,8 @@ public class OptionParam extends EffectParam<Integer> {
 		this.options = new String[values.length];
 		for(int i = 0; i < values.length; i++)
 			this.options[i] = values[i];
+		
+		this.value = defaultValue;
 	}
 	
 	public int getOptionCount() {

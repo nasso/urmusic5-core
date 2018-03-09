@@ -101,6 +101,26 @@ public class MathUtils {
 		dest[3] = Math.max(0.0f, Math.min(ay + ah, by + bh) - dest[1]); // h
 	}
 	
+	public static float cosf(float a) {
+		return (float) Math.cos(a);
+	}
+	
+	public static float sinf(float a) {
+		return (float) Math.sin(a);
+	}
+	
+	public static float tanf(float a) {
+		return (float) Math.tan(a);
+	}
+	
+	public static float powf(float a, float b) {
+		return (float) Math.pow(a, b);
+	}
+	
+	public static float randomf() {
+		return (float) Math.random();
+	}
+	
 	public static byte clamp(byte x, byte min, byte max) {
 		return x < min ? min : x > max ? max : x;
 	}

@@ -7,7 +7,6 @@ import io.github.nasso.urmusic.common.MutableRGBA32;
 class VGState implements Cloneable {
 	Matrix3f transform;
 	VGPathBuilder path;
-	boolean aa;
 	float lineWidth, miterLimit, globalAlpha;
 	VGLineJoin lineJoins;
 	VGLineCap lineCaps;
