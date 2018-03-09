@@ -62,7 +62,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			
 			for(int i = 0; i <= GLRenderer.this.cacheSize; i++) {
 				int t = i == GLRenderer.this.cacheSize ? this.textureAlt : GLRenderer.this.bufTex.get(i);
-
+				
 				GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, t);
 				GLRenderer.this.gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.width, this.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
 				GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -169,13 +169,14 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				
 				if(this.tex_id[i] == 0) {
 					this.tex_id[i] = GLRenderer.this.glu.genTexture(GLRenderer.this.gl);
-					
 					GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, this.tex_id[i]);
 					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 					GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				} else GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, this.tex_id[i]);
+				} else {
+					GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, this.tex_id[i]);
+				}
 				
 				GLRenderer.this.gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, this.comp.getWidth(), this.comp.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
 			}
@@ -397,7 +398,6 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	// TODO: CompositeTrack rendering
 	private void renderTrack(Composition comp, Track t, float time) {
 		TrackRenderTexture dest = this.getTrackTexture(comp, t);
-		
 		// Clear the args before starting
 		this.fxArgs.clear();
 		
@@ -417,11 +417,26 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			
 			// Don't swap buffers if the previous effect did nothing
 			if(!this.fxArgs.cancelled) {
+				// Bind the framebuffer and the dest buffer
+				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.trackRenderingFBO);
+				
+				if(j == 0) {
+					this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.getDestBuffer(), 0);
+					this.gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dest.getDepthBuffer());
+
+					this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+					this.gl.glClearStencil(0x00);
+					this.gl.glClearDepth(1.0);
+					this.gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+				}
+				
 				// Swap dest/back buffers, to bring the previous dest buffer to the back and get a fresh usable dest buffer
 				dest.swapBuffers();
 				
-				// Bind the framebuffer and the dest buffer
-				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.trackRenderingFBO);
+				GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, dest.getBackBuffer());
+				GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				GLRenderer.this.gl.glGenerateMipmap(GL_TEXTURE_2D);
+				
 				this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.getDestBuffer(), 0);
 				this.gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dest.getDepthBuffer());
 			}
@@ -448,7 +463,13 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		
 		// When we leave, and if the last effect actually had an effect, the last rendering is on the dest buffer.
 		// So we have to swap it to get the final result on the back buffer.
-		if(!this.fxArgs.cancelled) dest.swapBuffers();
+		if(!this.fxArgs.cancelled) {
+			dest.swapBuffers();
+			
+			GLRenderer.this.gl.glBindTexture(GL_TEXTURE_2D, dest.getBackBuffer());
+			GLRenderer.this.gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+			GLRenderer.this.gl.glGenerateMipmap(GL_TEXTURE_2D);
+		}
 	}
 	
 	private void renderAllTracks(Composition comp, float time) {

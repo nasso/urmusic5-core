@@ -53,7 +53,8 @@ public class Urmusic {
 		
 		UrmusicController.addTrack();
 		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
-		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[5]);
+		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[6]);
+		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[4]);
 		// UrmusicController.addEffect(new TestVFX());
 	}
 	

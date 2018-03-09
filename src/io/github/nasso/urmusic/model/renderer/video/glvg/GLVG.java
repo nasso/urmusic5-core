@@ -25,7 +25,7 @@ import io.github.nasso.urmusic.model.renderer.video.NGLUtils;
  */
 public class GLVG implements VGPathMethods {
 	private static final boolean DEBUG = false;
-	private static final int MSAA_SAMPLES = 16;
+	private static final int MSAA_SAMPLES = 8;
 	private static final float ARC_EDGE_SIZE = 1;
 	private static final int DEFAULT_BUFFER_SIZE = 32;
 	

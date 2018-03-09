@@ -12,6 +12,7 @@ import io.github.nasso.urmusic.model.effect.AudioScopeVFX;
 import io.github.nasso.urmusic.model.effect.AudioSpectrumVFX;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX;
 import io.github.nasso.urmusic.model.effect.ImageDisplayVFX;
+import io.github.nasso.urmusic.model.effect.PolarCoordsVFX;
 import io.github.nasso.urmusic.model.effect.RectangleMaskVFX;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
@@ -33,13 +34,16 @@ import io.github.nasso.urmusic.view.UrmusicView;
  */
 public class UrmusicModel {
 	public static final TrackEffect[] STOCK_EFFECTS = new TrackEffect[] {
+		// Basics
 		new ImageDisplayVFX(),
 		new CircleMaskVFX(),
 		new RectangleMaskVFX(),
 		new AffineTransformVFX(),
+		new PolarCoordsVFX(),
 		
+		// Audio
 		new AudioScopeVFX(),
-		new AudioSpectrumVFX()
+		new AudioSpectrumVFX(),
 	};
 	
 	private UrmusicModel() { }

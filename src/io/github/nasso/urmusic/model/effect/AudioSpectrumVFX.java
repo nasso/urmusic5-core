@@ -23,7 +23,7 @@ import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.video.glvg.GLVG;
 
 public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
-	public static final int FFT_SIZE = 16384;
+	public static final int FFT_SIZE = 1 << 14;
 	
 	private class AudioSpectrumVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
 		private OptionParam mode = new OptionParam("mode", 1, "outline", "lines", "fill", "dots");
@@ -183,10 +183,10 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 							this.vg.lineTo(xb, yb);
 						} else if(faceA) {
 							this.vg.moveTo(sx, sy);
-							this.vg.lineTo(xa, ya);
+							this.vg.lineTo(xa, ya); 
 						} else if(faceB) {
 							this.vg.moveTo(sx, sy);
-							this.vg.lineTo(xa, ya);
+							this.vg.lineTo(xb, yb);
 						}
 					}
 					this.vg.stroke();

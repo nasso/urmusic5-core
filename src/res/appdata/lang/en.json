@@ -104,7 +104,10 @@
 		"effect.affine_transform.param.rotation.name": "Rotation",
 		"effect.affine_transform.param.scale.name": "Scale",
 		"effect.affine_transform.param.opacity.name": "Opacity",
-
+		
+		"effect.polar_coords.name": "Polar Coordinates",
+		"effect.polar_coords.param.polarToRect.name": "Polar to Rectangle",
+		
 		"effect.audio_scope.name": "Audio Scope",
 		"effect.audio_scope.param.startPoint.name": "Start Point",
 		"effect.audio_scope.param.endPoint.name": "End Point",
