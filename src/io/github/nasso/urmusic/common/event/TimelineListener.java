@@ -6,7 +6,6 @@ import io.github.nasso.urmusic.model.project.Track;
 public interface TimelineListener {
 	public void durationChanged(Timeline src);
 	public void framerateChanged(Timeline src);
-	public void audioSampleRateChanged(Timeline src);
 	
 	/**
 	 * A track has been added to the tracklist.

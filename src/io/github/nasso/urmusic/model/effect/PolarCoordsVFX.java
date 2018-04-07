@@ -67,7 +67,7 @@ public class PolarCoordsVFX extends TrackEffect implements VideoEffect {
 		
 	}
 
-	public String getEffectClassName() {
-		return "polar_coords";
+	public String getEffectClassID() {
+		return "urm.polar_coords";
 	}
 }

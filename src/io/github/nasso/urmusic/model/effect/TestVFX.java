@@ -75,7 +75,7 @@ public class TestVFX extends TrackEffect implements VideoEffect {
 	public void effectMain() {
 	}
 
-	public String getEffectClassName() {
-		return "test";
+	public String getEffectClassID() {
+		return "urm.test";
 	}
 }

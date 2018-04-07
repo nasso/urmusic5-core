@@ -364,7 +364,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 	public void effectMain() {
 	}
 
-	public String getEffectClassName() {
-		return "audio_spectrum";
+	public String getEffectClassID() {
+		return "urm.audio_spectrum";
 	}
 }

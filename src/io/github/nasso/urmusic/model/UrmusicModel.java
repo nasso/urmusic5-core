@@ -1,9 +1,10 @@
 package io.github.nasso.urmusic.model;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.common.event.VideoRendererListener;
@@ -52,8 +53,8 @@ public class UrmusicModel {
 	private static VideoRenderer videoRenderer;
 	private static AudioRenderer audioRenderer;
 	
-	private static List<TrackEffect> loadedEffects = new ArrayList<>();
-	private static List<TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableList(UrmusicModel.loadedEffects);
+	private static Map<String, TrackEffect> loadedEffects = new HashMap<>();
+	private static Map<String, TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableMap(UrmusicModel.loadedEffects);
 	
 	public static void init() {
 		// TODO: User prefs
@@ -66,13 +67,13 @@ public class UrmusicModel {
 			
 			public void effectLoaded(TrackEffect fx) {
 				synchronized(UrmusicModel.loadedEffects) {
-					UrmusicModel.loadedEffects.add(fx);
+					UrmusicModel.loadedEffects.put(fx.getEffectClassID(), fx);
 				}
 			}
 			
 			public void effectUnloaded(TrackEffect fx) {
 				synchronized(UrmusicModel.loadedEffects) {
-					UrmusicModel.loadedEffects.remove(fx);
+					UrmusicModel.loadedEffects.remove(fx.getEffectClassID());
 				}
 			}
 		});
@@ -85,7 +86,7 @@ public class UrmusicModel {
 	public static void exit() {
 		UrmusicView.saveViewState();
 		
-		UrmusicModel.loadProject(null);
+		UrmusicModel.setProject(null);
 		UrmusicModel.videoRenderer.dispose();
 		UrmusicModel.audioRenderer.dispose();
 		
@@ -96,7 +97,7 @@ public class UrmusicModel {
 	
 	public static boolean isEffectLoaded(TrackEffect fx) {
 		synchronized(UrmusicModel.loadedEffects) {
-			return UrmusicModel.loadedEffects.contains(fx);
+			return UrmusicModel.loadedEffects.containsKey(fx.getEffectClassID());
 		}
 	}
 	
@@ -117,19 +118,20 @@ public class UrmusicModel {
 		}
 	}
 	
-	public static List<TrackEffect> getLoadedEffects() {
+	public static Map<String, TrackEffect> getLoadedEffects() {
 		return UrmusicModel.loadedEffectsUnmodifiable;
 	}
 	
-	public static void loadProject(File f) {
-		// TODO: project management
+	public static void setProject(Project p) {
 		if(UrmusicModel.project != null) {
 			UrmusicModel.project.getMainComposition().dispose();
 			UrmusicModel.notifyProjectUnloaded(UrmusicModel.project);
+			
+			UrmusicModel.project = null;
 		}
 		
-		if(f == null) {
-			UrmusicModel.project = new Project();
+		if(p != null) {
+			UrmusicModel.project = p;
 			UrmusicModel.videoRenderer.queueFrameASAP(UrmusicModel.project.getMainComposition(), 0);
 			
 			UrmusicModel.notifyProjectLoaded(UrmusicModel.project);

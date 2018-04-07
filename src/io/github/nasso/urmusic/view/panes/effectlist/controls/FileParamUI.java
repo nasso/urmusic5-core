@@ -82,8 +82,8 @@ public class FileParamUI extends EffectParamUI<FileParam> {
 		this.urlField.setValue(
 			p == null ?
 				UrmusicStrings.getString(
-					"effect." + this.getEffectInstance().getEffectClass().getEffectClassName() +
-					".param." + this.getParam().getName() +
+					"effect." + this.getEffectInstance().getEffectClass().getEffectClassID() +
+					".param." + this.getParam().getID() +
 					".empty") :
 				
 				p.getFileName().toString()

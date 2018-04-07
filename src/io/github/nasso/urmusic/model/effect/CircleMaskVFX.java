@@ -124,7 +124,7 @@ public class CircleMaskVFX extends TrackEffect implements VideoEffect {
 	public void effectMain() {
 	}
 
-	public String getEffectClassName() {
-		return "circle_mask";
+	public String getEffectClassID() {
+		return "urm.circle_mask";
 	}
 }

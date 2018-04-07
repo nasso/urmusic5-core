@@ -1,11 +1,17 @@
 package io.github.nasso.urmusic.model.project;
 
+import java.nio.file.Path;
+
 public class Project {
-	private ProjectFileSystem files = new ProjectFileSystem();
-	private Composition mainComp = new Composition();
+	private Path projectFilePath = null;
+	private Composition mainComp = null;
 	
 	public Project() {
-		
+		this(new Composition());
+	}
+	
+	public Project(Composition mainComp) {
+		this.setMainComposition(mainComp);
 	}
 	
 	public Composition getMainComposition() {
@@ -16,7 +22,11 @@ public class Project {
 		this.mainComp = mainComp;
 	}
 
-	public ProjectFileSystem getFileSystem() {
-		return this.files;
+	public Path getProjectFilePath() {
+		return projectFilePath;
+	}
+
+	public void setProjectFilePath(Path projectFilePath) {
+		this.projectFilePath = projectFilePath;
 	}
 }

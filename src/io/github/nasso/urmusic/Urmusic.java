@@ -55,6 +55,8 @@ public class Urmusic {
 		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
 		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[6]);
 		// UrmusicController.addEffect(new TestVFX());
+		
+		// UrmusicController.saveCurrentProject(Paths.get("./test." + ProjectCodec.FILE_EXT));
 	}
 	
 	public static void main(String[] args) {

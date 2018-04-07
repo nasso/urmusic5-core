@@ -47,7 +47,7 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 		));
 		
 		this.controlNameLabel = new JLabel();
-		this.controlNameLabel.setText(UrmusicStrings.getString("effect." + fx.getEffectClass().getEffectClassName() + ".param." + param.getName() + ".name"));
+		this.controlNameLabel.setText(UrmusicStrings.getString("effect." + fx.getEffectClass().getEffectClassID() + ".param." + param.getID() + ".name"));
 		this.controlNameLabel.setFont(this.controlNameLabel.getFont().deriveFont(Font.PLAIN, 12));
 		this.controlNameLabel.setBackground(EffectParamPane.PARAM_LINE_SELECTED_COLOR);
 		this.controlNameLabel.setBorder(BorderFactory.createEmptyBorder(1, 3, 1, 3));

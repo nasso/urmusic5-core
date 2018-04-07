@@ -15,7 +15,6 @@ public class Timeline {
 	
 	private float duration = 180; // 3 minute
 	private float framerate = 60;
-	private int audioSampleRate = 48000;
 	
 	public Timeline() {
 	}
@@ -45,16 +44,6 @@ public class Timeline {
 		if(this.framerate == framerate) return;
 		this.framerate = framerate;
 		this.notifyFramerateChanged();
-	}
-
-	public void setAudioSampleRate(int audioSampleRate) {
-		if(this.audioSampleRate == audioSampleRate) return;
-		this.audioSampleRate = audioSampleRate;
-		this.notifyAudioSampleRateChanged();
-	}
-
-	public int getAudioSampleRate() {
-		return this.audioSampleRate;
 	}
 
 	public void addTracklistListener(TimelineListener l) {
@@ -112,12 +101,6 @@ public class Timeline {
 	private void notifyFramerateChanged() {
 		for(TimelineListener l : this.timelineListeners) {
 			l.framerateChanged(this);
-		}
-	}
-	
-	private void notifyAudioSampleRateChanged() {
-		for(TimelineListener l : this.timelineListeners) {
-			l.audioSampleRateChanged(this);
 		}
 	}
 	

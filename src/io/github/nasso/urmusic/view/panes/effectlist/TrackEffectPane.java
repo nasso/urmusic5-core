@@ -196,7 +196,7 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 			this.fx.addEffectInstanceListener(this);
 			UrmusicController.addTrackEffectInstanceFocusListener(this);
 			
-			this.labelName.setText(UrmusicStrings.getString("effect." + this.fx.getEffectClass().getEffectClassName() + ".name"));
+			this.labelName.setText(UrmusicStrings.getString("effect." + this.fx.getEffectClass().getEffectClassID() + ".name"));
 			this.chbxEnabled.setSelected(this.fx.isEnabled());
 		}
 	}

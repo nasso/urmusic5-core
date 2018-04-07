@@ -288,7 +288,7 @@ public class VideoRenderer implements Runnable {
 	
 	public void queueFrameASAP(Composition comp, int frame) {
 		float time = frame / comp.getTimeline().getFramerate();
-
+		
 		int cache = this.getCacheFor(comp, frame);
 		if(cache != -1) {
 			this.notifyFrameReady(comp, time);

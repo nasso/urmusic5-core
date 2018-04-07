@@ -32,9 +32,12 @@ import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import io.github.nasso.urmusic.common.DataUtils;
 import io.github.nasso.urmusic.controller.UrmusicController;
+import io.github.nasso.urmusic.model.project.codec.ProjectCodec;
 import io.github.nasso.urmusic.view.components.SplittablePane;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
@@ -54,7 +57,17 @@ public class UrmusicView {
 	
 	private static UrmusicViewState viewState = null;
 	
-	private static Action menuLoadSongAction, menuExitAction, menuAboutAction;
+	private static Action
+		// File
+		menuNewAction,
+		menuSaveAction,
+		menuSaveAsAction,
+		menuOpenAction,
+		menuLoadSongAction,
+		menuExitAction,
+		
+		// Help
+		menuAboutAction;
 	
 	private static boolean keyEventBlocked = false;
 	
@@ -153,21 +166,90 @@ public class UrmusicView {
 	}
 	
 	private static void setupActions() {
-		UrmusicView.menuLoadSongAction = new AbstractAction(UrmusicStrings.getString("menu.file.loadSong")) {
-			private JFileChooser fileChooser;
-			
+		JFileChooser fileChooser = new JFileChooser();
+		FileFilter projectFilter = new FileNameExtensionFilter(UrmusicStrings.getString("files.project.desc") + " (*." + ProjectCodec.FILE_EXT + ")", ProjectCodec.FILE_EXT);
+
+		UrmusicView.menuNewAction = new AbstractAction(UrmusicStrings.getString("menu.file.new")) {
+			public void actionPerformed(ActionEvent e) {
+				UrmusicController.newProject();
+			}
+		};
+		
+		UrmusicView.menuSaveAction = new AbstractAction(UrmusicStrings.getString("menu.file.save")) {
+			public void actionPerformed(ActionEvent e) {
+				if(UrmusicController.getCurrentProjectPath() == null) UrmusicView.menuSaveAsAction.actionPerformed(e);
+				else {
+					UrmusicController.saveCurrentProject();
+				}
+			}
+		};
+		
+		UrmusicView.menuSaveAsAction = new AbstractAction(UrmusicStrings.getString("menu.file.saveAs")) {
 			public void actionPerformed(ActionEvent e) {
 				LookAndFeel laf = UIManager.getLookAndFeel();
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					SwingUtilities.updateComponentTreeUI(fileChooser);
 					
-					if(this.fileChooser == null) this.fileChooser = new JFileChooser();
-					SwingUtilities.updateComponentTreeUI(this.fileChooser);
-					this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					int action = this.fileChooser.showOpenDialog(e.getSource() instanceof Component ? (Component) e.getSource() : null);
+					fileChooser.setFileFilter(projectFilter);
+					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+					int action = fileChooser.showSaveDialog(e.getSource() instanceof Component ? (Component) e.getSource() : null);
 					
 					if(action == JFileChooser.APPROVE_OPTION) {
-						File f = this.fileChooser.getSelectedFile();
+						File f = fileChooser.getSelectedFile();
+						
+						if(f != null) {
+							UrmusicController.saveCurrentProject(f.toPath());
+						}
+					}
+					
+					UIManager.setLookAndFeel(laf);
+				} catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
+					e1.printStackTrace();
+				}
+			}
+		};
+		
+		UrmusicView.menuOpenAction = new AbstractAction(UrmusicStrings.getString("menu.file.open")) {
+			public void actionPerformed(ActionEvent e) {
+				LookAndFeel laf = UIManager.getLookAndFeel();
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					SwingUtilities.updateComponentTreeUI(fileChooser);
+
+					fileChooser.setFileFilter(projectFilter);
+					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+					int action = fileChooser.showOpenDialog(e.getSource() instanceof Component ? (Component) e.getSource() : null);
+					
+					if(action == JFileChooser.APPROVE_OPTION) {
+						File f = fileChooser.getSelectedFile();
+						
+						if(f != null) {
+							UrmusicController.openProject(f.toPath());
+						}
+					}
+					
+					UIManager.setLookAndFeel(laf);
+				} catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1) {
+					e1.printStackTrace();
+				}
+			}
+		};
+		
+		UrmusicView.menuLoadSongAction = new AbstractAction(UrmusicStrings.getString("menu.file.loadSong")) {
+			public void actionPerformed(ActionEvent e) {
+				LookAndFeel laf = UIManager.getLookAndFeel();
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+					SwingUtilities.updateComponentTreeUI(fileChooser);
+
+					// TODO: File filter for songs
+					fileChooser.setFileFilter(null);
+					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+					int action = fileChooser.showOpenDialog(e.getSource() instanceof Component ? (Component) e.getSource() : null);
+					
+					if(action == JFileChooser.APPROVE_OPTION) {
+						File f = fileChooser.getSelectedFile();
 						
 						if(f != null) {
 							UrmusicView.showAudioLoadingDialog();
@@ -201,6 +283,11 @@ public class UrmusicView {
 		JMenuBar mb = new JMenuBar();
 		
 		JMenu fileMenu = new JMenu(UrmusicStrings.getString("menu.file"));
+		fileMenu.add(new JMenuItem(UrmusicView.menuNewAction));
+		fileMenu.add(new JMenuItem(UrmusicView.menuSaveAction));
+		fileMenu.add(new JMenuItem(UrmusicView.menuSaveAsAction));
+		fileMenu.add(new JMenuItem(UrmusicView.menuOpenAction));
+		fileMenu.addSeparator();
 		fileMenu.add(new JMenuItem(UrmusicView.menuLoadSongAction));
 		fileMenu.addSeparator();
 		fileMenu.add(new JMenuItem(UrmusicView.menuExitAction));

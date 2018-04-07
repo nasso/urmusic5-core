@@ -1,6 +1,7 @@
 package io.github.nasso.urmusic.model.project.param;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.github.nasso.urmusic.common.easing.EasingFunction;
@@ -11,16 +12,17 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	private List<EffectParamListener<T>> listeners = new ArrayList<>();
 	
 	private List<KeyFrame<T>> keyFrames = new ArrayList<>();
-	private String name;
+	private List<KeyFrame<T>> keyFramesUnmodifiable = Collections.unmodifiableList(this.keyFrames);
+	private String id;
 	
 	private final boolean canAnimate;
 
-	public EffectParam(String name) {
-		this(name, true);
+	public EffectParam(String id) {
+		this(id, true);
 	}
 	
-	public EffectParam(String name, boolean canAnimate) {
-		this.name = name;
+	public EffectParam(String id, boolean canAnimate) {
+		this.id = id;
 		this.canAnimate = canAnimate;
 		
 		if(this.canAnimate) {
@@ -46,8 +48,12 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 		return this.canAnimate && !this.keyFrames.isEmpty();
 	}
 	
-	public String getName() {
-		return this.name;
+	public String getID() {
+		return this.id;
+	}
+	
+	public List<KeyFrame<T>> getKeyFrames() {
+		return this.keyFramesUnmodifiable;
 	}
 	
 	public KeyFrame<T> addKeyFrame(float time) {

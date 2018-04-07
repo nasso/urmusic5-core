@@ -90,7 +90,7 @@ public class Track {
 	private List<TrackEffectInstance> effectsUnmodifiable = Collections.unmodifiableList(this.effects);
 	
 	/**
-	 * @see Track#getActivityRangesLengths()
+	 * @see Track#getActivityRanges()
 	 */
 	private List<TrackActivityRange> activityRangesLengths = new ArrayList<>();
 	private List<TrackActivityRange> unmodifiableRanges = Collections.unmodifiableList(this.activityRangesLengths);
@@ -191,9 +191,9 @@ public class Track {
 	}
 	
 	/**
-	 * @return An unmodifiable list of int ranges corresponding to the frames where this Track is enabled in the timeline.
+	 * @return An unmodifiable list of ranges corresponding to the frames where this Track is enabled in the timeline.
 	 */
-	public List<TrackActivityRange> getActivityRangesLengths() {
+	public List<TrackActivityRange> getActivityRanges() {
 		return this.unmodifiableRanges;
 	}
 	

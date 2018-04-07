@@ -30,8 +30,8 @@ public class OptionParamUI extends EffectParamUI<OptionParam> {
 		for(int i = 0; i < p.getOptionCount(); i++)
 			this.combo.addItem(
 					UrmusicStrings.getString(
-							"effect." + this.getEffectInstance().getEffectClass().getEffectClassName() +
-							".param." + p.getName() +
+							"effect." + this.getEffectInstance().getEffectClass().getEffectClassID() +
+							".param." + p.getID() +
 							".option." + p.getOptionName(i)));
 		
 		this.combo.addItemListener((e) -> {

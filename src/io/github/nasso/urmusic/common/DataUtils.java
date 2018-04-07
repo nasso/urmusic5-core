@@ -30,6 +30,11 @@ import javax.imageio.ImageIO;
 
 import io.github.nasso.urmusic.Urmusic;
 
+/**
+ * Small thread safe high and low level util class for byte manipulation and other IO operations.
+ * 
+ * @author nasso
+ */
 public class DataUtils {
 	private DataUtils() { }
 
@@ -206,51 +211,127 @@ public class DataUtils {
 	
 	public static int readBigInt(InputStream in) throws IOException {
 		// read int in big endian
-		return ((in.read() & 0xFF) << 24) | ((in.read() & 0xFF) << 16) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
+		return buildBigInt((byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF));
 	}
 	
 	public static int readLilInt(InputStream in) throws IOException {
 		// read int in little endian
-		return (((((in.read() & 0xFF) << 8) | (in.read() & 0xFF)) & 0xFFFF) | (((((in.read() & 0xFF) << 8) | (in.read() & 0xFF)) & 0xFFFF) << 16));
+		return buildLilInt((byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF));
 	}
 	
 	public static short readLilShort(InputStream in) throws IOException {
-		return (short) ((in.read() & 0xFF) | ((in.read() & 0xFF) << 8));
+		return buildLilShort((byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF));
 	}
 	
 	public static short readBigShort(InputStream in) throws IOException {
-		return (short) (((in.read() & 0xFF) << 8) | (in.read() & 0xFF));
+		return buildBigShort((byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF));
 	}
-	
+
 	public static void writeBigInt(OutputStream out, int i) throws IOException {
-		out.write(new byte[]{
-			(byte) ((i >> 24) & 0xFF),
-			(byte) ((i >> 16) & 0xFF),
-			(byte) ((i >> 8) & 0xFF),
-			(byte) (i & 0xFF)
-		});
+		byte[] dword = new byte[4];
+		
+		unpackBigInt(i, dword);
+		out.write(dword, 0, 4);
 	}
 	
 	public static void writeLilInt(OutputStream out, int i) throws IOException {
-		out.write(new byte[]{
-			(byte) ((i >> 8) & 0xFF),
-			(byte) (i & 0xFF),
-			(byte) ((i >> 24) & 0xFF),
-			(byte) ((i >> 16) & 0xFF)
-		});
+		byte[] dword = new byte[4];
+		
+		unpackLilInt(i, dword);
+		out.write(dword, 0, 4);
 	}
 	
 	public static void writeBigShort(OutputStream out, short i) throws IOException {
-		out.write(new byte[]{
-			(byte) ((i >> 8) & 0xFF),
-			(byte) (i & 0xFF)
-		});
+		byte[] word = new byte[2];
+		
+		unpackBigShort(i, word);
+		out.write(word, 0, 2);
 	}
 	
 	public static void writeLilShort(OutputStream out, short i) throws IOException {
-		out.write(new byte[]{
-			(byte) (i & 0xFF),
-			(byte) ((i >> 8) & 0xFF)
-		});
+		byte[] word = new byte[2];
+		
+		unpackLilShort(i, word);
+		out.write(word, 0, 2);
+	}
+	
+	public static void unpackLilInt(int i, byte[] destdword) {
+		destdword[0] = (byte) (i & 0xFF);
+		destdword[1] = (byte) ((i >> 8) & 0xFF);
+		destdword[2] = (byte) ((i >> 16) & 0xFF);
+		destdword[3] = (byte) ((i >> 24) & 0xFF);
+	}
+	
+	public static void unpackBigInt(int i, byte[] destdword) {
+		destdword[0] = (byte) ((i >> 24) & 0xFF);
+		destdword[1] = (byte) ((i >> 16) & 0xFF);
+		destdword[2] = (byte) ((i >> 8) & 0xFF);
+		destdword[3] = (byte) (i & 0xFF);
+	}
+	
+	public static void unpackLilShort(short i, byte[] destword) {
+		destword[0] = (byte) (i & 0xFF);
+		destword[1] = (byte) ((i >> 8) & 0xFF);
+	}
+	
+	public static void unpackBigShort(short i, byte[] destword) {
+		destword[0] = (byte) ((i >> 8) & 0xFF);
+		destword[1] = (byte) (i & 0xFF);
+	}
+	
+	public static void unpackLilInt(int i, char[] destdword) {
+		destdword[0] = (char) (i & 0xFF);
+		destdword[1] = (char) ((i >> 8) & 0xFF);
+		destdword[2] = (char) ((i >> 16) & 0xFF);
+		destdword[3] = (char) ((i >> 24) & 0xFF);
+	}
+	
+	public static void unpackBigInt(int i, char[] destdword) {
+		destdword[0] = (char) ((i >> 24) & 0xFF);
+		destdword[1] = (char) ((i >> 16) & 0xFF);
+		destdword[2] = (char) ((i >> 8) & 0xFF);
+		destdword[3] = (char) (i & 0xFF);
+	}
+	
+	public static void unpackLilShort(short i, char[] destword) {
+		destword[0] = (char) (i & 0xFF);
+		destword[1] = (char) ((i >> 8) & 0xFF);
+	}
+	
+	public static void unpackBigShort(short i, char[] destword) {
+		destword[0] = (char) ((i >> 8) & 0xFF);
+		destword[1] = (char) (i & 0xFF);
+	}
+	
+	public static int buildLilInt(byte a, byte b, byte c, byte d) {
+		return ((d & 0xFF) << 24) | ((c & 0xFF) << 16) | ((b & 0xFF) << 8) | (a & 0xFF);
+	}
+	
+	public static int buildBigInt(byte a, byte b, byte c, byte d) {
+		return ((a & 0xFF) << 24) | ((b & 0xFF) << 16) | ((c & 0xFF) << 8) | (d & 0xFF);
+	}
+	
+	public static short buildLilShort(byte a, byte b) {
+		return (short) (((b & 0xFF) << 8) | (a & 0xFF));
+	}
+	
+	public static short buildBigShort(byte a, byte b) {
+		return (short) (((a & 0xFF) << 8) | (b & 0xFF));
+	}
+	
+	public static int buildLilInt(char a, char b, char c, char d) {
+		return buildLilInt((byte) a, (byte) b, (byte) c, (byte) d);
+	}
+	
+	public static int buildBigInt(char a, char b, char c, char d) {
+		return buildBigInt((byte) a, (byte) b, (byte) c, (byte) d);
+	}
+	
+	public static short buildLilShort(char a, char b) {
+		return buildLilShort((byte) a, (byte) b);
+	}
+	
+	public static short buildBigShort(char a, char b) {
+		return buildBigShort((byte) a, (byte) b);
 	}
 }

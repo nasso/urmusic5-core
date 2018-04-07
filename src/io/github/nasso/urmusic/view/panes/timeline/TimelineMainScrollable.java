@@ -20,8 +20,8 @@ import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
-import io.github.nasso.urmusic.common.event.VideoRendererListener;
 import io.github.nasso.urmusic.common.event.TimelineListener;
+import io.github.nasso.urmusic.common.event.VideoRendererListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
@@ -97,6 +97,15 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		
 		if(oldFocusComp != null) oldFocusComp.getTimeline().removeTracklistListener(this);
 		if(newFocusComp != null) newFocusComp.getTimeline().addTracklistListener(this);
+		
+		this.removeAllTracks();
+		
+		if(newFocus != null) {
+			List<Track> tracks = newFocus.getTimeline().getTracks();
+			for(int i = 0; i < tracks.size(); i++) {
+				this.addTrack(i, tracks.get(i));
+			}
+		}
 	}
 	
 	public void focused(EffectParam<?> o) {
@@ -119,6 +128,25 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		TimelineTrackRangesBar ranges = new TimelineTrackRangesBar(this.view, track);
 		ranges.setPreferredSize(new Dimension(0, TimelineView.CHANNEL_HEIGHT));
 		this.timelinePane.add(ranges);
+		
+		this.revalidate();
+		this.repaint();
+	}
+	
+	private void removeAllTracks() {
+		while(this.infoPane.getComponentCount() != 0) {
+			TimelineTrackHead head = (TimelineTrackHead) this.infoPane.getComponent(0);
+			head.dispose();
+			
+			this.infoPane.remove(0);
+		}
+		
+		while(this.timelinePane.getComponentCount() != 0) {
+			TimelineTrackRangesBar ranges = (TimelineTrackRangesBar) this.timelinePane.getComponent(0);
+			ranges.dispose();
+			
+			this.timelinePane.remove(0);
+		}
 		
 		this.revalidate();
 		this.repaint();
@@ -250,8 +278,5 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		}
 		
 		TimelineMainScrollable.this.repaint();
-	}
-
-	public void audioSampleRateChanged(Timeline src) {
 	}
 }

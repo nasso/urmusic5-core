@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import javax.swing.AbstractAction;
@@ -44,7 +45,7 @@ public class EffectPickerDialog extends JDialog {
 		}
 		
 		public Component getListCellRendererComponent(JList<? extends TrackEffect> list, TrackEffect value, int index, boolean isSelected, boolean cellHasFocus) {
-			this.setText(UrmusicStrings.getString("effect." + value.getEffectClassName() + ".name"));
+			this.setText(UrmusicStrings.getString("effect." + value.getEffectClassID() + ".name"));
 			
 			this.setOpaque(isSelected);
 			this.setBackground(cellHasFocus ? BACKGROUND_SELECTED_FOCUSED : BACKGROUND_SELECTED);			
@@ -62,17 +63,17 @@ public class EffectPickerDialog extends JDialog {
 		}
 		
 		public void update() {
-			List<TrackEffect> loadedEffects = UrmusicModel.getLoadedEffects();
+			Set<String> loadedEffectsIds = UrmusicModel.getLoadedEffects().keySet();
 			
-			if(this.entries.size() < loadedEffects.size()) {
-				int oldSize = this.entries.size();
+			if(this.entries.size() < loadedEffectsIds.size()) {
+				this.entries.clear();
 				
-				for(int i = oldSize; i < loadedEffects.size(); i++) {
-					this.entries.add(loadedEffects.get(i));
+				for(String id : loadedEffectsIds) {
+					this.entries.add(UrmusicModel.getLoadedEffects().get(id));
 				}
 				
 				for(ListDataListener l : this.listeners) {
-					l.intervalAdded(new ListDataEvent(this, ListDataEvent.INTERVAL_ADDED, oldSize, this.entries.size() - 1));
+					l.contentsChanged(new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, 0, this.entries.size() - 1));
 				}
 			}
 		}
@@ -121,7 +122,7 @@ public class EffectPickerDialog extends JDialog {
 	}
 	
 	private void buildUI() {
-		this.selectionList = new JList<TrackEffect>(this.listModel);
+		this.selectionList = new JList<>(this.listModel);
 		this.selectionList.setBorder(null);
 		this.selectionList.setOpaque(false);
 		this.selectionList.setCellRenderer(this.listCellRenderer);

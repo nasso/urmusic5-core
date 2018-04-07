@@ -36,9 +36,9 @@ public abstract class TrackEffect {
 			return TrackEffect.this;
 		}
 		
-		public EffectParam<?> getParamByName(String name) {
+		public EffectParam<?> getParamByID(String name) {
 			for(EffectParam<?> param : this.parameters) {
-				if(param.getName().equals(name))
+				if(param.getID().equals(name))
 					return param;
 			}
 			
@@ -108,5 +108,5 @@ public abstract class TrackEffect {
 	
 	public abstract void effectMain();
 	
-	public abstract String getEffectClassName();
+	public abstract String getEffectClassID();
 }

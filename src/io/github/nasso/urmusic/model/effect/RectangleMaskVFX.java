@@ -104,7 +104,7 @@ public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
 	public void effectMain() {
 	}
 	
-	public String getEffectClassName() {
-		return "rectangle_mask";
+	public String getEffectClassID() {
+		return "urm.rectangle_mask";
 	}
 }

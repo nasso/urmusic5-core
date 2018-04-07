@@ -89,7 +89,7 @@ public class TimelineTrackRangesBar extends JPanel implements
 		
 		float framerate = UrmusicController.getFocusedComposition().getTimeline().getFramerate();
 		if(this.track != null) {
-			List<TrackActivityRange> ranges = this.track.getActivityRangesLengths();
+			List<TrackActivityRange> ranges = this.track.getActivityRanges();
 			
 			float s = this.view.getHorizontalScale();
 			
@@ -152,7 +152,7 @@ public class TimelineTrackRangesBar extends JPanel implements
 	}
 	
 	private TrackActivityRange findRangeEndAt(float x) {
-		List<TrackActivityRange> ranges = this.track.getActivityRangesLengths();
+		List<TrackActivityRange> ranges = this.track.getActivityRanges();
 		
 		TrackActivityRange r = null;
 		for(int i = 0; i < ranges.size(); i++) {

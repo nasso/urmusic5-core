@@ -1,5 +1,10 @@
 package io.github.nasso.urmusic.controller;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,12 +13,15 @@ import java.util.List;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
+import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.Composition;
+import io.github.nasso.urmusic.model.project.Project;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.github.nasso.urmusic.model.project.codec.ProjectCodec;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
 
@@ -30,12 +38,23 @@ public class UrmusicController {
 	private static int frameCursor = 0;
 	
 	public static void init() {
-		UrmusicModel.loadProject(null);
+		UrmusicModel.addProjectLoadingListener(new ProjectLoadingListener() {
+			public void projectUnloaded(Project p) {
+			}
+			
+			public void projectLoaded(Project p) {
+				toggleFocusEffectParameter(null, false);
+				focusTrackEffectInstance(null);
+				focusTrackActivityRange(null);
+				focusTrack(null);
+				focusComposition(p.getMainComposition());
+			}
+		});
+		
+		UrmusicModel.setProject(new Project());
 		
 		UrmusicController.playbackThread = new PlaybackThread();
 		UrmusicController.playbackThread.setFPS(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getFramerate());
-		
-		UrmusicController.focusComposition(UrmusicModel.getCurrentProject().getMainComposition());
 		
 		UrmusicController.addFrameCursorListener((oldPosition, newPosition)  -> {
 			UrmusicModel.getVideoRenderer().queueFrameASAP(UrmusicController.getFocusedComposition(), newPosition);
@@ -176,6 +195,37 @@ public class UrmusicController {
 			markVideoDirty();
 			callback.run();
 		});
+	}
+	
+	public static Path getCurrentProjectPath() {
+		return UrmusicModel.getCurrentProject().getProjectFilePath();
+	}
+	
+	public static void newProject() {
+		UrmusicModel.setProject(new Project());
+	}
+
+	public static void saveCurrentProject() {
+		saveCurrentProject(getCurrentProjectPath());
+	}
+	
+	public static void saveCurrentProject(Path where) {
+		if(where == null) return;
+		
+		try(OutputStream out = new BufferedOutputStream(Files.newOutputStream(where))) {
+			UrmusicModel.getCurrentProject().setProjectFilePath(where.toAbsolutePath());
+			ProjectCodec.save(UrmusicModel.getCurrentProject(), out);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void openProject(Path where) {
+		try(BufferedInputStream in = new BufferedInputStream(Files.newInputStream(where))) {
+			UrmusicModel.setProject(ProjectCodec.load(in));
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	// -- Edit --
