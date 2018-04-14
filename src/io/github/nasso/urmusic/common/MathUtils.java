@@ -117,6 +117,10 @@ public class MathUtils {
 		return (float) Math.pow(a, b);
 	}
 	
+	public static float sqrtf(float x) {
+		return (float) Math.sqrt(x);
+	}
+	
 	public static float randomf() {
 		return (float) Math.random();
 	}

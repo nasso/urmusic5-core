@@ -79,7 +79,7 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 			
 			if(kf.getPosition() == time) {
 				kf.setValue(valClone);
-				kf.setInterpolationMethod(func);
+				kf.setEasingFunction(func);
 				return kf;
 			} else if(kf.getPosition() > time) break;
 		}
@@ -205,7 +205,7 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 		previous = this.keyFrames.get(i - 1);
 		next = this.keyFrames.get(i);
 		
-		return this.ramp(previous.getValue(), next.getValue(), next.getInterpolationMethod().apply(
+		return this.ramp(previous.getValue(), next.getValue(), next.getEasingFunction().apply(
 			time - previous.getPosition(),			// position
 			0,										// beginning value
 			1,										// change (aka: beginning value + change = end value)

@@ -11,7 +11,7 @@ public class KeyFrame<T> {
 	
 	private T value = null;
 	private float time = 0;
-	private EasingFunction interp = EasingFunction.LINEAR;
+	private EasingFunction easing = EasingFunction.LINEAR;
 	
 	public KeyFrame() {
 	}
@@ -19,7 +19,7 @@ public class KeyFrame<T> {
 	public KeyFrame(float position, T value, EasingFunction interp) {
 		this.setPosition(position);
 		this.setValue(value);
-		this.setInterpolationMethod(interp);
+		this.setEasingFunction(interp);
 	}
 
 	public T getValue() {
@@ -42,14 +42,14 @@ public class KeyFrame<T> {
 		this.notifyPositionChanged(this.time);
 	}
 
-	public EasingFunction getInterpolationMethod() {
-		return this.interp;
+	public EasingFunction getEasingFunction() {
+		return this.easing;
 	}
 
-	public void setInterpolationMethod(EasingFunction interp) {
-		if(this.interp == interp) return;
-		this.interp = interp;
-		this.notifyInterpChanged(this.interp);
+	public void setEasingFunction(EasingFunction interp) {
+		if(this.easing == interp) return;
+		this.easing = interp;
+		this.notifyInterpChanged(this.easing);
 	}
 	
 	public void addKeyFrameListener(KeyFrameListener<T> l) {

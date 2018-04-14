@@ -19,23 +19,29 @@ public class KeyFramesChunk<T> implements Chunk {
 	static final int ID = buildBigInt('K', 'F', 'L', 'S');
 	
 	ArrayBufferChunk<T> values;
-	float[] times;
-	// TODO: save easing functions
+	FloatBufferChunk times;
+	EasingFuncChunk[] easings;
 	
 	public int size() {
-		return
+		int size =
 			+ 8 // header
 			+ this.values.size()
-			+ this.times.length * 4;
+			+ this.times.size();
+		
+		for(int i = 0; i < this.easings.length; i++)
+			size += this.easings[i].size();
+		
+		return size;
 	}
 	
 	public void write(OutputStream out) throws IOException {
 		writeBigInt(out, ID);
 		writeBigInt(out, this.size());
 		this.values.write(out); // this tells the data count, so no need to write times.length
+		this.times.write(out);
 		
-		for(int i = 0; i < this.times.length; i++)
-			writeBigInt(out, Float.floatToIntBits(this.times[i]));
+		for(int i = 0; i < this.easings.length; i++)
+			this.easings[i].write(out);
 	}
 	
 	/**
@@ -48,16 +54,19 @@ public class KeyFramesChunk<T> implements Chunk {
 		KeyFramesChunk<T> ch = new KeyFramesChunk<>();
 		
 		Object[] ovalues = new Object[frames.size() + 1];
-		ch.times = new float[frames.size() + 1];
+		Float[] timesBuffer = new Float[frames.size() + 1];
+		ch.easings = new EasingFuncChunk[frames.size() + 1];
 		
 		ovalues[0] = sample;
-		ch.times[0] = 0;
+		timesBuffer[0] = 0.0f;
+		ch.easings[0] = EasingFuncChunk.DUMMY;
 		
 		for(int i = 1; i < ovalues.length; i++) {
 			KeyFrame<T> kf = frames.get(i - 1);
 			
 			ovalues[i] = kf.getValue();
-			ch.times[i] = kf.getPosition();
+			timesBuffer[i] = kf.getPosition();
+			ch.easings[i] = EasingFuncChunk.from(kf.getEasingFunction());
 		}
 		
 		ArrayBufferChunk<?> vch = null;
@@ -103,6 +112,7 @@ public class KeyFramesChunk<T> implements Chunk {
 		}
 		
 		ch.values = (ArrayBufferChunk<T>) vch;
+		ch.times = FloatBufferChunk.from(timesBuffer);
 		
 		return ch;
 	}
