@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
 
-public class PathBufferChunk extends ArrayBufferChunk<Path> {
+class PathBufferChunk extends ArrayBufferChunk<Path> {
 	static final int ID = buildBigInt('P', 'A', 'T', 'H');
 	
 	Path[] values;

@@ -15,7 +15,7 @@ import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
 
-public class KeyFramesChunk<T> implements Chunk {
+class KeyFramesChunk<T> implements Chunk {
 	static final int ID = buildBigInt('K', 'F', 'L', 'S');
 	
 	ArrayBufferChunk<T> values;

@@ -7,7 +7,7 @@ import java.io.OutputStream;
 
 import io.github.nasso.urmusic.common.RGBA32;
 
-public class RGBA32BufferChunk extends ArrayBufferChunk<RGBA32> {
+class RGBA32BufferChunk extends ArrayBufferChunk<RGBA32> {
 	static final int ID = buildBigInt('R', 'G', 'B', 'A');
 	
 	RGBA32[] values;

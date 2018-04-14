@@ -5,7 +5,7 @@ import static io.github.nasso.urmusic.common.DataUtils.*;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class IntegerBufferChunk extends ArrayBufferChunk<Integer> {
+class IntegerBufferChunk extends ArrayBufferChunk<Integer> {
 	static final int ID = buildBigInt('I', 'N', 'T', '\0');
 	
 	Integer[] values;

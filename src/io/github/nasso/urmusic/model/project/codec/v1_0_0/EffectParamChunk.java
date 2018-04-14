@@ -7,7 +7,7 @@ import java.io.OutputStream;
 
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 
-public class EffectParamChunk<T> implements Chunk {
+class EffectParamChunk<T> implements Chunk {
 	static final int ID = buildBigInt('X', 'P', 'A', 'R');
 	
 	StringChunk id;

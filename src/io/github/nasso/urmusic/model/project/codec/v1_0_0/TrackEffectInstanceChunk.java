@@ -7,7 +7,7 @@ import java.io.OutputStream;
 
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 
-public class TrackEffectInstanceChunk implements Chunk {
+class TrackEffectInstanceChunk implements Chunk {
 	static final int ID = buildBigInt('V', 'F', 'X', '\0');
 	
 	StringChunk id;

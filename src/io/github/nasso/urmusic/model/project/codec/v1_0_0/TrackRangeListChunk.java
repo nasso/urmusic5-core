@@ -8,7 +8,7 @@ import java.util.List;
 
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 
-public class TrackRangeListChunk implements Chunk {
+class TrackRangeListChunk implements Chunk {
 	static final int ID = buildBigInt('T', 'R', 'N', 'G');
 	
 	float[] start;

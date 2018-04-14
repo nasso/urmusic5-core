@@ -5,7 +5,7 @@ import static io.github.nasso.urmusic.common.DataUtils.*;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class FloatBufferChunk extends ArrayBufferChunk<Float> {
+class FloatBufferChunk extends ArrayBufferChunk<Float> {
 	static final int ID = buildBigInt('F', 'L', 'T', '\0');
 	
 	Float[] values;

@@ -29,7 +29,7 @@ public class ProjectCodec {
 	}
 	
 	public static Project load(InputStream in) throws IOException {
-		if(readLilInt(in) != FORMAT_SIGNATURE) throw new IOException("Not a project file.");
+		if(readBigInt(in) != FORMAT_SIGNATURE) throw new IOException("Not a project file.");
 		
 		Version v = Version.values()[readBigInt(in)];
 		

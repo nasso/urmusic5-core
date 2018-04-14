@@ -10,7 +10,7 @@ import io.github.nasso.urmusic.common.easing.EasingFunction;
 import io.github.nasso.urmusic.common.easing.FramesEasing;
 import io.github.nasso.urmusic.common.easing.StepEasing;
 
-public class EasingFuncChunk implements Chunk {
+class EasingFuncChunk implements Chunk {
 	static final int ID = buildBigInt('E', 'A', 'S', 'E');
 	static final EasingFuncChunk DUMMY = EasingFuncChunk.from(EasingFunction.LINEAR);
 	private static final EasingFunction[] FUNC_CONSTANTS = {

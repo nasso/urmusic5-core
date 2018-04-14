@@ -7,7 +7,7 @@ import java.io.OutputStream;
 
 import io.github.nasso.urmusic.common.BoolValue;
 
-public class BoolBufferChunk extends ArrayBufferChunk<BoolValue> {
+class BoolBufferChunk extends ArrayBufferChunk<BoolValue> {
 	static final int ID = buildBigInt('B', 'O', 'O', 'L');
 	
 	BoolValue[] values;

@@ -7,7 +7,7 @@ import java.io.OutputStream;
 
 import org.joml.Vector2fc;
 
-public class Vector2fBufferChunk extends ArrayBufferChunk<Vector2fc> {
+class Vector2fBufferChunk extends ArrayBufferChunk<Vector2fc> {
 	static final int ID = buildBigInt('V', 'E', 'C', '2');
 	
 	Vector2fc[] values;
