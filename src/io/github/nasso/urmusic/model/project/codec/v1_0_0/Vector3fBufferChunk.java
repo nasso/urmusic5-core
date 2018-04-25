@@ -6,16 +6,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.joml.Vector4f;
-import org.joml.Vector4fc;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
-class Vector4fBufferChunk extends ArrayBufferChunk<Vector4fc> {
-	static final int ID = buildBigInt('V', 'E', 'C', '4');
+class Vector3fBufferChunk extends ArrayBufferChunk<Vector3fc> {
+	static final int ID = buildBigInt('V', 'E', 'C', '3');
 	
-	Vector4fc[] values;
+	Vector3fc[] values;
 	
 	public int size() {
-		return 8 + this.values.length * 4 * 4;
+		return 8 + this.values.length * 3 * 4;
 	}
 
 	public void write(OutputStream out) throws IOException {
@@ -25,7 +25,6 @@ class Vector4fBufferChunk extends ArrayBufferChunk<Vector4fc> {
 			writeBigInt(out, Float.floatToIntBits(this.values[i].x()));
 			writeBigInt(out, Float.floatToIntBits(this.values[i].y()));
 			writeBigInt(out, Float.floatToIntBits(this.values[i].z()));
-			writeBigInt(out, Float.floatToIntBits(this.values[i].w()));
 		}
 	}
 
@@ -33,31 +32,30 @@ class Vector4fBufferChunk extends ArrayBufferChunk<Vector4fc> {
 		Chunk.assertInt(in, ID);
 		int size = readBigInt(in); size -= 8;
 		
-		int len = size / 16;
-		this.values = new Vector4fc[len];
+		int len = size / 12;
+		this.values = new Vector3fc[len];
 		for(int i = 0; i < len; i++) {
-			this.values[i] = new Vector4f(
-				Float.intBitsToFloat(readBigInt(in)),
+			this.values[i] = new Vector3f(
 				Float.intBitsToFloat(readBigInt(in)),
 				Float.intBitsToFloat(readBigInt(in)),
 				Float.intBitsToFloat(readBigInt(in))
 			);
 			
-			size -= 16;
+			size -= 12;
 		}
 		
 		Chunk.assertZero(size);
 	}
 	
-	public static Vector4fBufferChunk from(Vector4fc[] data) {
-		Vector4fBufferChunk ch = new Vector4fBufferChunk();
+	public static Vector3fBufferChunk from(Vector3fc[] data) {
+		Vector3fBufferChunk ch = new Vector3fBufferChunk();
 		
 		ch.values = data;
 		
 		return ch;
 	}
 
-	public Vector4fc[] getData() {
+	public Vector3fc[] getData() {
 		return this.values;
 	}
 }

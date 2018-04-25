@@ -3,6 +3,7 @@ package io.github.nasso.urmusic.model.project.codec.v1_0_0;
 import static io.github.nasso.urmusic.common.DataUtils.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
@@ -28,6 +29,21 @@ class TrackRangeListChunk implements Chunk {
 			writeBigInt(out, Float.floatToIntBits(this.start[i]));
 			writeBigInt(out, Float.floatToIntBits(this.end[i]));
 		}
+	}
+
+	public void read(InputStream in) throws IOException {
+		Chunk.assertInt(in, ID);
+		int size = readBigInt(in); size -= 8;
+		
+		int len = size / 8;
+		this.start = new float[len];
+		this.end = new float[len];
+		for(int i = 0; i < len; i++) {
+			this.start[i] = Float.intBitsToFloat(readBigInt(in)); size -= 4;
+			this.end[i] = Float.intBitsToFloat(readBigInt(in)); size -= 4;
+		}
+		
+		Chunk.assertZero(size);
 	}
 	
 	public static TrackRangeListChunk from(List<TrackActivityRange> rangeList) {

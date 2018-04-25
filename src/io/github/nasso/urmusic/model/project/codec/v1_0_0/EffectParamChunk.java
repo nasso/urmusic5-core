@@ -3,8 +3,10 @@ package io.github.nasso.urmusic.model.project.codec.v1_0_0;
 import static io.github.nasso.urmusic.common.DataUtils.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
+import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 
 class EffectParamChunk<T> implements Chunk {
@@ -28,6 +30,16 @@ class EffectParamChunk<T> implements Chunk {
 		// first keyframe is a fake one giving the constant value
 		// so when there's only 1 keyframe (written), it means there's no actual key frame for the effect, and the only value written is the constant
 	}
+
+	public void read(InputStream in) throws IOException {
+		Chunk.assertInt(in, ID);
+		int size = readBigInt(in); size -= 8;
+		
+		(this.id = new StringChunk()).read(in); size -= this.id.size();
+		(this.keyFrames = new KeyFramesChunk<>()).read(in); size -= this.keyFrames.size();
+		
+		Chunk.assertZero(size);
+	}
 	
 	public static <T> EffectParamChunk<T> from(EffectParam<T> param) {
 		EffectParamChunk<T> ch = new EffectParamChunk<>();
@@ -36,5 +48,23 @@ class EffectParamChunk<T> implements Chunk {
 		ch.keyFrames = KeyFramesChunk.from(param.getValue(0), param.getKeyFrames());
 		
 		return ch;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void applyTo(TrackEffectInstance tei) {
+		EffectParam<T> param = (EffectParam<T>) tei.getParamByID(this.id.build());
+		
+		if(param == null)
+			return;
+		
+		T[] values = this.keyFrames.values.getData();
+		Float[] times = this.keyFrames.times.getData();
+		EasingFuncChunk[] easings = this.keyFrames.easings;
+		
+		// Keyframe zero used to set default value: always exists
+		param.setValue(values[0], times[0]);
+		
+		for(int i = 1; i < values.length; i++)
+			param.addKeyFrame(times[i], values[i], easings[i].func);
 	}
 }

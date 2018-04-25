@@ -8,13 +8,18 @@ import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.common.event.CompositionListener;
 
 public class Composition {
-	private Timeline timeline = new Timeline();
+	private Timeline timeline;
 	private MutableRGBA32 clearColor = new MutableRGBA32();
 	private int width = 1280, height = 720;
 	
 	private List<CompositionListener> listeners = new ArrayList<>();
 	
 	public Composition() {
+		this(new Timeline());
+	}
+	
+	public Composition(Timeline tl) {
+		this.timeline = tl;
 	}
 	
 	public Timeline getTimeline() {

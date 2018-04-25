@@ -65,6 +65,9 @@ public class Timeline {
 	}
 	
 	public Track addTrack(Track t) {
+		if(t == null)
+			return null;
+		
 		this.tracks.add(t);
 		this.notifyTrackAdded(this.tracks.size() - 1, t);
 		return t;

@@ -101,6 +101,10 @@ public class Track {
 		this.addActiveRange(0, initRangeLen);
 	}
 	
+	public Track() {
+		
+	}
+	
 	public String getName() {
 		return this.name;
 	}

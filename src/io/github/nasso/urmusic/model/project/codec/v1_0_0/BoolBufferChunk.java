@@ -3,6 +3,7 @@ package io.github.nasso.urmusic.model.project.codec.v1_0_0;
 import static io.github.nasso.urmusic.common.DataUtils.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import io.github.nasso.urmusic.common.BoolValue;
@@ -21,6 +22,18 @@ class BoolBufferChunk extends ArrayBufferChunk<BoolValue> {
 		writeBigInt(out, this.size());
 		for(int i = 0; i < this.values.length; i++)
 			out.write(this.values[i] == BoolValue.TRUE ? 1 : 0);
+	}
+
+	public void read(InputStream in) throws IOException {
+		Chunk.assertInt(in, ID);
+		
+		int size = readBigInt(in); size -= 8;
+		
+		int len = size;
+		this.values = new BoolValue[len];
+		for(int i = 0; i < this.values.length; i++) {
+			this.values[i] = in.read() == 1 ? BoolValue.TRUE : BoolValue.FALSE; size--;
+		}
 	}
 	
 	public static BoolBufferChunk from(BoolValue[] data) {

@@ -208,7 +208,7 @@ public class DataUtils {
 		
 		return str;
 	}
-	
+
 	public static int readBigInt(InputStream in) throws IOException {
 		// read int in big endian
 		return buildBigInt((byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF), (byte) (in.read() & 0xFF));

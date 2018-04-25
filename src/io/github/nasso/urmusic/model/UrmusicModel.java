@@ -122,6 +122,13 @@ public class UrmusicModel {
 		return UrmusicModel.loadedEffectsUnmodifiable;
 	}
 	
+	public static TrackEffectInstance instanciateEffectById(String effectId) {
+		if(!UrmusicModel.loadedEffects.containsKey(effectId))
+			return null;
+		
+		return UrmusicModel.loadedEffects.get(effectId).instance();
+	}
+	
 	public static void setProject(Project p) {
 		if(UrmusicModel.project != null) {
 			UrmusicModel.project.getMainComposition().dispose();

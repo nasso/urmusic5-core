@@ -3,12 +3,14 @@ package io.github.nasso.urmusic.model.project.codec.v1_0_0;
 import static io.github.nasso.urmusic.common.DataUtils.*;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import io.github.nasso.urmusic.common.easing.CubicBezierEasing;
 import io.github.nasso.urmusic.common.easing.EasingFunction;
 import io.github.nasso.urmusic.common.easing.FramesEasing;
 import io.github.nasso.urmusic.common.easing.StepEasing;
+import io.github.nasso.urmusic.common.easing.StepEasing.Direction;
 
 class EasingFuncChunk implements Chunk {
 	static final int ID = buildBigInt('E', 'A', 'S', 'E');
@@ -56,39 +58,39 @@ class EasingFuncChunk implements Chunk {
 			EasingFunction.EASE_IN_BOUNCE,
 			EasingFunction.EASE_IN_OUT_BOUNCE
 	};
-	/*
-	private static final int FUNC_LINEAR = 0;
-	private static final int FUNC_EASE_IN_SINE = 1;
-	private static final int FUNC_EASE_OUT_SINE = 2;
-	private static final int FUNC_EASE_IN_OUT_SINE = 3;
-	private static final int FUNC_EASE_IN_QUAD = 4;
-	private static final int FUNC_EASE_OUT_QUAD = 5;
-	private static final int FUNC_EASE_IN_OUT_QUAD = 6;
-	private static final int FUNC_EASE_IN_CUBIC = 7;
-	private static final int FUNC_EASE_OUT_CUBIC = 8;
-	private static final int FUNC_EASE_IN_OUT_CUBIC = 9;
-	private static final int FUNC_EASE_IN_QUART = 10;
-	private static final int FUNC_EASE_OUT_QUART = 11;
-	private static final int FUNC_EASE_IN_OUT_QUART = 12;
-	private static final int FUNC_EASE_IN_QUINT = 13;
-	private static final int FUNC_EASE_OUT_QUINT = 14;
-	private static final int FUNC_EASE_IN_OUT_QUINT = 15;
-	private static final int FUNC_EASE_IN_EXPO = 16;
-	private static final int FUNC_EASE_OUT_EXPO = 17;
-	private static final int FUNC_EASE_IN_OUT_EXPO = 18;
-	private static final int FUNC_EASE_IN_CIRC = 19;
-	private static final int FUNC_EASE_OUT_CIRC = 20;
-	private static final int FUNC_EASE_IN_OUT_CIRC = 21;
-	private static final int FUNC_EASE_IN_BACK = 22;
-	private static final int FUNC_EASE_OUT_BACK = 23;
-	private static final int FUNC_EASE_IN_OUT_BACK = 24;
-	private static final int FUNC_EASE_IN_ELASTIC = 25;
-	private static final int FUNC_EASE_OUT_ELASTIC = 26;
-	private static final int FUNC_EASE_IN_OUT_ELASTIC = 27;
-	private static final int FUNC_EASE_OUT_BOUNCE = 28;
-	private static final int FUNC_EASE_IN_BOUNCE = 29;
-	private static final int FUNC_EASE_IN_OUT_BOUNCE = 30;
-	*/
+	
+//	private static final int FUNC_LINEAR = 0;
+//	private static final int FUNC_EASE_IN_SINE = 1;
+//	private static final int FUNC_EASE_OUT_SINE = 2;
+//	private static final int FUNC_EASE_IN_OUT_SINE = 3;
+//	private static final int FUNC_EASE_IN_QUAD = 4;
+//	private static final int FUNC_EASE_OUT_QUAD = 5;
+//	private static final int FUNC_EASE_IN_OUT_QUAD = 6;
+//	private static final int FUNC_EASE_IN_CUBIC = 7;
+//	private static final int FUNC_EASE_OUT_CUBIC = 8;
+//	private static final int FUNC_EASE_IN_OUT_CUBIC = 9;
+//	private static final int FUNC_EASE_IN_QUART = 10;
+//	private static final int FUNC_EASE_OUT_QUART = 11;
+//	private static final int FUNC_EASE_IN_OUT_QUART = 12;
+//	private static final int FUNC_EASE_IN_QUINT = 13;
+//	private static final int FUNC_EASE_OUT_QUINT = 14;
+//	private static final int FUNC_EASE_IN_OUT_QUINT = 15;
+//	private static final int FUNC_EASE_IN_EXPO = 16;
+//	private static final int FUNC_EASE_OUT_EXPO = 17;
+//	private static final int FUNC_EASE_IN_OUT_EXPO = 18;
+//	private static final int FUNC_EASE_IN_CIRC = 19;
+//	private static final int FUNC_EASE_OUT_CIRC = 20;
+//	private static final int FUNC_EASE_IN_OUT_CIRC = 21;
+//	private static final int FUNC_EASE_IN_BACK = 22;
+//	private static final int FUNC_EASE_OUT_BACK = 23;
+//	private static final int FUNC_EASE_IN_OUT_BACK = 24;
+//	private static final int FUNC_EASE_IN_ELASTIC = 25;
+//	private static final int FUNC_EASE_OUT_ELASTIC = 26;
+//	private static final int FUNC_EASE_IN_OUT_ELASTIC = 27;
+//	private static final int FUNC_EASE_OUT_BOUNCE = 28;
+//	private static final int FUNC_EASE_IN_BOUNCE = 29;
+//	private static final int FUNC_EASE_IN_OUT_BOUNCE = 30;
+	
 	private static final int FUNC_CUBICBEZIER = 31;
 	private static final int FUNC_FRAMES = 32;
 	private static final int FUNC_STEPS = 33;
@@ -148,6 +150,37 @@ class EasingFuncChunk implements Chunk {
 				}
 			}
 		}
+	}
+
+	public void read(InputStream in) throws IOException {
+		Chunk.assertInt(in, ID);
+		
+		int size = readBigInt(in); size -= 8;
+		byte func = (byte) in.read(); size--;
+		
+		if(func < FUNC_CONSTANTS.length) {
+			this.func = FUNC_CONSTANTS[func];
+		} else {
+			switch(func) {
+				case FUNC_CUBICBEZIER:
+					this.func = new CubicBezierEasing(
+						Float.intBitsToFloat(readBigInt(in)),
+						Float.intBitsToFloat(readBigInt(in)),
+						Float.intBitsToFloat(readBigInt(in)),
+						Float.intBitsToFloat(readBigInt(in))
+					); size -= 4 * 4;
+					break;
+				case FUNC_FRAMES:
+					this.func = new FramesEasing(readBigInt(in)); size -= 4;
+					break;
+				case FUNC_STEPS:
+					int v = readBigInt(in); size -= 4;
+					this.func = new StepEasing(Math.abs(v), v > 0 ? Direction.START : Direction.START);
+					break;
+			}
+		}
+		
+		Chunk.assertZero(size);
 	}
 
 	public static EasingFuncChunk from(EasingFunction func) {

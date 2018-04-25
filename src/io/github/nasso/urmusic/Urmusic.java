@@ -52,23 +52,21 @@ public class Urmusic {
 		UrmusicModel.init();
 		UrmusicController.init();
 		UrmusicView.init();
-		
+
 		UrmusicController.openProject(Paths.get("./test." + ProjectCodec.FILE_EXT));
 		
-		/*
-		UrmusicController.addTrack();
-		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
-		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[1]);
+//		UrmusicController.addTrack();
+//		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
+//		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[1]);
+//		
+//		CircleMaskVFXInstance fx = (CircleMaskVFXInstance) UrmusicController.getFocusedTrack().getEffect(0);
+//		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(0f, 50f, EasingFunction.LINEAR);
+//		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(2f, 100f, EasingFunction.EASE_IN_ELASTIC);
+//		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(4f, 200f, EasingFunction.EASE_IN_OUT_ELASTIC);
+//		
+//		UrmusicController.saveCurrentProject(Paths.get("./test." + ProjectCodec.FILE_EXT));
 		
-		CircleMaskVFXInstance fx = (CircleMaskVFXInstance) UrmusicController.getFocusedTrack().getEffect(0);
-		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(0f, 0f, EasingFunction.LINEAR);
-		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(2f, 100f, EasingFunction.EASE_IN_ELASTIC);
-		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(4f, 200f, EasingFunction.EASE_IN_OUT_ELASTIC);
-		
-		// UrmusicController.addEffect(new TestVFX());
-		 * 
-		UrmusicController.saveCurrentProject(Paths.get("./test." + ProjectCodec.FILE_EXT));
-		*/
+//		UrmusicController.addEffect(new TestVFX());
 	}
 	
 	public static void main(String[] args) {
