@@ -14,19 +14,19 @@ import io.github.nasso.urmusic.model.renderer.video.glvg.VGLineCap;
 
 public class TestVFX extends TrackEffect implements VideoEffect {
 	private class TestVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
-		private Point2DParam[] points = new Point2DParam[8];
+		Vector2fc[] points;
 		private GLVG vg;
 		
-		public TestVFXInstance() {
+		public void setupParameters() {
+			this.points = new Vector2fc[8];
+			
 			for(int i = 0; i < this.points.length; i++) {
 				float p = (float) i / this.points.length;
 				
 				float cs = (float) (Math.cos(p * Math.PI * 2) * 200);
 				float sn = (float) (Math.sin(p * Math.PI * 2) * 200);
 				
-				this.points[i] = new Point2DParam("pt" + i, cs, sn);
-				
-				this.addParameter(this.points[i]);
+				this.addParameter(new Point2DParam("pt" + i, cs, sn));
 			}
 		}
 		
@@ -41,13 +41,17 @@ public class TestVFX extends TrackEffect implements VideoEffect {
 		}
 
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
+			for(int i = 0; i < this.points.length; i++) {
+				this.points[i] = (Vector2fc) args.parameters.get("pt" + i);
+			}
+			
 			this.vg.begin(gl, args.width, args.height);
 
 			this.vg.setLineWidth(64);
 
 			this.vg.beginPath();
 			for(int i = 0; i < this.points.length; i++) {
-				Vector2fc p = this.points[i].getValue(args.time);
+				Vector2fc p = this.points[i];
 				
 				this.vg.lineTo(p.x(), -p.y());
 			}

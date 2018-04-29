@@ -26,29 +26,17 @@ import io.github.nasso.urmusic.model.project.param.OptionParam;
 import io.github.nasso.urmusic.model.renderer.video.NGLUtils;
 
 public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
+	private static final String PNAME_source = "source";
+	private static final String PNAME_bounds = "bounds";
+	private static final String PNAME_blendingMode = "blendingMode";
+	private static final String PNAME_opacity = "opacity";
+	
 	private NGLUtils glu = new NGLUtils("image display global");
 	
 	private int prog, quadVAO;
 	private int loc_xform, loc_inputTex, loc_imageTex, loc_blending, loc_opacity;
 	
 	public class ImageDisplayVFXInstance extends TrackEffectInstance implements VideoEffectInstance  {
-		private FileParam source = new FileParam("source");
-		private BoundsParam bounds = new BoundsParam("bounds", 0, 0, 256, 256, 1, 1, 1, 1, true);
-		private OptionParam blendingMode = new OptionParam("blendingMode", 0,
-			"srcOver",
-			"dstOver",
-			"srcIn",
-			"dstIn",
-			"srcOut",
-			"dstOut",
-			"srcAtop",
-			"dstAtop",
-			"copy",
-			"add",
-			"xor"
-		);
-		private FloatParam opacity = new FloatParam("opacity", 1.0f, 0.01f, 0.0f, 1.0f);
-		
 		private Matrix4f xform = new Matrix4f();
 		private Path lastSrc = null;
 		private BufferedImage loadedImage = null;
@@ -63,11 +51,13 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 				ImageDisplayVFXInstance.this.lastSrc = newVal.toAbsolutePath();
 				ImageDisplayVFXInstance.this.reloadImage();
 				
+				BoundsParam bounds = (BoundsParam) ImageDisplayVFXInstance.this.getParamByID(PNAME_bounds);
+				
 				int frame = UrmusicController.getFrameCursor();
-				this._vec4.set(ImageDisplayVFXInstance.this.bounds.getValue(frame));
+				this._vec4.set(bounds.getValue(frame));
 				this._vec4.z = ImageDisplayVFXInstance.this.loadedImage.getWidth();
 				this._vec4.w = ImageDisplayVFXInstance.this.loadedImage.getHeight();
-				ImageDisplayVFXInstance.this.bounds.setValue(this._vec4, frame);
+				bounds.setValue(this._vec4, frame);
 			}
 			
 			public void keyFrameAdded(EffectParam<Path> source, KeyFrame<Path> kf) {
@@ -79,13 +69,27 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 			}
 		};
 		
-		public ImageDisplayVFXInstance() {
-			this.source.addEffectParamListener(this.fileListener);
+		public void setupParameters() {
+			FileParam source = new FileParam(PNAME_source);
+			source.addEffectParamListener(this.fileListener);
 			
-			this.addParameter(this.source);
-			this.addParameter(this.bounds);
-			this.addParameter(this.blendingMode);
-			this.addParameter(this.opacity);
+			this.addParameter(source);
+			
+			this.addParameter(new BoundsParam(PNAME_bounds, 0, 0, 256, 256, 1, 1, 1, 1, true));
+			this.addParameter(new OptionParam(PNAME_blendingMode, 0,
+				"srcOver",
+				"dstOver",
+				"srcIn",
+				"dstIn",
+				"srcOut",
+				"dstOut",
+				"srcAtop",
+				"dstAtop",
+				"copy",
+				"add",
+				"xor"
+			));
+			this.addParameter(new FloatParam(PNAME_opacity, 1.0f, 0.01f, 0.0f, 1.0f));
 		}
 		
 		private void reloadImage() {
@@ -104,10 +108,10 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 		}
 		
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
-			Path src = this.source.getValue(args.time);
-			Vector4fc bounds = this.bounds.getValue(args.time);
-			int blendingMode = this.blendingMode.getValue(args.time);
-			float opacity = this.opacity.getValue(args.time);
+			Path src = (Path) args.parameters.get(PNAME_source);
+			Vector4fc bounds = (Vector4fc) args.parameters.get(PNAME_bounds);
+			int blendingMode = (int) args.parameters.get(PNAME_blendingMode);
+			float opacity = (float) args.parameters.get(PNAME_opacity);
 			
 			if(src == null) {
 				args.cancelled = true;

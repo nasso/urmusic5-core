@@ -19,42 +19,42 @@ import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.video.NGLUtils;
 
 public class CircleMaskVFX extends TrackEffect implements VideoEffect {
+	private static final String PNAME_position = "position";
+	private static final String PNAME_color = "color";
+	private static final String PNAME_outerRadius = "outerRadius";
+	private static final String PNAME_outerFade = "outerFade";
+	private static final String PNAME_innerRadius = "innerRadius";
+	private static final String PNAME_innerFade = "innerFade";
+	private static final String PNAME_blendingMode = "blendingMode";
+	private static final String PNAME_invert = "invert";
+	
 	private NGLUtils glu = new NGLUtils("circle mask global");
 	
 	private int prog, quadVAO;
 	private int loc_inputTex, loc_size, loc_color, loc_originInOutRadius, loc_inOutFade, loc_blending, loc_invert;
 	
 	public class CircleMaskVFXInstance extends TrackEffectInstance implements VideoEffectInstance  {
-		private Point2DParam position = new Point2DParam("position", 0, 0);
-		private RGBA32Param color = new RGBA32Param("color", 0xFFFFFFFF);
-		private FloatParam outerRadius = new FloatParam("outerRadius", 200.0f, 1.0f, 0.0f, Float.MAX_VALUE);
-		private FloatParam outerFade = new FloatParam("outerFade", 1.0f, 1.0f, 0.0f, Float.MAX_VALUE);
-		private FloatParam innerRadius = new FloatParam("innerRadius", 0.0f, 1.0f, 0.0f, Float.MAX_VALUE);
-		private FloatParam innerFade = new FloatParam("innerFade", 0.0f, 1.0f, 0.0f, Float.MAX_VALUE);
-		private OptionParam blendingMode = new OptionParam("blendingMode", 0,
-			"srcOver",
-			"dstOver",
-			"srcIn",
-			"dstIn",
-			"srcOut",
-			"dstOut",
-			"srcAtop",
-			"dstAtop",
-			"copy",
-			"add",
-			"xor"
-		);
-		private BooleanParam invert = new BooleanParam("invert", BoolValue.FALSE);
-		
-		public CircleMaskVFXInstance() {
-			this.addParameter(this.position);
-			this.addParameter(this.color);
-			this.addParameter(this.outerRadius);
-			this.addParameter(this.outerFade);
-			this.addParameter(this.innerRadius);
-			this.addParameter(this.innerFade);
-			this.addParameter(this.blendingMode);
-			this.addParameter(this.invert);
+		public void setupParameters() {
+			this.addParameter(new Point2DParam(PNAME_position, 0, 0));
+			this.addParameter(new RGBA32Param(PNAME_color, 0xFFFFFFFF));
+			this.addParameter(new FloatParam(PNAME_outerRadius, 200.0f, 1.0f, 0.0f, Float.MAX_VALUE));
+			this.addParameter(new FloatParam(PNAME_outerFade, 1.0f, 1.0f, 0.0f, Float.MAX_VALUE));
+			this.addParameter(new FloatParam(PNAME_innerRadius, 0.0f, 1.0f, 0.0f, Float.MAX_VALUE));
+			this.addParameter(new FloatParam(PNAME_innerFade, 0.0f, 1.0f, 0.0f, Float.MAX_VALUE));
+			this.addParameter(new OptionParam(PNAME_blendingMode, 0,
+				"srcOver",
+				"dstOver",
+				"srcIn",
+				"dstIn",
+				"srcOut",
+				"dstOut",
+				"srcAtop",
+				"dstAtop",
+				"copy",
+				"add",
+				"xor"
+			));
+			this.addParameter(new BooleanParam(PNAME_invert, BoolValue.FALSE));
 		}
 		
 		public void setupVideo(GL3 gl) {
@@ -63,14 +63,14 @@ public class CircleMaskVFX extends TrackEffect implements VideoEffect {
 		
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
 			// Retrieve params
-			Vector2fc position = this.position.getValue(args.time);
-			RGBA32 color = this.color.getValue(args.time);
-			float innerRadius = this.innerRadius.getValue(args.time);
-			float outerRadius = this.outerRadius.getValue(args.time);
-			float innerFade = this.innerFade.getValue(args.time);
-			float outerFade = this.outerFade.getValue(args.time);
-			int blending = this.blendingMode.getValue(args.time);
-			BoolValue invert = this.invert.getValue(args.time);
+			Vector2fc position = (Vector2fc) args.parameters.get(PNAME_position);
+			RGBA32 color = (RGBA32) args.parameters.get(PNAME_color);
+			float innerRadius = (float) args.parameters.get(PNAME_innerRadius);
+			float outerRadius = (float) args.parameters.get(PNAME_outerRadius);
+			float innerFade = (float) args.parameters.get(PNAME_innerFade);
+			float outerFade = (float) args.parameters.get(PNAME_outerFade);
+			int blending = (int) args.parameters.get(PNAME_blendingMode);
+			boolean invert = args.parameters.get(PNAME_invert) == BoolValue.TRUE;
 			
 			gl.glUseProgram(CircleMaskVFX.this.prog);
 			CircleMaskVFX.this.glu.uniformTexture(gl, CircleMaskVFX.this.loc_inputTex, args.texInput, 0);
@@ -88,7 +88,7 @@ public class CircleMaskVFX extends TrackEffect implements VideoEffect {
 					outerFade
 			);
 			gl.glUniform1i(CircleMaskVFX.this.loc_blending, blending);
-			gl.glUniform1i(CircleMaskVFX.this.loc_invert, invert == BoolValue.TRUE ? 1 : 0);
+			gl.glUniform1i(CircleMaskVFX.this.loc_invert, invert ? 1 : 0);
 			
 			gl.glBindVertexArray(CircleMaskVFX.this.quadVAO);
 			gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);

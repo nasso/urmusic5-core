@@ -48,7 +48,7 @@
 		"view.effectList.menu.add": "Add",
 		"view.effectList.menu.add.effect": "Effect",
 		"view.effectList.dialog.add.title": "Pick an effect to add",
-
+		
 		"effect.urm.image_display.name": "Image Display",
 		"effect.urm.image_display.param.source.name": "Source",
 		"effect.urm.image_display.param.source.empty": "none",
@@ -144,6 +144,8 @@
 		"effect.urm.audio_spectrum.param.minHeight.name": "Min Height",
 		"effect.urm.audio_spectrum.param.exponent.name": "Exponent",
 		"effect.urm.audio_spectrum.param.size.name": "Size",
-		"effect.urm.audio_spectrum.param.count.name": "Count"
+		"effect.urm.audio_spectrum.param.count.name": "Count",
+		
+		"view.scriptEditor.name": "Script Editor"
 	}
 }

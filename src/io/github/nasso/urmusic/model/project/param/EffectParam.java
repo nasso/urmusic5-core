@@ -7,6 +7,7 @@ import java.util.List;
 import io.github.nasso.urmusic.common.easing.EasingFunction;
 import io.github.nasso.urmusic.common.event.EffectParamListener;
 import io.github.nasso.urmusic.common.event.KeyFrameListener;
+import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 
 public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	private List<EffectParamListener<T>> listeners = new ArrayList<>();
@@ -188,6 +189,15 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 		this.addKeyFrame(time, val);
 	}
 	
+	/**
+	 * Computes and returns the value of this parameter, with key-frame interpolations.<br />
+	 * <strong>This does not take scripts into account!
+	 * Use the <tt>parameters</tt> field of the <tt>VideoEffectArgs</tt> arguments of
+	 * {@link VideoEffectInstance#applyVideo} instead!</strong>
+	 * 
+	 * @param time
+	 * @return
+	 */
 	public T getValue(float time) {
 		if(!this.isAutomated()) {
 			return this.getStaticValue();

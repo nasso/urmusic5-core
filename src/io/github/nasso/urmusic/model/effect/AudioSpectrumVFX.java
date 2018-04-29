@@ -23,28 +23,28 @@ import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.video.glvg.GLVG;
 
 public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
+	private static final String PNAME_mode = "mode";
+	private static final String PNAME_color = "color";
+	private static final String PNAME_faceA = "faceA";
+	private static final String PNAME_faceB = "faceB";
+	private static final String PNAME_polar = "polar";
+	private static final String PNAME_startPoint = "startPoint";
+	private static final String PNAME_endPoint = "endPoint";
+	private static final String PNAME_millisOffset = "millisOffset";
+	private static final String PNAME_duration = "duration";
+	private static final String PNAME_minDecibel = "minDecibel";
+	private static final String PNAME_maxDecibel = "maxDecibel";
+	private static final String PNAME_minFreq = "minFreq";
+	private static final String PNAME_maxFreq = "maxFreq";
+	private static final String PNAME_height = "height";
+	private static final String PNAME_minHeight = "minHeight";
+	private static final String PNAME_exponent = "exponent";
+	private static final String PNAME_size = "size";
+	private static final String PNAME_count = "count";
+	
 	public static final int FFT_SIZE = 1 << 14;
 	
 	private class AudioSpectrumVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
-		private OptionParam pMode = new OptionParam("mode", 1, "outline", "lines", "fill", "dots");
-		private RGBA32Param pColor = new RGBA32Param("color", 0xFFFFFFFF);
-		private BooleanParam pFaceA = new BooleanParam("faceA", BoolValue.TRUE);
-		private BooleanParam pFaceB = new BooleanParam("faceB", BoolValue.TRUE);
-		private BooleanParam pPolar = new BooleanParam("polar", BoolValue.FALSE);
-		private Point2DParam pStartPoint = new Point2DParam("startPoint", -500, 150);
-		private Point2DParam pEndPoint = new Point2DParam("endPoint", +500, 150);
-		private FloatParam pMillisOffset = new FloatParam("millisOffset", 0.0f, 1.0f);
-		private FloatParam pDuration = new FloatParam("duration", 200.0f, 1.0f, Float.MIN_VALUE, Float.MAX_VALUE);
-		private FloatParam pMinDecibel = new FloatParam("minDecibel", -50.0f, 1.0f);
-		private FloatParam pMaxDecibel = new FloatParam("maxDecibel", -20.0f, 1.0f);
-		private FloatParam pMinFreq = new FloatParam("minFreq", 0.0f, 10.0f, 0.0f, Float.MAX_VALUE);
-		private FloatParam pMaxFreq = new FloatParam("maxFreq", 140.0f, 10.0f, 0.0f, Float.MAX_VALUE);
-		private FloatParam pHeight = new FloatParam("height", 200.0f, 1.0f);
-		private FloatParam pMinHeight = new FloatParam("minHeight", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
-		private FloatParam pExponent = new FloatParam("exponent", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
-		private FloatParam pSize = new FloatParam("size", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
-		private IntParam pCount = new IntParam("count", 128, 1, 1, Integer.MAX_VALUE);
-		
 		private VideoEffectArgs args;
 		private int mode;
 		private RGBA32 color;
@@ -71,25 +71,25 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		private float[] audioData = new float[AudioSpectrumVFX.FFT_SIZE];
 		private float[] xy = new float[2];
 		
-		public AudioSpectrumVFXInstance() {
-			this.addParameter(this.pMode);
-			this.addParameter(this.pColor);
-			this.addParameter(this.pFaceA);
-			this.addParameter(this.pFaceB);
-			this.addParameter(this.pPolar);
-			this.addParameter(this.pStartPoint);
-			this.addParameter(this.pEndPoint);
-			this.addParameter(this.pMillisOffset);
-			this.addParameter(this.pDuration);
-			this.addParameter(this.pMinDecibel);
-			this.addParameter(this.pMaxDecibel);
-			this.addParameter(this.pMinFreq);
-			this.addParameter(this.pMaxFreq);
-			this.addParameter(this.pHeight);
-			this.addParameter(this.pMinHeight);
-			this.addParameter(this.pExponent);
-			this.addParameter(this.pSize);
-			this.addParameter(this.pCount);
+		public void setupParameters() {
+			this.addParameter(new OptionParam(PNAME_mode, 1, "outline", "lines", "fill", "dots"));
+			this.addParameter(new RGBA32Param(PNAME_color, 0xFFFFFFFF));
+			this.addParameter(new BooleanParam(PNAME_faceA, BoolValue.TRUE));
+			this.addParameter(new BooleanParam(PNAME_faceB, BoolValue.TRUE));
+			this.addParameter(new BooleanParam(PNAME_polar, BoolValue.FALSE));
+			this.addParameter(new Point2DParam(PNAME_startPoint, -500, 150));
+			this.addParameter(new Point2DParam(PNAME_endPoint, +500, 150));
+			this.addParameter(new FloatParam(PNAME_millisOffset, 0.0f, 1.0f));
+			this.addParameter(new FloatParam(PNAME_duration, 200.0f, 1.0f, Float.MIN_VALUE, Float.MAX_VALUE));
+			this.addParameter(new FloatParam(PNAME_minDecibel, -50.0f, 1.0f));
+			this.addParameter(new FloatParam(PNAME_maxDecibel, -20.0f, 1.0f));
+			this.addParameter(new FloatParam(PNAME_minFreq, 0.0f, 10.0f, 0.0f, Float.MAX_VALUE));
+			this.addParameter(new FloatParam(PNAME_maxFreq, 140.0f, 10.0f, 0.0f, Float.MAX_VALUE));
+			this.addParameter(new FloatParam(PNAME_height, 200.0f, 1.0f));
+			this.addParameter(new FloatParam(PNAME_minHeight, 2.0f, 1.0f, 0.0f, Float.MAX_VALUE));
+			this.addParameter(new FloatParam(PNAME_exponent, 2.0f, 1.0f, 0.0f, Float.MAX_VALUE));
+			this.addParameter(new FloatParam(PNAME_size, 2.0f, 1.0f, 0.0f, Float.MAX_VALUE));
+			this.addParameter(new IntParam(PNAME_count, 128, 1, 1, Integer.MAX_VALUE));
 		}
 		
 		public void setupVideo(GL3 gl) {
@@ -285,24 +285,24 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
 			this.args = args;
-			this.mode = this.pMode.getValue(args.time);
-			this.color = this.pColor.getValue(args.time);
-			this.startPoint = this.pStartPoint.getValue(args.time);
-			this.endPoint = this.pEndPoint.getValue(args.time);
-			this.faceA = this.pFaceA.getValue(args.time) == BoolValue.TRUE;
-			this.faceB = this.pFaceB.getValue(args.time) == BoolValue.TRUE;
-			this.polar = this.pPolar.getValue(args.time) == BoolValue.TRUE;
-			this.millisOffset = this.pMillisOffset.getValue(args.time);
-			this.duration = this.pDuration.getValue(args.time);
-			this.minDecibel = this.pMinDecibel.getValue(args.time);
-			this.maxDecibel = this.pMaxDecibel.getValue(args.time);
-			this.minFreq = this.pMinFreq.getValue(args.time) / UrmusicModel.getAudioRenderer().getSampleRate();
-			this.maxFreq = this.pMaxFreq.getValue(args.time) / UrmusicModel.getAudioRenderer().getSampleRate();
-			this.height = this.pHeight.getValue(args.time);
-			this.minHeight = this.pMinHeight.getValue(args.time);
-			this.exponent = this.pExponent.getValue(args.time);
-			this.size = this.pSize.getValue(args.time);
-			this.count = this.pCount.getValue(args.time);
+			this.mode = ((int) args.parameters.get(PNAME_mode));
+			this.color = ((RGBA32) args.parameters.get(PNAME_color));
+			this.startPoint = ((Vector2fc) args.parameters.get(PNAME_faceA));
+			this.endPoint = ((Vector2fc) args.parameters.get(PNAME_faceB));
+			this.faceA = args.parameters.get(PNAME_polar) == BoolValue.TRUE;
+			this.faceB = args.parameters.get(PNAME_startPoint) == BoolValue.TRUE;
+			this.polar = args.parameters.get(PNAME_endPoint) == BoolValue.TRUE;
+			this.millisOffset = ((float) args.parameters.get(PNAME_millisOffset));
+			this.duration = ((float) args.parameters.get(PNAME_duration));
+			this.minDecibel = ((float) args.parameters.get(PNAME_minDecibel));
+			this.maxDecibel = ((float) args.parameters.get(PNAME_maxDecibel));
+			this.minFreq = ((float) args.parameters.get(PNAME_minFreq)) / UrmusicModel.getAudioRenderer().getSampleRate();
+			this.maxFreq = ((float) args.parameters.get(PNAME_maxFreq)) / UrmusicModel.getAudioRenderer().getSampleRate();
+			this.height = ((float) args.parameters.get(PNAME_height));
+			this.minHeight = ((float) args.parameters.get(PNAME_minHeight));
+			this.exponent = ((float) args.parameters.get(PNAME_exponent));
+			this.size = ((float) args.parameters.get(PNAME_size));
+			this.count = ((int) args.parameters.get(PNAME_count));
 			
 			if(!this.faceA && !this.faceB) {
 				args.cancelled = true;

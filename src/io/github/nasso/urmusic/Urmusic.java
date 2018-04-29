@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import io.github.nasso.urmusic.common.DataUtils;
@@ -12,7 +11,6 @@ import io.github.nasso.urmusic.common.easing.EasingFunction;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX.CircleMaskVFXInstance;
-import io.github.nasso.urmusic.model.project.codec.ProjectCodec;
 import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.view.UrmusicView;
 
@@ -60,14 +58,14 @@ public class Urmusic {
 		
 		UrmusicController.addTrack();
 		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
-		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[1]);
 		
+		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[1]);
 		CircleMaskVFXInstance fx = (CircleMaskVFXInstance) UrmusicController.getFocusedTrack().getEffect(0);
 		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(0f, 50f, EasingFunction.LINEAR);
 		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(2f, 100f, EasingFunction.EASE_IN_ELASTIC);
 		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(4f, 200f, EasingFunction.EASE_IN_OUT_ELASTIC);
 		
-		UrmusicController.saveCurrentProject(Paths.get("./test." + ProjectCodec.FILE_EXT));
+//		UrmusicController.saveCurrentProject(Paths.get("./test." + ProjectCodec.FILE_EXT));
 		
 //		UrmusicController.addEffect(new TestVFX());
 	}

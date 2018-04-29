@@ -20,6 +20,8 @@ public class UrmusicUIRes {
 	public static final ImageIcon SORT_DOWN_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-sort-down-16.png"));
 	public static final ImageIcon CODE_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-source-code-16.png"));
 	
+	public static final ImageIcon ERROR_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-close-window-16.png"));
+	
 	public static final void init() { }
 	
 	private UrmusicUIRes() { }

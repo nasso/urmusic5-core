@@ -24,6 +24,7 @@ import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.VideoEffect;
 import io.github.nasso.urmusic.model.project.VideoEffectArgs;
 import io.github.nasso.urmusic.model.project.VideoEffectInstance;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
 
 /**
  * Uses OpenGL 3
@@ -398,6 +399,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	// TODO: CompositeTrack rendering
 	private void renderTrack(Composition comp, Track t, float time) {
 		TrackRenderTexture dest = this.getTrackTexture(comp, t);
+		
 		// Clear the args before starting
 		this.fxArgs.clear();
 		
@@ -441,12 +443,6 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				this.gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dest.getDepthBuffer());
 			}
 			
-			// Clear the dest buffer
-			this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-			this.gl.glClearStencil(0x00);
-			this.gl.glClearDepth(1.0);
-			this.gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-			
 			// Effect arguments
 			this.fxArgs.clear();
 			this.fxArgs.width = dest.width;
@@ -454,7 +450,23 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			this.fxArgs.time = time;
 			this.fxArgs.texInput = dest.getBackBuffer();
 			this.fxArgs.fboOutput = this.trackRenderingFBO;
+
+			// Update the parameters
+			for(int i = 0; i < fx.getParameterCount(); i++) {
+				EffectParam<?> param = fx.getParameter(i);
+				this.fxArgs.parameters.put(param.getID(), param.getValue(this.fxArgs.time));
+			}
 			
+			// Script execution!
+			fx.getScript().update(this.fxArgs.parameters, this.fxArgs.time, this.fxArgs.width, this.fxArgs.height);
+			
+			// Clear the dest buffer
+			this.gl.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			this.gl.glClearStencil(0x00);
+			this.gl.glClearDepth(1.0);
+			this.gl.glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+			
+			// Bind the framebuffer we're gonna render to
 			this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.trackRenderingFBO);
 			
 			// DO IT TO EM

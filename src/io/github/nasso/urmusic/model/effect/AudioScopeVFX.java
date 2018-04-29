@@ -17,25 +17,25 @@ import io.github.nasso.urmusic.model.project.param.Point2DParam;
 import io.github.nasso.urmusic.model.renderer.video.glvg.GLVG;
 
 public class AudioScopeVFX extends TrackEffect implements VideoEffect {
+	private static final String PNAME_startPoint = "startPoint";
+	private static final String PNAME_endPoint = "endPoint";
+	private static final String PNAME_millisOffset = "millisOffset";
+	private static final String PNAME_duration = "duration";
+	private static final String PNAME_lineWidth = "lineWidth";
+	private static final String PNAME_precision = "precision";
+	
 	private class AudioScopeVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
-		private Point2DParam startPoint = new Point2DParam("startPoint", -400, 0);
-		private Point2DParam endPoint = new Point2DParam("endPoint", +400, 0);
-		private FloatParam millisOffset = new FloatParam("millisOffset", 0.0f, 1.0f);
-		private FloatParam duration = new FloatParam("duration", 200.0f, 1.0f);
-		private FloatParam lineWidth = new FloatParam("lineWidth", 2.0f, 1.0f, 0.0f, Float.MAX_VALUE);
-		private IntParam precision = new IntParam("precision", 512, 1, 2, 32768);
-
 		private GLVG vg;
 		
 		private float[] audioData = new float[512];
 		
-		public AudioScopeVFXInstance() {
-			this.addParameter(this.startPoint);
-			this.addParameter(this.endPoint);
-			this.addParameter(this.millisOffset);
-			this.addParameter(this.duration);
-			this.addParameter(this.lineWidth);
-			this.addParameter(this.precision);
+		public void setupParameters() {
+			this.addParameter(new Point2DParam(PNAME_startPoint, -400, 0));
+			this.addParameter(new Point2DParam(PNAME_endPoint, +400, 0));
+			this.addParameter(new FloatParam(PNAME_millisOffset, 0.0f, 1.0f));
+			this.addParameter(new FloatParam(PNAME_duration, 200.0f, 1.0f));
+			this.addParameter(new FloatParam(PNAME_lineWidth, 2.0f, 1.0f, 0.0f, Float.MAX_VALUE));
+			this.addParameter(new IntParam(PNAME_precision, 512, 1, 2, 32768));
 		}
 		
 		public void setupVideo(GL3 gl) {
@@ -43,12 +43,12 @@ public class AudioScopeVFX extends TrackEffect implements VideoEffect {
 		}
 		
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
-			Vector2fc startPoint = this.startPoint.getValue(args.time);
-			Vector2fc endPoint = this.endPoint.getValue(args.time);
-			float millisOffset = this.millisOffset.getValue(args.time);
-			float duration = this.duration.getValue(args.time);
-			float lineWidth = this.lineWidth.getValue(args.time);
-			int precision = this.precision.getValue(args.time);
+			Vector2fc startPoint = (Vector2fc) args.parameters.get(PNAME_startPoint);
+			Vector2fc endPoint = (Vector2fc) args.parameters.get(PNAME_endPoint);
+			float millisOffset = (float) args.parameters.get(PNAME_millisOffset);
+			float duration = (float) args.parameters.get(PNAME_duration);
+			float lineWidth = (float) args.parameters.get(PNAME_lineWidth);
+			int precision = (int) args.parameters.get(PNAME_precision);
 			
 			if(precision != this.audioData.length)
 				this.audioData = new float[precision];

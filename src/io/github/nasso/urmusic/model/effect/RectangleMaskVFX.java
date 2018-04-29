@@ -18,15 +18,21 @@ import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.video.NGLUtils;
 
 public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
+	private static final String PNAME_color = "color";
+	private static final String PNAME_bounds = "bounds";
+	private static final String PNAME_blendingMode = "blendingMode";
+	private static final String PNAME_invert = "invert";
+	
 	private NGLUtils glu = new NGLUtils("rectangle mask global");
 	
 	private int prog, quadVAO;
 	private int loc_inputTex, loc_size, loc_color, loc_points, loc_blending, loc_invert;
 	
 	public class RectangleMaskVFXInstance extends TrackEffectInstance implements VideoEffectInstance  {
-		private RGBA32Param color = new RGBA32Param("color", 0xffffffff);
-		private BoundsParam bounds = new BoundsParam("bounds", -50, -50, 100, 100);
-		private OptionParam blendingMode = new OptionParam("blendingMode", 0,
+		public void setupParameters() {
+			this.addParameter(new RGBA32Param(PNAME_color, 0xffffffff));
+			this.addParameter(new BoundsParam(PNAME_bounds, -50, -50, 100, 100));
+			this.addParameter(new OptionParam(PNAME_blendingMode, 0,
 				"srcOver",
 				"dstOver",
 				"srcIn",
@@ -38,24 +44,18 @@ public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
 				"copy",
 				"add",
 				"xor"
-			);
-		private BooleanParam invert = new BooleanParam("invert", BoolValue.FALSE);
-		
-		public RectangleMaskVFXInstance() {
-			this.addParameter(this.color);
-			this.addParameter(this.bounds);
-			this.addParameter(this.blendingMode);
-			this.addParameter(this.invert);
+			));
+			this.addParameter(new BooleanParam(PNAME_invert, BoolValue.FALSE));
 		}
 		
 		public void setupVideo(GL3 gl) {
 		}
 		
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
-			RGBA32 color = this.color.getValue(args.time);
-			Vector4fc bounds = this.bounds.getValue(args.time);
-			int blending = this.blendingMode.getValue(args.time);
-			BoolValue invert = this.invert.getValue(args.time);
+			RGBA32 color = (RGBA32) args.parameters.get(PNAME_color);
+			Vector4fc bounds = (Vector4fc) args.parameters.get(PNAME_bounds);
+			int blending = (int) args.parameters.get(PNAME_blendingMode);
+			boolean invert = args.parameters.get(PNAME_invert) == BoolValue.TRUE;
 			
 			gl.glUseProgram(RectangleMaskVFX.this.prog);
 			RectangleMaskVFX.this.glu.uniformTexture(gl, RectangleMaskVFX.this.loc_inputTex, args.texInput, 0);
@@ -69,7 +69,7 @@ public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
 					-bounds.y() - bounds.w()
 			);
 			gl.glUniform1i(RectangleMaskVFX.this.loc_blending, blending);
-			gl.glUniform1i(RectangleMaskVFX.this.loc_invert, invert == BoolValue.TRUE ? 1 : 0);
+			gl.glUniform1i(RectangleMaskVFX.this.loc_invert, invert ? 1 : 0);
 			
 			gl.glBindVertexArray(RectangleMaskVFX.this.quadVAO);
 			gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);

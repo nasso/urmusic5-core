@@ -25,6 +25,7 @@ import io.github.nasso.urmusic.model.project.VideoEffect;
 import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.renderer.audio.AudioRenderer;
 import io.github.nasso.urmusic.model.renderer.video.VideoRenderer;
+import io.github.nasso.urmusic.model.scripting.ScriptManager;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 /**
@@ -57,6 +58,12 @@ public class UrmusicModel {
 	private static Map<String, TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableMap(UrmusicModel.loadedEffects);
 	
 	public static void init() {
+		try {
+			ScriptManager.init();
+		} catch(ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		// TODO: User prefs
 		UrmusicModel.videoRenderer = new VideoRenderer(200);
 		UrmusicModel.audioRenderer = new AudioRenderer(8192);

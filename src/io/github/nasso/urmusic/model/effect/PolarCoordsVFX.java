@@ -12,23 +12,23 @@ import io.github.nasso.urmusic.model.project.param.BooleanParam;
 import io.github.nasso.urmusic.model.renderer.video.NGLUtils;
 
 public class PolarCoordsVFX extends TrackEffect implements VideoEffect {
+	private static final String PNAME_polarToRect = "polarToRect";
+	
 	private NGLUtils glu = new NGLUtils("polar coords global");
 	
 	private int prog, quadVAO;
 	private int loc_inputTex, loc_aspectRatio, loc_modePolarToRect;
 	
 	private class PolarCoordsVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
-		private BooleanParam polarToRect = new BooleanParam("polarToRect", BoolValue.FALSE);
-		
-		public PolarCoordsVFXInstance() {
-			this.addParameter(this.polarToRect);
+		public void setupParameters() {
+			this.addParameter(new BooleanParam(PNAME_polarToRect, BoolValue.FALSE));
 		}
 		
 		public void setupVideo(GL3 gl) {
 		}
 
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
-			boolean polarToRect = this.polarToRect.getValue(args.time) == BoolValue.TRUE;
+			boolean polarToRect = args.parameters.get(PNAME_polarToRect) == BoolValue.TRUE;
 			
 			gl.glUseProgram(PolarCoordsVFX.this.prog);
 			PolarCoordsVFX.this.glu.uniformTexture(gl, PolarCoordsVFX.this.loc_inputTex, args.texInput, 0);

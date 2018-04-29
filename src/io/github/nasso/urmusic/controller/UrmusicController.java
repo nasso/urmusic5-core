@@ -21,6 +21,7 @@ import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectScript;
 import io.github.nasso.urmusic.model.project.codec.ProjectCodec;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.model.project.param.KeyFrame;
@@ -389,6 +390,12 @@ public class UrmusicController {
 	
 	public static void deleteFocusedTrack() {
 		UrmusicController.deleteTrack(UrmusicController.getFocusedTrack());
+	}
+	
+	public static void updateScriptSource(TrackEffectScript script, String newSource) {
+		script.setSource(newSource);
+		
+		UrmusicController.markVideoDirty();
 	}
 	
 	// -- Focus --
