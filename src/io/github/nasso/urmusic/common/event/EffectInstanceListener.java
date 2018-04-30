@@ -27,4 +27,6 @@ public interface EffectInstanceListener {
 	
 	public void parameterAdded(TrackEffectInstance source, int i, EffectParam<?> ctrl);
 	public void parameterRemoved(TrackEffectInstance source, int i, EffectParam<?> ctrl);
+	
+	public void effectInstanceDisposed();
 }

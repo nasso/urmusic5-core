@@ -122,7 +122,7 @@ public abstract class TrackEffect {
 		}
 		
 		/**
-		 * Called when the object is constructed, so subclass fields aren't initialized yet!
+		 * Called when the object is constructed: subclass fields aren't initialized yet!
 		 */
 		public abstract void setupParameters();
 		
@@ -142,6 +142,7 @@ public abstract class TrackEffect {
 		}
 
 		public void dispose() {
+			for(int i = 0; i < this.listeners.size(); i++) this.listeners.get(i).effectInstanceDisposed();
 			UrmusicModel.disposeEffect(this);
 		}
 		

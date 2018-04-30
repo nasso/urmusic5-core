@@ -395,6 +395,7 @@ public class UrmusicController {
 			UrmusicController.focusTrackEffectInstance(null);
 		
 		t.removeEffect(fx);
+		fx.dispose();
 		
 		UrmusicController.markVideoDirty();
 	}
@@ -412,6 +413,8 @@ public class UrmusicController {
 	}
 	
 	public static void updateScriptSource(TrackEffectScript script, String newSource) {
+		if(script == null || newSource == null) return;
+		
 		script.setSource(newSource);
 		
 		UrmusicController.markVideoDirty();

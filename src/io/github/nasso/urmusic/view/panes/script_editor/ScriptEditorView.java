@@ -37,19 +37,20 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import io.github.nasso.urmusic.common.ScriptRuntimeErrorListener;
+import io.github.nasso.urmusic.common.event.EffectInstanceListener;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectScript;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
 import io.github.nasso.urmusic.view.UrmusicView;
 import io.github.nasso.urmusic.view.components.UrmViewPane;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 
-public class ScriptEditorView extends UrmViewPane implements FocusListener<TrackEffectInstance>, ScriptRuntimeErrorListener {
+public class ScriptEditorView extends UrmViewPane implements FocusListener<TrackEffectInstance>, ScriptRuntimeErrorListener, EffectInstanceListener {
 	private static final Color ERROR_LINE_HIGHLIGHT_COLOR = new Color(0xffcccc);
 	public static final String VIEW_NAME = "scriptEditor";
 
-	private TrackEffectScript script;
+	private TrackEffectInstance fx;
 	
 	private RTextScrollPane scroller;
 	private RSyntaxTextArea editor;
@@ -106,7 +107,7 @@ public class ScriptEditorView extends UrmViewPane implements FocusListener<Track
 			this.editor.removeAllLineHighlights();
 			this.scroller.getGutter().removeAllTrackingIcons();
 			
-			UrmusicController.updateScriptSource(this.script, this.editor.getText());
+			if(this.fx != null) UrmusicController.updateScriptSource(this.fx.getScript(), this.editor.getText());
 		});
 
 		this.updateTimer.setCoalesce(false);
@@ -128,26 +129,41 @@ public class ScriptEditorView extends UrmViewPane implements FocusListener<Track
 		this.add(this.scroller);
 		
 		if(UrmusicController.getFocusedTrackEffectInstance() != null) {
-			this.updateContent(UrmusicController.getFocusedTrackEffectInstance().getScript());
+			this.focusChanged(null, UrmusicController.getFocusedTrackEffectInstance());
 		}
 		
 		UrmusicController.addTrackEffectInstanceFocusListener(this);
 	}
 	
-	private void updateContent(TrackEffectScript script) {
-		if(script != null) {
-			if(this.script != null) this.script.removeErrorListener(this);
+	private void clearContent() {
+		if(this.fx == null) return;
+		
+		this.fx.removeEffectInstanceListener(this);
+		this.fx.getScript().removeErrorListener(this);
+		this.fx = null;
+		
+		this.editor.setText("");
+		this.editor.discardAllEdits();
+	}
+	
+	private void updateContent(TrackEffectInstance fx) {
+		if(fx != null) {
+			if(this.fx != null) {
+				this.fx.getScript().removeErrorListener(this);
+				this.fx.removeEffectInstanceListener(this);
+			}
+
+			this.fx = fx;
+			this.fx.addEffectInstanceListener(this);
+			this.fx.getScript().addErrorListener(this);
 			
-			this.script = script;
-			this.script.addErrorListener(this);
-			
-			this.editor.setText(script.getSource());
+			this.editor.setText(fx.getScript().getSource());
 			this.editor.discardAllEdits();
 		}
 	}
 
 	public void focusChanged(TrackEffectInstance oldFocus, TrackEffectInstance newFocus) {
-		this.updateContent(newFocus == null ? null : newFocus.getScript());
+		this.updateContent(newFocus);
 	}
 	
 	public void dispose() {
@@ -163,5 +179,18 @@ public class ScriptEditorView extends UrmViewPane implements FocusListener<Track
 		} catch(BadLocationException e1) {
 			e1.printStackTrace();
 		}
+	}
+
+	public void enabledStateChanged(TrackEffectInstance source, boolean isEnabledNow) {
+	}
+
+	public void parameterAdded(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
+	}
+
+	public void parameterRemoved(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
+	}
+
+	public void effectInstanceDisposed() {
+		this.clearContent();
 	}
 }

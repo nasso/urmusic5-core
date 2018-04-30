@@ -184,6 +184,10 @@ public class UrmusicModel {
 	}
 	
 	public static void disposeTrack(Track track) {
+		for(int i = 0; i < track.getEffectCount(); i++) {
+			track.getEffect(i).dispose();
+		}
+		
 		UrmusicModel.videoRenderer.disposeTrack(track);
 	}
 	

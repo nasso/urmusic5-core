@@ -240,4 +240,7 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 			this.labelName.repaint();
 		});
 	}
+
+	public void effectInstanceDisposed() {
+	}
 }

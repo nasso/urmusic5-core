@@ -32,6 +32,7 @@ class TrackEffectInstanceChunk implements Chunk {
 	static final int ID = buildBigInt('V', 'F', 'X', '\0');
 	
 	StringChunk id;
+	StringChunk scriptSrc;
 	boolean enabled;
 	EffectParamChunk<?>[] params;
 	
@@ -39,6 +40,7 @@ class TrackEffectInstanceChunk implements Chunk {
 		int size =
 			+ 8 // header
 			+ this.id.size()
+			+ this.scriptSrc.size()
 			+ 1 // enabled
 			+ 4; // params.length
 		
@@ -53,6 +55,7 @@ class TrackEffectInstanceChunk implements Chunk {
 		writeBigInt(out, this.size());
 		
 		this.id.write(out);
+		this.scriptSrc.write(out);
 		out.write(this.enabled ? 1 : 0);
 		
 		writeBigInt(out, this.params.length);
@@ -66,6 +69,7 @@ class TrackEffectInstanceChunk implements Chunk {
 		int size = readBigInt(in); size -= 8;
 		
 		(this.id = new StringChunk()).read(in); size -= this.id.size();
+		(this.scriptSrc = new StringChunk()).read(in); size -= this.scriptSrc.size();
 		this.enabled = in.read() != 0; size--;
 		
 		int len = readBigInt(in); size -= 4;
@@ -81,6 +85,7 @@ class TrackEffectInstanceChunk implements Chunk {
 		TrackEffectInstanceChunk ch = new TrackEffectInstanceChunk();
 		
 		ch.id = StringChunk.from(fx.getEffectClass().getEffectClassID());
+		ch.scriptSrc = StringChunk.from(fx.getScript().getSource());
 		ch.enabled = fx.isEnabled();
 		ch.params = new EffectParamChunk[fx.getParameterCount()];
 		
@@ -98,6 +103,8 @@ class TrackEffectInstanceChunk implements Chunk {
 		tei.setEnabled(this.enabled);
 		for(int i = 0; i < this.params.length; i++)
 			this.params[i].applyTo(tei);
+		
+		tei.getScript().setSource(this.scriptSrc.build());
 		
 		return tei;
 	}
