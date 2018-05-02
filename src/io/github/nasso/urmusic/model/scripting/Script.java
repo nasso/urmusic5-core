@@ -58,6 +58,8 @@ public class Script {
 			ScriptManager.engine.eval(source, this.bindings);
 		} catch(ScriptException e) {
 			this.notifyError(e.getMessage(), e.getLineNumber(), e.getColumnNumber());
+		} catch(Exception e) {
+			this.notifyError(e.getMessage(), 0, 0);
 		}
 		
 		this.onSourceChanged();

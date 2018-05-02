@@ -63,34 +63,34 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 		
 		private boolean textureLoaded = true;
 		
-		private EffectParamListener<Path> fileListener = new EffectParamListener<Path>() {
-			private Vector4f _vec4 = new Vector4f();
-			
-			public void valueChanged(EffectParam<Path> source, Path newVal) {
-				ImageDisplayVFXInstance.this.lastSrc = newVal.toAbsolutePath();
-				ImageDisplayVFXInstance.this.reloadImage();
-				
-				BoundsParam bounds = (BoundsParam) ImageDisplayVFXInstance.this.getParamByID(PNAME_bounds);
-				
-				int frame = UrmusicController.getFrameCursor();
-				this._vec4.set(bounds.getValue(frame));
-				this._vec4.z = ImageDisplayVFXInstance.this.loadedImage.getWidth();
-				this._vec4.w = ImageDisplayVFXInstance.this.loadedImage.getHeight();
-				bounds.setValue(this._vec4, frame);
-			}
-			
-			public void keyFrameAdded(EffectParam<Path> source, KeyFrame<Path> kf) {
-				
-			}
-			
-			public void keyFrameRemoved(EffectParam<Path> source, KeyFrame<Path> kf) {
-				
-			}
-		};
+		private EffectParamListener<Path> fileListener;
 		
 		public void setupParameters() {
 			FileParam source = new FileParam(PNAME_source);
-			source.addEffectParamListener(this.fileListener);
+			source.addEffectParamListener(this.fileListener = new EffectParamListener<Path>() {
+				private Vector4f _vec4 = new Vector4f();
+				
+				public void valueChanged(EffectParam<Path> source, Path newVal) {
+					ImageDisplayVFXInstance.this.lastSrc = newVal.toAbsolutePath();
+					ImageDisplayVFXInstance.this.reloadImage();
+					
+					BoundsParam bounds = (BoundsParam) ImageDisplayVFXInstance.this.getParamByID(PNAME_bounds);
+					
+					int frame = UrmusicController.getFrameCursor();
+					this._vec4.set(bounds.getValue(frame));
+					this._vec4.z = ImageDisplayVFXInstance.this.loadedImage.getWidth();
+					this._vec4.w = ImageDisplayVFXInstance.this.loadedImage.getHeight();
+					bounds.setValue(this._vec4, frame);
+				}
+				
+				public void keyFrameAdded(EffectParam<Path> source, KeyFrame<Path> kf) {
+					
+				}
+				
+				public void keyFrameRemoved(EffectParam<Path> source, KeyFrame<Path> kf) {
+					
+				}
+			});
 			
 			this.addParameter(source);
 			
@@ -164,6 +164,7 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 		
 		public void disposeVideo(GL3 gl) {
 			ImageDisplayVFX.this.glu.deleteTexture(gl, this.tex);
+			((FileParam) this.getParamByID(PNAME_source)).removeEffectParamListener(this.fileListener);
 		}
 	}
 	

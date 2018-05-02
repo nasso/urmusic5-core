@@ -31,7 +31,6 @@ public class ScriptManager {
 		engine = (NashornScriptEngine) new NashornScriptEngineFactory().getScriptEngine();
 
 		if(engine == null) throw new ClassNotFoundException("Couldn't find Nashorn.");
+		
 	}
-	
-	
 }

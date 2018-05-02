@@ -17,15 +17,14 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-#version 330 core
+var UrmusicModel = Java.type("io.github.nasso.urmusic.model.UrmusicModel");
+var audio = UrmusicModel.getAudioRenderer();
 
-uniform sampler2D inputTex;
-uniform float opacity;
+function clamp(value, min, max) {
+	return value < min ? min : value > max ? max : value;
+}
 
-in vec2 pass_quad_uv;
-
-out vec4 out_color;
-
-void main() {
-	out_color = texture(inputTex, pass_quad_uv) * vec4(1.0, 1.0, 1.0, opacity);
+function mapEase(value, a, b, c, d) {
+	var clamped = clamp(value, a, b);
+	return c + ((clamped - a) / (b - a)) * (d - c);
 }

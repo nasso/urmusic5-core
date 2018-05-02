@@ -146,6 +146,11 @@
 		"effect.urm.audio_spectrum.param.size.name": "Size",
 		"effect.urm.audio_spectrum.param.count.name": "Count",
 		
+		"effect.urm.mirror.name": "Mirror",
+		"effect.urm.mirror.param.edge0.name": "Edge 1",
+		"effect.urm.mirror.param.edge1.name": "Edge 2",
+		"effect.urm.mirror.param.invert.name": "Invert",
+		
 		"view.scriptEditor.name": "Script Editor"
 	}
 }

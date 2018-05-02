@@ -290,7 +290,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			this.loadedEffectInstances.remove(vfx);
 		}
 		
-		TrackRenderTexture tex = this.tracksTextures.remove(t);
+		TrackRenderTexture tex = null;
+		
+		tex = this.tracksTextures.remove(t);
 		
 		if(tex != null) {
 			for(int i = 0; i < tex.tex_id.length; i++)
@@ -364,7 +366,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		while(!this.loadedEffects.isEmpty()) this.loadedEffects.remove(0).globalVideoDispose(this.gl);
 		
 		for(Track t : this.tracksTextures.keySet()) {
-			TrackRenderTexture tex = this.tracksTextures.remove(t);
+			TrackRenderTexture tex = this.tracksTextures.get(t);
 			
 			if(tex != null) {
 				for(int i = 0; i < tex.tex_id.length; i++)

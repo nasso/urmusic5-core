@@ -30,10 +30,21 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 import io.github.nasso.urmusic.Urmusic;
+import io.github.nasso.urmusic.common.FFTContext;
+import io.github.nasso.urmusic.common.MathUtils;
+import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.ffmpeg.FFmpegUtils;
 
 public class AudioRenderer implements Runnable {
 	public static final Path AUDIO_BUFFER_SOURCE_PATH = Urmusic.URM_HOME.toPath().resolve("current_song.wav").toAbsolutePath();
+	
+	public static final int FFT_SIZE = 1 << 14;
+	
+	private FFTContext fft = new FFTContext(FFT_SIZE);
+	private float[] fftData = new float[FFT_SIZE];
+	
+	private float fftDataTime = -1.0f;
+	private float fftDuration = -1.0f;
 	
 	private boolean shouldStop = false;
 	private Thread audioThread;
@@ -76,6 +87,177 @@ public class AudioRenderer implements Runnable {
 		}
 	}
 	
+	public void getFreqData(float time, float duration, float[] dest) {
+		this.getFreqData(time, duration, dest, false);
+	}
+	
+	public void getFreqData(float time, float duration, float[] dest, boolean quadInterpolation) {
+		if(this.fftDataTime < 0 || this.fftDuration <= 0 || this.fftDataTime != time || duration != this.fftDuration) {
+			this.fftDataTime = time;
+			this.fftDuration = duration;
+			
+			UrmusicModel.getAudioRenderer().getSamples(time, duration, this.fftData);
+			MathUtils.applyBlackmanWindow(this.fftData, this.fftData.length);
+			this.fft.fft(this.fftData, true);
+		}
+		
+		if(dest != null) {
+			if(dest.length == FFT_SIZE) System.arraycopy(this.fftData, 0, dest, 0, FFT_SIZE);
+			else {
+				for(int i = 0; i < dest.length; i++)
+					dest[i] = MathUtils.getValue(this.fftData, ((float) i / dest.length) * this.fftData.length, quadInterpolation);
+			}
+		}
+	}
+	
+	public float maxFreqValue() {
+		return this.maxFreqValue(0);
+	}
+	
+	public float maxFreqValue(float time) {
+		return this.maxFreqValue(time, this.fftDuration);
+	}
+	
+	public float maxFreqValue(float time, float duration) {
+		// You know I had to do it to em... although this will probably be already computed
+		this.getFreqData(time, duration, null);
+		
+		float m = -Float.MAX_VALUE;
+		for(int i = 0; i < this.fftData.length; i++)
+			m = Math.max(m, this.fftData[i]);
+		
+		return m;
+	}
+	
+	public float minFreqValue() {
+		return this.maxFreqValue(0);
+	}
+	
+	public float minFreqValue(float time) {
+		return this.maxFreqValue(time, this.fftDuration);
+	}
+	
+	public float minFreqValue(float time, float duration) {
+		// Same as above
+		this.getFreqData(time, duration, null);
+		
+		float m = Float.MAX_VALUE;
+		for(int i = 0; i < this.fftData.length; i++)
+			m = Math.min(m, this.fftData[i]);
+		
+		return m;
+	}
+	
+	public float peakToPeakAmp(float time, float duration) {
+		synchronized(this.accessLoader) {
+			long startSample = this.timeToSamples(time);
+			long sampleCount = this.timeToSamples(duration);
+			
+			float posPeak = 0;
+			float negPeak = 0;
+			
+			try { 
+				long lastReadPosition = startSample;
+				long bufferPosition = startSample;
+				
+				for(int i = 0; i < sampleCount; i++) {
+					long targetPosition = startSample + i;
+					
+					if(targetPosition >= this.accessLoader.getSampleCount()) return (posPeak - negPeak) / 2f;
+					
+					// Check if the target sample offset is outside of the current buffer
+					if(targetPosition >= lastReadPosition) {
+						bufferPosition = targetPosition;
+						lastReadPosition = bufferPosition + this.accessLoader.loadSamples(bufferPosition, this.accessBuffer);
+					}
+					
+					float sample = 0.0f;
+					for(int c = 0; c < this.accessLoader.getChannels(); c++) {
+						int bi = (int) (targetPosition - bufferPosition) * this.accessLoader.getChannels() + c;
+						
+						if(this.accessLoader.getBitsPerSample() == 8) {
+							sample += (float) this.accessBuffer[bi] / Byte.MAX_VALUE;
+						} else if(this.accessLoader.getBitsPerSample() == 16) {
+							bi *= 2;
+							
+							byte a = this.accessBuffer[bi];
+							byte b = this.accessBuffer[bi + 1];
+							
+							if(this.accessLoader.isBigEndian()) {
+								sample += (float) ((a << 8) | b) / Short.MAX_VALUE;
+							} else {
+								sample += (float) ((b << 8) | a) / Short.MAX_VALUE;
+							}
+						}
+					}
+					
+					sample /= this.accessLoader.getChannels();
+					
+					posPeak = Math.max(sample, posPeak);
+					negPeak = Math.min(sample, negPeak);
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+			
+			return (posPeak - negPeak) / 2f;
+		}
+	}
+	
+	public float peakAmp(float time, float duration) {
+		synchronized(this.accessLoader) {
+			long startSample = this.timeToSamples(time);
+			long sampleCount = this.timeToSamples(duration);
+			
+			float peak = 0;
+			
+			try {
+				long lastReadPosition = startSample;
+				long bufferPosition = startSample;
+				
+				for(int i = 0; i < sampleCount; i++) {
+					long targetPosition = startSample + i;
+					
+					if(targetPosition >= this.accessLoader.getSampleCount()) return peak;
+					
+					// Check if the target sample offset is outside of the current buffer
+					if(targetPosition >= lastReadPosition) {
+						bufferPosition = targetPosition;
+						lastReadPosition = bufferPosition + this.accessLoader.loadSamples(bufferPosition, this.accessBuffer);
+					}
+					
+					float sample = 0.0f;
+					for(int c = 0; c < this.accessLoader.getChannels(); c++) {
+						int bi = (int) (targetPosition - bufferPosition) * this.accessLoader.getChannels() + c;
+						
+						if(this.accessLoader.getBitsPerSample() == 8) {
+							sample += (float) this.accessBuffer[bi] / Byte.MAX_VALUE;
+						} else if(this.accessLoader.getBitsPerSample() == 16) {
+							bi *= 2;
+							
+							byte a = this.accessBuffer[bi];
+							byte b = this.accessBuffer[bi + 1];
+							
+							if(this.accessLoader.isBigEndian()) {
+								sample += (float) ((a << 8) | b) / Short.MAX_VALUE;
+							} else {
+								sample += (float) ((b << 8) | a) / Short.MAX_VALUE;
+							}
+						}
+					}
+					
+					sample /= this.accessLoader.getChannels();
+					
+					peak = Math.max(Math.abs(sample), peak);
+				}
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+			
+			return peak;
+		}
+	}
+	
 	public void getSamples(float startTime, float duration, float[] data) {
 		if(
 			duration <= 0.0f ||
@@ -97,12 +279,12 @@ public class AudioRenderer implements Runnable {
 				for(int i = 0; i < data.length; i++) {
 					long targetPosition = startSample + (int) ((float) i / (data.length - 1) * sampleRange);
 					
-					// First, check if the target sample offset is outside of the current buffer
 					if(targetPosition >= this.accessLoader.getSampleCount()) {
 						data[i] = 0;
 						continue;
 					}
 					
+					// Check if the target sample offset is outside of the current buffer
 					if(targetPosition >= lastReadPosition) {
 						bufferPosition = targetPosition;
 						lastReadPosition = bufferPosition + this.accessLoader.loadSamples(bufferPosition, this.accessBuffer);

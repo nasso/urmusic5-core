@@ -25,7 +25,6 @@ import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.common.BoolValue;
-import io.github.nasso.urmusic.common.FFTContext;
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.model.UrmusicModel;
@@ -39,6 +38,7 @@ import io.github.nasso.urmusic.model.project.param.IntParam;
 import io.github.nasso.urmusic.model.project.param.OptionParam;
 import io.github.nasso.urmusic.model.project.param.Point2DParam;
 import io.github.nasso.urmusic.model.project.param.RGBA32Param;
+import io.github.nasso.urmusic.model.renderer.audio.AudioRenderer;
 import io.github.nasso.urmusic.model.renderer.video.glvg.GLVG;
 
 public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
@@ -60,8 +60,6 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 	private static final String PNAME_exponent = "exponent";
 	private static final String PNAME_size = "size";
 	private static final String PNAME_count = "count";
-	
-	public static final int FFT_SIZE = 1 << 14;
 	
 	private class AudioSpectrumVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
 		private VideoEffectArgs args;
@@ -86,8 +84,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		
 		private GLVG vg;
 		
-		private FFTContext fft = new FFTContext(AudioSpectrumVFX.FFT_SIZE);
-		private float[] audioData = new float[AudioSpectrumVFX.FFT_SIZE];
+		private float[] audioData = new float[AudioRenderer.FFT_SIZE];
 		private float[] xy = new float[2];
 		
 		public void setupParameters() {
@@ -306,11 +303,11 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			this.args = args;
 			this.mode = ((int) args.parameters.get(PNAME_mode));
 			this.color = ((RGBA32) args.parameters.get(PNAME_color));
-			this.startPoint = ((Vector2fc) args.parameters.get(PNAME_faceA));
-			this.endPoint = ((Vector2fc) args.parameters.get(PNAME_faceB));
-			this.faceA = args.parameters.get(PNAME_polar) == BoolValue.TRUE;
-			this.faceB = args.parameters.get(PNAME_startPoint) == BoolValue.TRUE;
-			this.polar = args.parameters.get(PNAME_endPoint) == BoolValue.TRUE;
+			this.startPoint = ((Vector2fc) args.parameters.get(PNAME_startPoint));
+			this.endPoint = ((Vector2fc) args.parameters.get(PNAME_endPoint));
+			this.faceA = args.parameters.get(PNAME_faceA) == BoolValue.TRUE;
+			this.faceB = args.parameters.get(PNAME_faceB) == BoolValue.TRUE;
+			this.polar = args.parameters.get(PNAME_polar) == BoolValue.TRUE;
 			this.millisOffset = ((float) args.parameters.get(PNAME_millisOffset));
 			this.duration = ((float) args.parameters.get(PNAME_duration));
 			this.minDecibel = ((float) args.parameters.get(PNAME_minDecibel));
@@ -336,9 +333,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 				this.maxDecibel = max;
 			}
 			
-			UrmusicModel.getAudioRenderer().getSamples(args.time + this.millisOffset / 1000.0f, this.duration / 1000.0f, this.audioData);
-			MathUtils.applyBlackmanWindow(this.audioData, this.audioData.length);
-			this.fft.fft(this.audioData, true);
+			UrmusicModel.getAudioRenderer().getFreqData(args.time + this.millisOffset / 1000.0f, this.duration / 1000.0f, this.audioData);
 			
 			gl.glClear(GL.GL_COLOR_BUFFER_BIT);
 			

@@ -167,6 +167,7 @@ public class ScriptEditorView extends UrmViewPane implements FocusListener<Track
 	}
 	
 	public void dispose() {
+		if(this.fx != null) this.fx.getScript().removeErrorListener(this);
 		UrmusicController.removeTrackEffectInstanceFocusListener(this);
 	}
 
@@ -177,6 +178,7 @@ public class ScriptEditorView extends UrmViewPane implements FocusListener<Track
 			this.scroller.getGutter().addLineTrackingIcon(line - 1, UrmusicUIRes.ERROR_ICON, "<html><pre>" + message + "</pre></html>");
 			this.editor.addLineHighlight(line - 1, ERROR_LINE_HIGHLIGHT_COLOR);
 		} catch(BadLocationException e1) {
+			if(this.fx != null) this.fx.getScript().removeErrorListener(this);
 			e1.printStackTrace();
 		}
 	}
