@@ -51,8 +51,8 @@ public abstract class TrackEffect {
 			src.append("//\n"
 					+ "\n"
 					+ "//\n"
-					+ "// Called before rendering each frame.\n"
-					+ "// \"this\" corresponds to the effect.\n"
+					+ "// Called each frame.\n"
+					+ "// \"this\" = this effect.\n"
 					+ "// Default values are key-frame animated.\n"
 					+ "//\n"
 					+ "// Arguments:\n"
@@ -68,6 +68,8 @@ public abstract class TrackEffect {
 		}
 		
 		public void update(Map<String, Object> ctx, float time, int width, int height) {
+			if(this.fUpdate == null) return;
+			
 			this.args[0] = time;
 			this.args[1] = width;
 			this.args[2] = height;
@@ -78,7 +80,7 @@ public abstract class TrackEffect {
 			try {
 				this.fUpdate.call(this.ctxCopy, this.args);
 			} catch(NashornException e) {
-				this.notifyError(e.getMessage(), e.getLineNumber(), e.getColumnNumber());
+				this.notifyError(e);
 				return;
 			}
 			

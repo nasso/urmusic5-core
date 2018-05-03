@@ -19,6 +19,11 @@
  ******************************************************************************/
 package io.github.nasso.urmusic.model.scripting;
 
+import java.io.IOException;
+
+import javax.script.ScriptException;
+
+import io.github.nasso.urmusic.common.DataUtils;
 import jdk.nashorn.api.scripting.NashornScriptEngine;
 import jdk.nashorn.api.scripting.NashornScriptEngineFactory;
 
@@ -29,8 +34,14 @@ public class ScriptManager {
 	
 	public static void init() throws ClassNotFoundException {
 		engine = (NashornScriptEngine) new NashornScriptEngineFactory().getScriptEngine();
-
-		if(engine == null) throw new ClassNotFoundException("Couldn't find Nashorn.");
 		
+		if(engine == null) throw new ClassNotFoundException("Couldn't find Nashorn.");
+		try {
+			engine.eval(DataUtils.readFile("res/scripts/common.js", true));
+		} catch(ScriptException e) {
+			e.printStackTrace();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

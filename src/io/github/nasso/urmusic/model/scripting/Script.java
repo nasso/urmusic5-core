@@ -23,19 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.script.Bindings;
+import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 import io.github.nasso.urmusic.common.ScriptRuntimeErrorListener;
+import jdk.nashorn.api.scripting.NashornException;
 
 public class Script {
 	private List<ScriptRuntimeErrorListener> errorListeners = new ArrayList<>();
 	
+	protected Bindings bindings;
 	private String source = "";
 	
-	protected Bindings bindings;
-	
 	public Script() {
-		this.bindings = ScriptManager.engine.createBindings();
 	}
 	
 	public void addErrorListener(ScriptRuntimeErrorListener listener) {
@@ -52,23 +52,39 @@ public class Script {
 	
 	public void setSource(String source) {
 		this.source = source;
-		
-		this.bindings.clear();
+
+		this.bindings = ScriptManager.engine.createBindings();
+		this.bindings.put(ScriptEngine.FILENAME, "user_script");
 		try {
 			ScriptManager.engine.eval(source, this.bindings);
 		} catch(ScriptException e) {
-			this.notifyError(e.getMessage(), e.getLineNumber(), e.getColumnNumber());
+			this.notifyError(e);
 		} catch(Exception e) {
-			this.notifyError(e.getMessage(), 0, 0);
+			this.notifyError(e);
 		}
 		
 		this.onSourceChanged();
 	}
 	
-	protected void notifyError(String message, int line, int column) {
-		for(int i = 0; i < this.errorListeners.size(); i++) {
-			this.errorListeners.get(i).onError(message, line, column);
+	protected void notifyError(Throwable e) {
+		int line = 0;
+		
+		if(e instanceof NashornException) {
+			line = ((NashornException) e).getLineNumber();
+		} else if(e instanceof ScriptException) {
+			line = ((ScriptException) e).getLineNumber();
 		}
+		
+		StackTraceElement[] stack = NashornException.getScriptFrames(e);
+		for(int i = 0; i < stack.length; i++) {
+			if(stack[i].getFileName().equals("user_script")) {
+				line = stack[i].getLineNumber();
+				break;
+			}
+		}
+		
+		for(int i = 0; i < this.errorListeners.size(); i++)
+			this.errorListeners.get(i).onError(e.getMessage(), line);
 	}
 	
 	protected void onSourceChanged() {

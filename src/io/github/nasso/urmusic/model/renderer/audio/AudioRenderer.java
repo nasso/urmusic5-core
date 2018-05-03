@@ -40,6 +40,8 @@ public class AudioRenderer implements Runnable {
 	
 	public static final int FFT_SIZE = 1 << 14;
 	
+	// We keep a cache of the latest FFT computed just to try to optimize what can be optimized.
+	// This might never be re-used though lol
 	private FFTContext fft = new FFTContext(FFT_SIZE);
 	private float[] fftData = new float[FFT_SIZE];
 	
@@ -93,6 +95,7 @@ public class AudioRenderer implements Runnable {
 	
 	public void getFreqData(float time, float duration, float[] dest, boolean quadInterpolation) {
 		if(this.fftDataTime < 0 || this.fftDuration <= 0 || this.fftDataTime != time || duration != this.fftDuration) {
+			// Compute it if it isn't already
 			this.fftDataTime = time;
 			this.fftDuration = duration;
 			
@@ -110,10 +113,6 @@ public class AudioRenderer implements Runnable {
 		}
 	}
 	
-	public float maxFreqValue() {
-		return this.maxFreqValue(0);
-	}
-	
 	public float maxFreqValue(float time) {
 		return this.maxFreqValue(time, this.fftDuration);
 	}
@@ -127,10 +126,6 @@ public class AudioRenderer implements Runnable {
 			m = Math.max(m, this.fftData[i]);
 		
 		return m;
-	}
-	
-	public float minFreqValue() {
-		return this.maxFreqValue(0);
 	}
 	
 	public float minFreqValue(float time) {
