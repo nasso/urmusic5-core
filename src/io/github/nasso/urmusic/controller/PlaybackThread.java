@@ -24,6 +24,7 @@ import io.github.nasso.urmusic.model.UrmusicModel;
 public class PlaybackThread extends Thread {
 	private static final long SECOND_NANO = 1_000_000_000l;
 	
+	private boolean shouldQuit = false;
 	private boolean playingBack = false;
 	private float fps = 30;
 	
@@ -40,8 +41,8 @@ public class PlaybackThread extends Thread {
 		
 		try {
 			synchronized(this.lock) {
-				while(true) {
-					while(!this.isPlayingBack()) {
+				while(!this.shouldQuit) {
+					while(!this.playingBack && !this.shouldQuit) {
 						this.lock.wait();
 					}
 					
@@ -108,13 +109,24 @@ public class PlaybackThread extends Thread {
 	}
 	
 	public void stopPlayback() {
-		if(!this.isPlayingBack()) return;
-		
 		this.playingBack = false;
 	}
 	
 	public boolean isPlayingBack() {
 		return this.playingBack;
+	}
+	
+	public void waitForExit() throws InterruptedException {
+		this.shouldQuit = true;
+		
+		if(this.playingBack) this.stopPlayback();
+		else {
+			synchronized(this.lock) {
+				this.lock.notifyAll();
+			}
+		}
+		
+		this.join();
 	}
 
 	public float getFPS() {

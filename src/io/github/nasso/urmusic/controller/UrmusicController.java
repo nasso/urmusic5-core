@@ -103,6 +103,12 @@ public class UrmusicController {
 	}
 	
 	public static void requestExit() {
+		try {
+			playbackThread.waitForExit();
+		} catch(InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		UrmusicModel.exit();
 	}
 	
