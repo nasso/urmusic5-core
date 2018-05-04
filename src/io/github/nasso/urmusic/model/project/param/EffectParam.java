@@ -275,7 +275,8 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	
 	/**
 	 * Gets the static value for this parameter.<br>
-	 * Only called when there's no key frames for this parameter ({@link EffectParam#getKeyFrameCount()} returns <code>0</code>)
+	 * Only called when there's no key frames for this parameter ({@link EffectParam#getKeyFrameCount()} returns <code>0</code>).<br>
+	 * Changes to this object should NOT change the actual value.
 	 * @return
 	 */
 	protected abstract T getStaticValue();

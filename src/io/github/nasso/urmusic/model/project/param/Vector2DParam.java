@@ -23,6 +23,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
 public class Vector2DParam extends EffectParam<Vector2fc> {
+	private Vector2f garbageValue = new Vector2f();
 	private Vector2f value = new Vector2f();
 	private Vector2f step = new Vector2f();
 	
@@ -49,7 +50,7 @@ public class Vector2DParam extends EffectParam<Vector2fc> {
 	}
 	
 	protected Vector2fc getStaticValue() {
-		return this.value;
+		return this.garbageValue.set(this.value);
 	}
 
 	protected Vector2fc cloneValue(Vector2fc val) {

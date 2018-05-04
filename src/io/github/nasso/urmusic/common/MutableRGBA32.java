@@ -95,8 +95,9 @@ public class MutableRGBA32 implements RGBA32 {
 		);
 	}
 	
-	public void set(RGBA32 rgba) {
+	public MutableRGBA32 set(RGBA32 rgba) {
 		this.setRGBA(rgba.getRGBA());
+		return this;
 	}
 	
 	public void setFade(RGBA32 a, RGBA32 b, float f) {

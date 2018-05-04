@@ -23,6 +23,7 @@ import io.github.nasso.urmusic.common.MutableRGBA32;
 import io.github.nasso.urmusic.common.RGBA32;
 
 public class RGBA32Param extends EffectParam<RGBA32> {
+	private MutableRGBA32 garbageValue = new MutableRGBA32();
 	private MutableRGBA32 value = new MutableRGBA32();
 	
 	public RGBA32Param(String name) {
@@ -39,7 +40,7 @@ public class RGBA32Param extends EffectParam<RGBA32> {
 	}
 
 	protected RGBA32 getStaticValue() {
-		return this.value;
+		return this.garbageValue.set(this.value);
 	}
 	
 	protected RGBA32 cloneValue(RGBA32 val) {
