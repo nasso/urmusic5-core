@@ -100,6 +100,8 @@ public class UrmusicController {
 	public static void markVideoDirty() {
 		UrmusicModel.getVideoRenderer().makeCompositionDirty(UrmusicModel.getCurrentProject().getMainComposition());
 		UrmusicController.forceImmediateVideoRender();
+		
+		playbackThread.restartPlayback();
 	}
 	
 	public static void requestExit() {

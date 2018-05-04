@@ -25,6 +25,7 @@ public class PlaybackThread extends Thread {
 	private static final long SECOND_NANO = 1_000_000_000l;
 	
 	private boolean shouldQuit = false;
+	private boolean shouldRestart = false;
 	private boolean playingBack = false;
 	private float fps = 30;
 	
@@ -46,6 +47,8 @@ public class PlaybackThread extends Thread {
 						this.lock.wait();
 					}
 					
+					this.shouldRestart = false;
+					
 					// Queue frames to render if we can
 					int playbackStartFrame = UrmusicController.getFrameCursor();
 					int cacheSize = UrmusicModel.getVideoRenderer().getCacheSize();
@@ -56,7 +59,7 @@ public class PlaybackThread extends Thread {
 					UrmusicModel.getAudioRenderer().play();
 					
 					int cacheForNext = -1;
-					while(this.isPlayingBack()) {
+					while(this.isPlayingBack() && !this.shouldRestart) {
 						frameStartTime = System.nanoTime();
 						idealFrameTime = (long) (PlaybackThread.SECOND_NANO / this.fps);
 						
@@ -110,6 +113,10 @@ public class PlaybackThread extends Thread {
 	
 	public void stopPlayback() {
 		this.playingBack = false;
+	}
+	
+	public void restartPlayback() {
+		if(this.playingBack) this.shouldRestart = true;
 	}
 	
 	public boolean isPlayingBack() {
