@@ -17,65 +17,93 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-urmusic = {};
+urmusic = urm = {};
 (function commonSetup() {
 	var UrmusicModel = Java.type("io.github.nasso.urmusic.model.UrmusicModel");
 	var _audio = UrmusicModel.getAudioRenderer();
+
+	urm.clamp = function(value, min, max) {
+		return value < min ? min : value > max ? max : value;
+	};
+
+	urm.map = function(value, a, b, c, d) {
+		var clamped = urm.clamp(value, a, b);
+		return c + ((clamped - a) / (b - a)) * (d - c);
+	};
 	
-	urmusic.audio = {};
-	Object.defineProperty(urmusic.audio, "sampleRate", {
+	urm.lerp = function(a, b, x) {
+		return a + x * (b - a);
+	};
+	
+	urm.audio = {};
+	Object.defineProperty(urm.audio, "duration", {
+		get: function() { return _audio.getDuration(); },
+		set: undefined
+	});
+	
+	Object.defineProperty(urm.audio, "sampleRate", {
 		get: function() { return _audio.getSampleRate(); },
 		set: undefined
 	});
 	
-	Object.defineProperty(urmusic.audio, "bufferSize", {
+	Object.defineProperty(urm.audio, "bufferSize", {
 		get: function() { return _audio.getBufferSize(); },
 		set: undefined
 	});
 	
-	urmusic.audio.maxFreqValue = function(f_time, f_duration) {
-		if(typeof f_time !== "number") throw new Error("Invalid argument for 'f_time': expected number, got " + (typeof f_time));
-		if(f_duration !== undefined && typeof f_duration !== "number") throw new Error("Invalid argument for 'f_duration': expected number, got " + (typeof f_duration));
+	urm.audio.maxFreqValue = function(n_time, n_duration) {
+		if(typeof n_time !== "number") throw new Error("Invalid argument for 'n_time': expected number, got " + (typeof n_time));
+		if(n_duration !== undefined && typeof n_duration !== "number") throw new Error("Invalid argument for 'n_duration': expected number, got " + (typeof n_duration));
 		
-		if(f_duration === undefined) return _audio.maxFreqValue(f_time);
-		else return _audio.maxFreqValue(f_time, f_duration);
+		if(n_duration === undefined) return _audio.maxFreqValue(n_time);
+		else return _audio.maxFreqValue(n_time, n_duration);
 	};
 	
-	urmusic.audio.minFreqValue = function(f_time, f_duration) {
-		if(typeof f_time !== "number") throw new Error("Invalid argument for 'f_time': expected number, got " + (typeof f_time));
-		if(f_duration !== undefined && typeof f_duration !== "number") throw new Error("Invalid argument for 'f_duration': expected number, got " + (typeof f_duration));
+	urm.audio.minFreqValue = function(n_time, n_duration) {
+		if(typeof n_time !== "number") throw new Error("Invalid argument for 'n_time': expected number, got " + (typeof n_time));
+		if(n_duration !== undefined && typeof n_duration !== "number") throw new Error("Invalid argument for 'n_duration': expected number, got " + (typeof n_duration));
 		
-		if(f_duration === undefined) return _audio.minFreqValue(f_time);
-		else return _audio.minFreqValue(f_time, f_duration);
+		if(n_duration === undefined) return _audio.minFreqValue(n_time);
+		else return _audio.minFreqValue(n_time, n_duration);
 	};
 	
-	urmusic.audio.peakToPeakAmp = function(f_time, f_duration) {
-		if(typeof f_time !== "number") throw new Error("Invalid argument for 'f_time': expected number, got " + (typeof f_time));
-		if(typeof f_duration !== "number") throw new Error("Invalid argument for 'f_duration': expected number, got " + (typeof f_duration));
+	urm.audio.peakToPeakAmp = function(n_time, n_duration) {
+		if(typeof n_time !== "number") throw new Error("Invalid argument for 'n_time': expected number, got " + (typeof n_time));
+		if(typeof n_duration !== "number") throw new Error("Invalid argument for 'n_duration': expected number, got " + (typeof n_duration));
 		
-		return _audio.peakToPeakAmp(f_time, f_duration);
+		return _audio.peakToPeakAmp(n_time, n_duration);
 	};
 	
-	urmusic.audio.peakAmp = function(f_time, f_duration) {
-		if(typeof f_time !== "number") throw new Error("Invalid argument for 'f_time': expected number, got " + (typeof f_time));
-		if(typeof f_duration !== "number") throw new Error("Invalid argument for 'f_duration': expected number, got " + (typeof f_duration));
+	urm.audio.peakAmp = function(n_time, n_duration) {
+		if(typeof n_time !== "number") throw new Error("Invalid argument for 'n_time': expected number, got " + (typeof n_time));
+		if(typeof n_duration !== "number") throw new Error("Invalid argument for 'n_duration': expected number, got " + (typeof n_duration));
 		
-		return _audio.peakAmp(f_time, f_duration);
+		return _audio.peakAmp(n_time, n_duration);
 	};
 	
-	urmusic.audio.peakAmp = function(f_time, f_duration) {
-		if(typeof f_time !== "number") throw new Error("Invalid argument for 'f_time': expected number, got " + (typeof f_time));
-		if(typeof f_duration !== "number") throw new Error("Invalid argument for 'f_duration': expected number, got " + (typeof f_duration));
+	urm.audio.peakAmp = function(n_time, n_duration) {
+		if(typeof n_time !== "number") throw new Error("Invalid argument for 'n_time': expected number, got " + (typeof n_time));
+		if(typeof n_duration !== "number") throw new Error("Invalid argument for 'n_duration': expected number, got " + (typeof n_duration));
 		
-		return _audio.peakAmp(f_time, f_duration);
+		return _audio.peakAmp(n_time, n_duration);
+	};
+	
+	var remote = Java.type("io.github.nasso.urmusic.model.scripting.ScriptAPIUtils");
+	
+	urm.seedRandom = function(n_seed, n_time) {
+		if(typeof n_seed !== "number") throw new Error("Invalid argument for 'n_seed': expected number, got " + (typeof n_seed));
+		if(typeof n_time !== "number") throw new Error("Invalid argument for 'n_time': expected number, got " + (typeof n_time));
+		
+		return remote.seedRandom(n_seed & 0xFFFF, n_time);
+	};
+	
+	urm.shaker = function(n_rate, n_time, n_seed) {
+		if(typeof n_rate !== "number") throw new Error("Invalid argument for 'n_rate': expected number, got " + (typeof n_rate));
+		if(typeof n_time !== "number") throw new Error("Invalid argument for 'n_time': expected number, got " + (typeof n_time));
+		if(n_seed !== undefined && typeof n_seed !== "number") throw new Error("Invalid argument for 'n_seed': expected number, got " + (typeof n_seed));
+		
+		if(n_seed === undefined) n_seed = 0x0000;
+		
+		return remote.shaker(n_rate, n_time, n_seed & 0xFFFF);
 	};
 })();
-
-function clamp(value, min, max) {
-	return value < min ? min : value > max ? max : value;
-}
-
-function map(value, a, b, c, d) {
-	var clamped = clamp(value, a, b);
-	return c + ((clamped - a) / (b - a)) * (d - c);
-}

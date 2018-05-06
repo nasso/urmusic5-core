@@ -65,6 +65,7 @@ public class AudioRenderer implements Runnable {
 	// Curr source
 	private Path currentSource = null;
 	private int sampleRate = 48000;
+	private float duration = 0.0f;
 	private boolean playing = false;
 	private long sampleOffset = 0;
 	
@@ -77,6 +78,10 @@ public class AudioRenderer implements Runnable {
 	
 	public int getSampleRate() {
 		return this.sampleRate;
+	}
+	
+	public float getDuration() {
+		return this.duration;
 	}
 	
 	public void dispose() {
@@ -396,6 +401,7 @@ public class AudioRenderer implements Runnable {
 		}
 		
 		this.sampleRate = this.audioLoader.getSampleRate();
+		this.duration = (float) this.audioLoader.getSampleCount() / this.sampleRate;
 		this.format = new AudioFormat(
 			this.audioLoader.getSampleRate(),
 			this.audioLoader.getBitsPerSample(),

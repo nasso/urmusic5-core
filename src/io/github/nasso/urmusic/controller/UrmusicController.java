@@ -185,7 +185,7 @@ public class UrmusicController {
 		for(EffectParam<?> param : UrmusicController.getFocusedEffectParameters()) {
 			if(param == null) return;
 
-			KeyFrame<?> kf = param.getKeyFrameAfter(UrmusicController.getFrameCursor());
+			KeyFrame<?> kf = param.getKeyFrameAfter(UrmusicController.getTimePosition());
 			if(kf != null) t = Math.min(t, kf.getPosition());
 			
 			set |= kf != null;
@@ -203,7 +203,7 @@ public class UrmusicController {
 		for(EffectParam<?> param : UrmusicController.getFocusedEffectParameters()) {
 			if(param == null) return;
 
-			KeyFrame<?> kf = param.getKeyFrameBefore(UrmusicController.getFrameCursor());
+			KeyFrame<?> kf = param.getKeyFrameBefore(UrmusicController.getTimePosition());
 			if(kf != null) t = Math.max(t, kf.getPosition());
 			
 			set |= kf != null;

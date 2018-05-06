@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.event.EffectInstanceListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.param.EffectParam;
@@ -37,6 +38,7 @@ public abstract class TrackEffect {
 		private Object[] args = { 0.0f, 0, 0 };
 		
 		private Map<String, Object> ctxCopy = new HashMap<>();
+		
 		private ScriptObjectMirror fUpdate;
 		
 		public TrackEffectScript(TrackEffectInstance fx) {
@@ -75,6 +77,16 @@ public abstract class TrackEffect {
 			this.args[2] = height;
 			
 			this.ctxCopy.clear();
+			
+			for(String k : ctx.keySet()) {
+				Object val = ctx.get(k);
+				
+				if(val instanceof BoolValue) {
+					this.ctxCopy.put(k, val == BoolValue.TRUE);
+				} else {
+					this.ctxCopy.put(k, val);
+				}
+			}
 			this.ctxCopy.putAll(ctx);
 			
 			try {
@@ -83,10 +95,14 @@ public abstract class TrackEffect {
 				this.notifyError(e);
 				return;
 			}
-			
+
 			for(String key : ctx.keySet()) {
 				Object oldVal = ctx.get(key);
 				Object newVal = this.ctxCopy.get(key);
+				
+				if(newVal instanceof Boolean) {
+					newVal = ((Boolean) newVal).booleanValue() ? BoolValue.TRUE : BoolValue.FALSE;
+				}
 				
 				if(oldVal != newVal) {
 					if(newVal instanceof Number) {
@@ -94,13 +110,14 @@ public abstract class TrackEffect {
 						else if(oldVal instanceof Integer) newVal = ((Number) newVal).intValue();
 						else if(oldVal instanceof Double) newVal = ((Number) newVal).doubleValue();
 						else if(oldVal instanceof Long) newVal = ((Number) newVal).longValue();
-						else newVal = oldVal;
-					} else if(oldVal instanceof Number) newVal = oldVal;
+						else continue;
+					} else if(oldVal instanceof Number || !oldVal.getClass().isAssignableFrom(newVal.getClass())) continue;
+
 				}
 				
 				ctx.put(key, newVal);
 			}
-		}
+ 		}
 		
 		protected void onSourceChanged() {
 			this.fUpdate = (ScriptObjectMirror) this.bindings.get("update");

@@ -23,7 +23,7 @@ import org.joml.Vector4f;
 import org.joml.Vector4fc;
 
 public class BoundsParam extends EffectParam<Vector4fc> {
-	private Vector4f garbageValue = new Vector4f();
+	private ThreadLocal<Vector4f> garbageValue = ThreadLocal.withInitial(() -> new Vector4f());
 	
 	private Vector4f value = new Vector4f();
 	private Vector4f step = new Vector4f();
@@ -59,7 +59,10 @@ public class BoundsParam extends EffectParam<Vector4fc> {
 	}
 	
 	protected Vector4fc getStaticValue() {
-		return this.garbageValue.set(this.value);
+		if(this.garbageValue == null)
+			this.garbageValue.set(new Vector4f());
+		
+		return this.garbageValue.get().set(this.value);
 	}
 	
 	protected Vector4fc cloneValue(Vector4fc val) {
