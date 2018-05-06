@@ -28,6 +28,6 @@ public class ScriptAPIUtils {
 		random.setSeed(seedRoot | Float.floatToIntBits(nextKey / 1000.0f));
 		float nextVal = random.nextFloat();
 		
-		return EasingFunction.EASE.apply(time - (prevKey * rate), prevVal, nextVal - prevVal, rate);
+		return EasingFunction.LINEAR.apply(time - (prevKey * rate), prevVal, nextVal - prevVal, rate);
 	}
 }
