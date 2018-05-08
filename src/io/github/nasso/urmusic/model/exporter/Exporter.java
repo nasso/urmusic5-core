@@ -29,80 +29,98 @@ import io.github.nasso.urmusic.model.ffmpeg.FFmpeg;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.renderer.audio.AudioRenderer;
 
-public class Exporter implements Runnable {
-	private ExportProgressCallback callback;
-	private ExportSettings settings;
-	private boolean exporting = false;
-	
-	private int frameIndex = 0;
-	
-	public Exporter(ExportSettings settings, ExportProgressCallback callback) {
-		this.callback = callback;
-		this.settings = settings;
-	}
-
-	public void run() {
-		this.callback.exportBegin();
-
-		float framerate = UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getFramerate();
-		float duration = UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getDuration();
-		int width = UrmusicModel.getCurrentProject().getMainComposition().getWidth();
-		int height = UrmusicModel.getCurrentProject().getMainComposition().getHeight();
+public class Exporter {
+	public static class ExportJob implements Runnable {
+		private ExportProgressCallback callback;
+		private ExportSettings settings;
 		
-		Process p = FFmpeg.execute(
-				// Input 1: Raw video data
-				"-f", "rawvideo", "-r", String.valueOf(framerate), "-s", width + "x" + height, "-pix_fmt", "rgb24",
-				"-t", String.valueOf(duration),
-				"-i", "pipe:0",
-				// Input 2: Audio (music file)
-				"-i", AudioRenderer.AUDIO_BUFFER_SOURCE_PATH.toString(),
-				// Output
-				"-f", this.settings.muxer.getName(),
-				"-c:v", this.settings.videoEncoder.getName(), "-r", String.valueOf(framerate), "-pix_fmt", "yuv420p",
-				"-c:a", this.settings.audioEncoder.getName(),
-				this.settings.destination.toString());
+		private boolean cancelled = false;
+		private boolean done = false;
 		
-		Composition comp = UrmusicModel.getCurrentProject().getMainComposition();
-		int framecount = UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTotalFrameCount();
-		byte[] frameData = new byte[width * height * 3];
-		ByteBuffer frameDataBuffer = ByteBuffer.wrap(frameData);
+		private ExportJob(ExportSettings settings, ExportProgressCallback callback) {
+			this.callback = callback;
+			this.settings = settings;
+		}
 		
-		try(OutputStream ffmpegIn = p.getOutputStream()) {
-			this.callback.renderBegin();
+		public void run() {
+			int frameIndex = 0;
 			
-			while(this.exporting && this.frameIndex < framecount) {
-				// Render a frame!
-				UrmusicModel.getVideoRenderer().syncRenderRawRGB(comp, this.frameIndex++, frameDataBuffer);
+			this.callback.exportBegin();
+
+			float framerate = UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getFramerate();
+			float duration = UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getDuration();
+			int width = UrmusicModel.getCurrentProject().getMainComposition().getWidth();
+			int height = UrmusicModel.getCurrentProject().getMainComposition().getHeight();
+			
+			Process p = FFmpeg.execute(
+					// Input 1: Raw video data
+					"-f", "rawvideo", "-r", String.valueOf(framerate), "-s", width + "x" + height, "-pix_fmt", "rgb24",
+					"-t", String.valueOf(duration),
+					"-i", "pipe:0",
+					// Input 2: Audio (music file)
+					"-i", AudioRenderer.AUDIO_BUFFER_SOURCE_PATH.toString(),
+					// Output
+					"-f", this.settings.muxer.getName(),
+					"-c:v", this.settings.videoEncoder.getName(), "-r", String.valueOf(framerate), "-pix_fmt", "yuv420p",
+					"-c:a", this.settings.audioEncoder.getName(),
+					this.settings.destination.toString());
+			
+			Composition comp = UrmusicModel.getCurrentProject().getMainComposition();
+			int framecount = UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTotalFrameCount();
+			byte[] frameData = new byte[width * height * 3];
+			ByteBuffer frameDataBuffer = ByteBuffer.wrap(frameData);
+			
+			try(OutputStream ffmpegIn = p.getOutputStream()) {
+				this.callback.renderBegin();
 				
-				ffmpegIn.write(frameData);
+				while(!this.cancelled && frameIndex < framecount) {
+					// Render a frame!
+					UrmusicModel.getVideoRenderer().syncRenderRawRGB(comp, frameIndex++, frameDataBuffer);
+					
+					ffmpegIn.write(frameData);
+					
+					this.callback.renderProgress((float) frameIndex / framecount);
+				}
 				
-				this.callback.renderProgress((float) this.frameIndex / framecount);
+				this.callback.renderDone();
+				
+				ffmpegIn.flush();
+			} catch(IOException e) {
+				this.callback.exportException(e);
+				return;
 			}
 			
-			this.callback.renderDone();
+			try {
+				p.waitFor();
+			} catch(InterruptedException e) {
+				this.callback.exportException(e);
+				return;
+			}
 			
-			ffmpegIn.flush();
-		} catch(IOException e) {
-			this.callback.exportException(e);
-			return;
+			this.callback.exportDone();
+			this.done = true;
 		}
 		
-		try {
-			p.waitFor();
-		} catch(InterruptedException e) {
-			this.callback.exportException(e);
-			return;
+		public void cancel() {
+			// equivalent to: if(!this.isDone()) this.cancelled = true;
+			// except it's cooler this way
+			
+			this.cancelled |= !this.done;
 		}
 		
-		this.callback.exportDone();
+		public boolean isCancelled() {
+			return this.cancelled;
+		}
+		
+		public boolean isDone() {
+			return this.done;
+		}
 	}
 
-	public void start() {
-		this.exporting = true;
-		new Thread(this, "urmusic_exporter_thread").start();
-	}
-
-	public void cancel() {
-		this.exporting = false;
+	public ExportJob start(ExportSettings settings, ExportProgressCallback callback) {
+		ExportJob job = new ExportJob(settings, callback);
+		new Thread(job, "urmusic_exporter_thread").start();
+		
+		return job;
 	}
 }

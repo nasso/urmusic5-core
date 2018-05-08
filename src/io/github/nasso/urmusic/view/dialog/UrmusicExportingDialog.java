@@ -39,10 +39,12 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
 
 import io.github.nasso.urmusic.common.ExportProgressCallback;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.exporter.ExportSettings;
+import io.github.nasso.urmusic.model.exporter.Exporter.ExportJob;
 import io.github.nasso.urmusic.model.ffmpeg.Encoder;
 import io.github.nasso.urmusic.model.ffmpeg.FFmpeg;
 import io.github.nasso.urmusic.model.ffmpeg.Muxer;
@@ -101,6 +103,8 @@ public class UrmusicExportingDialog extends JDialog {
 	private JButton cancelBtn, startBtn;
 	private JProgressBar pBar;
 	
+	private ExportJob job;
+	
 	public UrmusicExportingDialog() {
 		JLabel lbl;
 		
@@ -144,15 +148,17 @@ public class UrmusicExportingDialog extends JDialog {
 		bottomBar.setLayout(new BorderLayout(8, 8));
 		bottomBar.add(this.cancelBtn = new JButton(new AbstractAction(UrmusicStrings.getString("dialog.global.cancel")) {
 			public void actionPerformed(ActionEvent e) {
-				UrmusicController.cancelExport();
+				UrmusicExportingDialog.this.cancel();
 			}
 		}), BorderLayout.WEST);
-		bottomBar.add(this.pBar = new JProgressBar(), BorderLayout.CENTER);
+		bottomBar.add(this.pBar = new JProgressBar(0, 10000), BorderLayout.CENTER);
 		bottomBar.add(this.startBtn = new JButton(new AbstractAction(UrmusicStrings.getString("dialog.export.start")) {
 			public void actionPerformed(ActionEvent e) {
 				UrmusicExportingDialog.this.start();
 			}
 		}), BorderLayout.EAST);
+		
+		this.pBar.setStringPainted(true);
 		
 		JPanel container = new JPanel(new BorderLayout(8, 8));
 		container.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -160,6 +166,8 @@ public class UrmusicExportingDialog extends JDialog {
 		container.add(settingsContainer, BorderLayout.CENTER);
 		container.add(bottomBar, BorderLayout.SOUTH);
 		
+		this.setTitle(UrmusicStrings.getString("dialog.export.title"));
+		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
 		this.setContentPane(container);
 		this.setSize(800, 480);
@@ -180,7 +188,13 @@ public class UrmusicExportingDialog extends JDialog {
 			}
 			
 			public void windowClosing(WindowEvent e) {
+				if(UrmusicExportingDialog.this.job != null && !UrmusicExportingDialog.this.job.isDone() && !UrmusicExportingDialog.this.job.isCancelled()) {
+					if(!UrmusicExportingDialog.this.promptCancel()) return;
+					UrmusicController.cancelExport(UrmusicExportingDialog.this.job);
+				}
+				
 				UrmusicView.freeKeyEvent();
+				UrmusicExportingDialog.this.setVisible(false);
 			}
 			
 			public void windowClosed(WindowEvent e) {
@@ -263,7 +277,7 @@ public class UrmusicExportingDialog extends JDialog {
 		this.settings.destination = this.destField.getPath();
 		this.settings.videoEncoder = VIDEO_ENCODERS[this.videoEncoderCBox.getSelectedIndex()];
 		
-		UrmusicController.export(this.settings, new ExportProgressCallback() {
+		this.job = UrmusicController.export(this.settings, new ExportProgressCallback() {
 			public void exportBegin() {
 				SwingUtilities.invokeLater(() -> {
 					UrmusicExportingDialog.this.cancelBtn.setEnabled(true);
@@ -313,5 +327,18 @@ public class UrmusicExportingDialog extends JDialog {
 				});
 			}
 		});
+	}
+	
+	private boolean promptCancel() {
+		return JOptionPane.showConfirmDialog(this,
+			UrmusicStrings.getString("dialog.export.promptCancel"),
+			UrmusicStrings.getString("dialog.export.title"),
+			JOptionPane.YES_NO_OPTION
+		) == JOptionPane.YES_OPTION;
+	}
+	
+	public void cancel() {
+		if(this.job != null && !this.job.isCancelled() && this.promptCancel())
+			UrmusicController.cancelExport(this.job);
 	}
 }

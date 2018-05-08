@@ -36,6 +36,7 @@ import io.github.nasso.urmusic.common.event.MultiFocusListener;
 import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.exporter.ExportSettings;
+import io.github.nasso.urmusic.model.exporter.Exporter.ExportJob;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
 import io.github.nasso.urmusic.model.project.Track;
@@ -106,12 +107,12 @@ public class UrmusicController {
 		playbackThread.restartPlayback();
 	}
 	
-	public static void export(ExportSettings settings, ExportProgressCallback callback) {
-		UrmusicModel.export(settings, callback);
+	public static ExportJob export(ExportSettings settings, ExportProgressCallback callback) {
+		return UrmusicModel.getExporter().start(settings, callback);
 	}
 
-	public static void cancelExport() {
-		UrmusicModel.cancelExport();
+	public static void cancelExport(ExportJob job) {
+		job.cancel();
 	}
 	
 	public static void requestExit() {
