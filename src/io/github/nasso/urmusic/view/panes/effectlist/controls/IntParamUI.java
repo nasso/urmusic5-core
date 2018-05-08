@@ -38,7 +38,7 @@ public class IntParamUI extends EffectParamUI<IntParam> {
 	}
 
 	public JComponent buildUI() {
-		this.field = new UrmEditableIntegerField(f -> UrmusicController.setParamValueNow(this.getParam(), f.getValue().intValue()));
+		this.field = new UrmEditableIntegerField(true, f -> UrmusicController.setParamValueNow(this.getParam(), f.getValue().intValue()));
 		this.field.setStep(this.getParam().getStep());
 		
 		return this.field;

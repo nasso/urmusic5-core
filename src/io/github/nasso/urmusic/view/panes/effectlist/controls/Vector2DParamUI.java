@@ -51,12 +51,12 @@ public class Vector2DParamUI extends EffectParamUI<Vector2DParam> {
 		JPanel fieldsPane = new JPanel();
 		fieldsPane.setOpaque(false);
 		
-		this.xField = new UrmEditableNumberField((f) -> {
+		this.xField = new UrmEditableNumberField(true, (f) -> {
 			Vector2fc val = UrmusicController.getParamValueNow(this.getParam());
 
 			UrmusicController.setParamValueNow(this.getParam(), this._vec2.set(f.getValue().floatValue(), val.y()));
 		});
-		this.yField = new UrmEditableNumberField((f) -> {
+		this.yField = new UrmEditableNumberField(true, (f) -> {
 			Vector2fc val = UrmusicController.getParamValueNow(this.getParam());
 			
 			UrmusicController.setParamValueNow(this.getParam(), this._vec2.set(val.x(), f.getValue().floatValue()));

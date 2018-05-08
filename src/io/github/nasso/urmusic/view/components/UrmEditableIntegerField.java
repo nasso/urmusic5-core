@@ -29,6 +29,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.util.function.Consumer;
 
@@ -49,6 +51,8 @@ public class UrmEditableIntegerField extends JPanel {
 	private static final String CARD_LABEL = "label";
 	private static final String CARD_FIELD = "field";
 	
+	private boolean blockKeyEvents;
+	
 	private CardLayout card;
 	private JLabel valueLabel;
 	private JFormattedTextField valueField;
@@ -65,6 +69,8 @@ public class UrmEditableIntegerField extends JPanel {
 		private int pressedX;
 		
 		public void mousePressed(MouseEvent e) {
+			if(!UrmEditableIntegerField.this.valueLabel.isEnabled()) return;
+			
 			if(	!this.button1 && 
 				e.getButton() == MouseEvent.BUTTON1 &&
 				MathUtils.boxContains(e.getX(), e.getY(), 0, 0, UrmEditableIntegerField.this.valueLabel.getWidth(), UrmEditableIntegerField.this.valueLabel.getHeight())
@@ -75,10 +81,14 @@ public class UrmEditableIntegerField extends JPanel {
 		}
 		
 		public void mouseReleased(MouseEvent e) {
+			if(!UrmEditableIntegerField.this.valueLabel.isEnabled()) return;
+			
 			this.button1 &= e.getButton() != MouseEvent.BUTTON1;
 		}
 		
 		public void mouseDragged(MouseEvent e) {
+			if(!UrmEditableIntegerField.this.valueLabel.isEnabled()) return;
+			
 			if(this.button1) {
 				UrmEditableIntegerField.this.setValue(UrmEditableIntegerField.this.lastValue + (e.getXOnScreen() - this.pressedX) * UrmEditableIntegerField.this.getStep());
 				if(UrmEditableIntegerField.this.onValueChange != null) UrmEditableIntegerField.this.onValueChange.accept(UrmEditableIntegerField.this);
@@ -88,6 +98,8 @@ public class UrmEditableIntegerField extends JPanel {
 		}
 		
 		public void mouseClicked(MouseEvent e) {
+			if(!UrmEditableIntegerField.this.valueLabel.isEnabled()) return;
+			
 			if(e.getButton() == MouseEvent.BUTTON1)
 				UrmEditableIntegerField.this.startTextEdit();
 		}
@@ -102,7 +114,16 @@ public class UrmEditableIntegerField extends JPanel {
 		}
 	}
 	
-	public UrmEditableIntegerField(Consumer<UrmEditableIntegerField> onValueChange) {
+	public UrmEditableIntegerField() {
+		this(false);
+	}
+	
+	public UrmEditableIntegerField(boolean blockKeyEvents) {
+		this(blockKeyEvents, null);
+	}
+	
+	public UrmEditableIntegerField(boolean blockKeyEvents, Consumer<UrmEditableIntegerField> onValueChange) {
+		this.blockKeyEvents = blockKeyEvents;
 		this.onValueChange = onValueChange;
 		
 		this.valueLabel = new JLabel();
@@ -180,6 +201,17 @@ public class UrmEditableIntegerField extends JPanel {
 			}
 		});
 		
+		this.addPropertyChangeListener("enabled", new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				UrmEditableIntegerField that = UrmEditableIntegerField.this;
+				that.valueLabel.setEnabled(that.isEnabled());
+				that.valueField.setEnabled(that.isEnabled());
+				
+				if(!that.isEnabled())
+					that.cancelTextEdit();
+			}
+		});
+		
 		this.setLayout(this.card = new CardLayout());
 		this.setOpaque(false);
 		this.add(this.valueLabel, UrmEditableIntegerField.CARD_LABEL);
@@ -191,7 +223,7 @@ public class UrmEditableIntegerField extends JPanel {
 		if(this.editing) return;
 		this.editing = true;
 		
-		UrmusicView.blockKeyEvent();
+		if(this.blockKeyEvents) UrmusicView.blockKeyEvent();
 
 		this.card.show(this, UrmEditableIntegerField.CARD_FIELD);
 		
@@ -202,7 +234,7 @@ public class UrmEditableIntegerField extends JPanel {
 		if(!this.editing) return;
 		this.editing = false;
 		
-		UrmusicView.freeKeyEvent();
+		if(this.blockKeyEvents) UrmusicView.freeKeyEvent();
 
 		this.setValue((Number) this.valueField.getValue());
 		if(this.onValueChange != null) this.onValueChange.accept(this);
@@ -214,7 +246,7 @@ public class UrmEditableIntegerField extends JPanel {
 		if(!this.editing) return;
 		this.editing = false;
 		
-		UrmusicView.freeKeyEvent();
+		if(this.blockKeyEvents) UrmusicView.freeKeyEvent();
 		
 		this.valueLabel.setText(String.valueOf(this.lastValue));
 

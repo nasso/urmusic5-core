@@ -20,23 +20,31 @@
 package io.github.nasso.urmusic.view.dialog;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Dictionary;
+import java.util.Hashtable;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JSlider;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -49,11 +57,15 @@ import io.github.nasso.urmusic.model.ffmpeg.Encoder;
 import io.github.nasso.urmusic.model.ffmpeg.FFmpeg;
 import io.github.nasso.urmusic.model.ffmpeg.Muxer;
 import io.github.nasso.urmusic.view.UrmusicView;
+import io.github.nasso.urmusic.view.components.UrmEditableIntegerField;
 import io.github.nasso.urmusic.view.components.UrmPathField;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
 public class UrmusicExportingDialog extends JDialog {
+	private static final String CARD_BITRATE_VARIABLE = "variable";
+	private static final String CARD_BITRATE_CONSTANT = "constant";
+	
 	private static final Muxer[] MUXERS;
 	private static final Encoder[] VIDEO_ENCODERS;
 	private static final Encoder[] AUDIO_ENCODERS;
@@ -100,6 +112,21 @@ public class UrmusicExportingDialog extends JDialog {
 	private JComboBox<Encoder> videoEncoderCBox;
 	private JComboBox<Encoder> audioEncoderCBox;
 	
+	private JSlider videoQualitySlider;
+	private JSlider audioQualitySlider;
+	
+	private JCheckBox videoUseVariableBitrate;
+	private JCheckBox audioUseVariableBitrate;
+	
+	private CardLayout videoBitrateCards;
+	private CardLayout audioBitrateCards;
+	
+	private JPanel videoBitrateCardsPane;
+	private JPanel audioBitrateCardsPane;
+	
+	private UrmEditableIntegerField videoBitrate;
+	private UrmEditableIntegerField audioBitrate;
+	
 	private JButton cancelBtn, startBtn;
 	private JProgressBar pBar;
 	
@@ -107,36 +134,152 @@ public class UrmusicExportingDialog extends JDialog {
 	
 	public UrmusicExportingDialog() {
 		JLabel lbl;
+		Dictionary<Integer, JLabel> qualityLabelTable = new Hashtable<Integer, JLabel>() {
+			{
+				JLabel lbl;
+				Color foreground = new Color(0, 0, 0, 128);
+				
+				this.put(ExportSettings.QSCALE_MIN, lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate.variable.low"), SwingConstants.LEFT));
+				lbl.setForeground(foreground);
+				lbl.setFont(lbl.getFont().deriveFont(10f));
+				
+				this.put((ExportSettings.QSCALE_MIN + ExportSettings.QSCALE_MAX) / 2, lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate.variable.normal"), SwingConstants.CENTER));
+				lbl.setForeground(foreground);
+				lbl.setFont(lbl.getFont().deriveFont(10f));
+				
+				this.put(ExportSettings.QSCALE_MAX, lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate.variable.high"), SwingConstants.RIGHT));
+				lbl.setForeground(foreground);
+				lbl.setFont(lbl.getFont().deriveFont(10f));
+			}
+		};
 		
 		JPanel topBar = new JPanel(new GridLayout(1, 2, 8, 8));
 		topBar.add(this.destField = new UrmPathField(false));
 		topBar.add(this.muxerCBox = new JComboBox<>(MUXERS));
 
-		JPanel videoFieldsPane = new JPanel(new VListLayout(4));
-		JPanel videoLabelsPane = new JPanel(new VListLayout(4));
+		JPanel videoFieldsPane = new JPanel(new VListLayout(8));
+		JPanel audioFieldsPane = new JPanel(new VListLayout(8));
+		JPanel videoLabelsPane = new JPanel(new VListLayout(8));
+		JPanel audioLabelsPane = new JPanel(new VListLayout(8));
 		
-		lbl = new JLabel(UrmusicStrings.getString("dialog.export.video.encoder") + ":", SwingConstants.RIGHT);
-		lbl.setLabelFor(UrmusicExportingDialog.this.videoEncoderCBox = new JComboBox<>(VIDEO_ENCODERS));
+		// Encoder
+		lbl = new JLabel(UrmusicStrings.getString("dialog.export.encoder") + ":", SwingConstants.RIGHT);
+		lbl.setVerticalAlignment(SwingConstants.CENTER);
+		lbl.setLabelFor(this.videoEncoderCBox = new JComboBox<>(VIDEO_ENCODERS));
 		lbl.setPreferredSize(new Dimension(lbl.getPreferredSize().width, this.videoEncoderCBox.getPreferredSize().height));
 		videoFieldsPane.add(this.videoEncoderCBox);
 		videoLabelsPane.add(lbl);
-
-		JPanel audioFieldsPane = new JPanel(new VListLayout(4));
-		JPanel audioLabelsPane = new JPanel(new VListLayout(4));
 		
-		lbl = new JLabel(UrmusicStrings.getString("dialog.export.audio.encoder") + ":", SwingConstants.RIGHT);
-		lbl.setLabelFor(UrmusicExportingDialog.this.audioEncoderCBox = new JComboBox<>(AUDIO_ENCODERS));
+		lbl = new JLabel(UrmusicStrings.getString("dialog.export.encoder") + ":", SwingConstants.RIGHT);
+		lbl.setLabelFor(this.audioEncoderCBox = new JComboBox<>(AUDIO_ENCODERS));
 		lbl.setPreferredSize(new Dimension(lbl.getPreferredSize().width, this.audioEncoderCBox.getPreferredSize().height));
 		audioFieldsPane.add(this.audioEncoderCBox);
 		audioLabelsPane.add(lbl);
+
+		this.videoBitrateCards = new CardLayout();
+		this.videoBitrateCardsPane = new JPanel(this.videoBitrateCards);
 		
-		JPanel videoFormatPane = new JPanel(new BorderLayout(4, 4));
-		videoFormatPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(UrmusicStrings.getString("dialog.export.video.title")), BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+		this.audioBitrateCards = new CardLayout();
+		this.audioBitrateCardsPane = new JPanel(this.audioBitrateCards);
+		
+		// Bitrate mode (constant/variable)
+		lbl = new JLabel("", SwingConstants.RIGHT);
+		lbl.setVerticalAlignment(SwingConstants.CENTER);
+		lbl.setLabelFor(this.videoUseVariableBitrate = new JCheckBox(new AbstractAction(UrmusicStrings.getString("dialog.export.variableBitrate")) {
+			public void actionPerformed(ActionEvent e) {
+				boolean enabled = UrmusicExportingDialog.this.videoUseVariableBitrate.isSelected();
+				
+				UrmusicExportingDialog.this.videoBitrateCards.show(UrmusicExportingDialog.this.videoBitrateCardsPane, enabled ? CARD_BITRATE_VARIABLE : CARD_BITRATE_CONSTANT);
+			}
+		}));
+		lbl.setPreferredSize(new Dimension(lbl.getPreferredSize().width, this.videoUseVariableBitrate.getPreferredSize().height));
+		videoFieldsPane.add(this.videoUseVariableBitrate);
+		videoLabelsPane.add(lbl);
+		
+		lbl = new JLabel("", SwingConstants.RIGHT);
+		lbl.setVerticalAlignment(SwingConstants.CENTER);
+		lbl.setLabelFor(this.audioUseVariableBitrate = new JCheckBox(new AbstractAction(UrmusicStrings.getString("dialog.export.variableBitrate")) {
+			public void actionPerformed(ActionEvent e) {
+				boolean enabled = UrmusicExportingDialog.this.audioUseVariableBitrate.isSelected();
+				
+				UrmusicExportingDialog.this.audioBitrateCards.show(UrmusicExportingDialog.this.audioBitrateCardsPane, enabled ? CARD_BITRATE_VARIABLE : CARD_BITRATE_CONSTANT);
+			}
+		}));
+		lbl.setPreferredSize(new Dimension(lbl.getPreferredSize().width, this.audioUseVariableBitrate.getPreferredSize().height));
+		audioFieldsPane.add(this.audioUseVariableBitrate);
+		audioLabelsPane.add(lbl);
+		
+		// Bitrate
+		this.videoBitrateCardsPane.add(new JPanel() {
+			{
+				BoxLayout bl = new BoxLayout(this, BoxLayout.X_AXIS);
+				this.setLayout(bl);
+				
+				JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 4));
+				
+				JLabel unitLbl = new JLabel("kb/s");
+				unitLbl.setForeground(new Color(0, 0, 0, 128));
+				
+				container.add(UrmusicExportingDialog.this.videoBitrate = new UrmEditableIntegerField());
+				container.add(unitLbl);
+				
+				this.add(container);
+			}
+		}, CARD_BITRATE_CONSTANT);
+		this.videoBitrateCardsPane.add(this.videoQualitySlider = new JSlider(ExportSettings.QSCALE_MIN, ExportSettings.QSCALE_MAX, 23), CARD_BITRATE_VARIABLE);
+		this.videoQualitySlider.setLabelTable(qualityLabelTable);
+		this.videoQualitySlider.setMajorTickSpacing((ExportSettings.QSCALE_MIN + ExportSettings.QSCALE_MAX) / 2);
+		this.videoQualitySlider.setMinorTickSpacing(1);
+		this.videoQualitySlider.setPaintLabels(true);
+		this.videoQualitySlider.setSnapToTicks(true);
+		
+		this.videoBitrateCards.show(this.videoBitrateCardsPane, CARD_BITRATE_CONSTANT);
+
+		lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate") + ":", SwingConstants.RIGHT);
+		lbl.setVerticalAlignment(SwingConstants.CENTER);
+		lbl.setPreferredSize(new Dimension(lbl.getPreferredSize().width, this.videoBitrateCardsPane.getPreferredSize().height));
+		videoFieldsPane.add(this.videoBitrateCardsPane);
+		videoLabelsPane.add(lbl);
+		
+		this.audioBitrateCardsPane.add(new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0)) {
+			{
+				BoxLayout bl = new BoxLayout(this, BoxLayout.X_AXIS);
+				this.setLayout(bl);
+				
+				JPanel container = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 4));
+				
+				JLabel unitLbl = new JLabel("kb/s");
+				unitLbl.setForeground(new Color(0, 0, 0, 128));
+				
+				container.add(UrmusicExportingDialog.this.audioBitrate = new UrmEditableIntegerField());
+				container.add(unitLbl);
+				
+				this.add(container);
+			}
+		}, CARD_BITRATE_CONSTANT);
+		this.audioBitrateCardsPane.add(this.audioQualitySlider = new JSlider(ExportSettings.QSCALE_MIN, ExportSettings.QSCALE_MAX, 23), CARD_BITRATE_VARIABLE);
+		this.audioQualitySlider.setLabelTable(qualityLabelTable);
+		this.audioQualitySlider.setMajorTickSpacing((ExportSettings.QSCALE_MIN + ExportSettings.QSCALE_MAX) / 2);
+		this.audioQualitySlider.setMinorTickSpacing(1);
+		this.audioQualitySlider.setPaintLabels(true);
+		this.audioQualitySlider.setSnapToTicks(true);
+		
+		this.audioBitrateCards.show(this.audioBitrateCardsPane, CARD_BITRATE_CONSTANT);
+
+		lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate") + ":", SwingConstants.RIGHT);
+		lbl.setVerticalAlignment(SwingConstants.CENTER);
+		lbl.setPreferredSize(new Dimension(lbl.getPreferredSize().width, this.audioBitrateCardsPane.getPreferredSize().height));
+		audioFieldsPane.add(this.audioBitrateCardsPane);
+		audioLabelsPane.add(lbl);
+		
+		// Panels
+		JPanel videoFormatPane = new JPanel(new BorderLayout(12, 0));
+		videoFormatPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(UrmusicStrings.getString("dialog.export.video.title")), BorderFactory.createEmptyBorder(4, 16, 4, 16)));
 		videoFormatPane.add(videoLabelsPane, BorderLayout.WEST);
 		videoFormatPane.add(videoFieldsPane, BorderLayout.CENTER);
 		
-		JPanel audioFormatPane = new JPanel(new BorderLayout(4, 4));
-		audioFormatPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(UrmusicStrings.getString("dialog.export.audio.title")), BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+		JPanel audioFormatPane = new JPanel(new BorderLayout(12, 0));
+		audioFormatPane.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(UrmusicStrings.getString("dialog.export.audio.title")), BorderFactory.createEmptyBorder(4, 16, 4, 16)));
 		audioFormatPane.add(audioLabelsPane, BorderLayout.WEST);
 		audioFormatPane.add(audioFieldsPane, BorderLayout.CENTER);
 		
@@ -206,11 +349,12 @@ public class UrmusicExportingDialog extends JDialog {
 	}
 	
 	public void open() {
+		/*
 		if(UrmusicController.getCurrentSong() == null) {
 			JOptionPane.showMessageDialog(this, UrmusicStrings.getString("dialog.export.noAudioMessage"), UrmusicStrings.getString("dialog.export.title"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		
+		*/
 		this.settings.reset();
 		this.cancelBtn.setEnabled(false);
 		this.startBtn.setEnabled(true);
@@ -218,6 +362,18 @@ public class UrmusicExportingDialog extends JDialog {
 		this.videoEncoderCBox.setSelectedItem(this.settings.videoEncoder);
 		this.audioEncoderCBox.setSelectedItem(this.settings.audioEncoder);
 		this.muxerCBox.setSelectedItem(this.settings.muxer);
+		
+		this.videoQualitySlider.setValue(this.settings.vqscale);
+		this.audioQualitySlider.setValue(this.settings.aqscale);
+		
+		this.videoUseVariableBitrate.setSelected(!this.settings.useConstantBitrateVideo);
+		this.audioUseVariableBitrate.setSelected(!this.settings.useConstantBitrateAudio);
+		
+		this.videoBitrateCards.show(this.videoBitrateCardsPane, this.settings.useConstantBitrateVideo ? CARD_BITRATE_CONSTANT : CARD_BITRATE_VARIABLE);
+		this.audioBitrateCards.show(this.audioBitrateCardsPane, this.settings.useConstantBitrateAudio ? CARD_BITRATE_CONSTANT : CARD_BITRATE_VARIABLE);
+		
+		this.videoBitrate.setValue(this.settings.bv);
+		this.audioBitrate.setValue(this.settings.ba);
 		
 		this.setVisible(true);
 	}
@@ -276,6 +432,15 @@ public class UrmusicExportingDialog extends JDialog {
 		
 		this.settings.destination = this.destField.getPath();
 		this.settings.videoEncoder = VIDEO_ENCODERS[this.videoEncoderCBox.getSelectedIndex()];
+		
+		this.settings.useConstantBitrateVideo = this.videoUseVariableBitrate.isSelected();
+		this.settings.useConstantBitrateAudio = this.audioUseVariableBitrate.isSelected();
+		
+		this.settings.bv = this.videoBitrate.getValue().intValue();
+		this.settings.ba = this.audioBitrate.getValue().intValue();
+		
+		this.settings.vqscale = this.videoQualitySlider.getValue();
+		this.settings.aqscale = this.audioQualitySlider.getValue();
 		
 		this.job = UrmusicController.export(this.settings, new ExportProgressCallback() {
 			public void exportBegin() {

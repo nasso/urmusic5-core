@@ -62,7 +62,9 @@ public class Exporter {
 					// Output
 					"-f", this.settings.muxer.getName(),
 					"-c:v", this.settings.videoEncoder.getName(), "-r", String.valueOf(framerate), "-pix_fmt", "yuv420p",
+					this.settings.useConstantBitrateVideo ? "-b:v" : "-q:v", String.valueOf(this.settings.useConstantBitrateVideo ? this.settings.bv + "K" : this.settings.vqscale),
 					"-c:a", this.settings.audioEncoder.getName(),
+					this.settings.useConstantBitrateAudio ? "-b:a" : "-q:a", String.valueOf(this.settings.useConstantBitrateAudio ? this.settings.ba + "K" : this.settings.aqscale),
 					this.settings.destination.toString());
 			
 			Composition comp = UrmusicModel.getCurrentProject().getMainComposition();

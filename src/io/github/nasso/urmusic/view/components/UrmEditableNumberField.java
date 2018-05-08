@@ -29,6 +29,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.util.function.Consumer;
 
@@ -49,6 +51,8 @@ public class UrmEditableNumberField extends JPanel {
 	private static final String CARD_LABEL = "label";
 	private static final String CARD_FIELD = "field";
 	
+	private boolean blockKeyEvents;
+	
 	private CardLayout card;
 	private JLabel valueLabel;
 	private JFormattedTextField valueField;
@@ -65,6 +69,8 @@ public class UrmEditableNumberField extends JPanel {
 		private int pressedX;
 		
 		public void mousePressed(MouseEvent e) {
+			if(!UrmEditableNumberField.this.valueLabel.isEnabled()) return;
+			
 			if(	!this.button1 && 
 				e.getButton() == MouseEvent.BUTTON1 &&
 				MathUtils.boxContains(e.getX(), e.getY(), 0, 0, UrmEditableNumberField.this.valueLabel.getWidth(), UrmEditableNumberField.this.valueLabel.getHeight())
@@ -75,10 +81,14 @@ public class UrmEditableNumberField extends JPanel {
 		}
 		
 		public void mouseReleased(MouseEvent e) {
+			if(!UrmEditableNumberField.this.valueLabel.isEnabled()) return;
+			
 			this.button1 &= e.getButton() != MouseEvent.BUTTON1;
 		}
 		
 		public void mouseDragged(MouseEvent e) {
+			if(!UrmEditableNumberField.this.valueLabel.isEnabled()) return;
+			
 			if(this.button1) {
 				UrmEditableNumberField.this.setValue(UrmEditableNumberField.this.lastValue + (e.getXOnScreen() - this.pressedX) * UrmEditableNumberField.this.getStep());
 				if(UrmEditableNumberField.this.onValueChange != null) UrmEditableNumberField.this.onValueChange.accept(UrmEditableNumberField.this);
@@ -88,6 +98,8 @@ public class UrmEditableNumberField extends JPanel {
 		}
 		
 		public void mouseClicked(MouseEvent e) {
+			if(!UrmEditableNumberField.this.valueLabel.isEnabled()) return;
+			
 			if(e.getButton() == MouseEvent.BUTTON1)
 				UrmEditableNumberField.this.startTextEdit();
 		}
@@ -101,8 +113,17 @@ public class UrmEditableNumberField extends JPanel {
 		public void mouseExited(MouseEvent e) {
 		}
 	}
+
+	public UrmEditableNumberField() {
+		this(false);
+	}
 	
-	public UrmEditableNumberField(Consumer<UrmEditableNumberField> onValueChange) {
+	public UrmEditableNumberField(boolean blockKeyEvents) {
+		this(blockKeyEvents, null);
+	}
+	
+	public UrmEditableNumberField(boolean blockKeyEvents, Consumer<UrmEditableNumberField> onValueChange) {
+		this.blockKeyEvents = blockKeyEvents;
 		this.onValueChange = onValueChange;
 		
 		this.valueLabel = new JLabel();
@@ -180,6 +201,17 @@ public class UrmEditableNumberField extends JPanel {
 			}
 		});
 		
+		this.addPropertyChangeListener("enabled", new PropertyChangeListener() {
+			public void propertyChange(PropertyChangeEvent evt) {
+				UrmEditableNumberField that = UrmEditableNumberField.this;
+				that.valueLabel.setEnabled(that.isEnabled());
+				that.valueField.setEnabled(that.isEnabled());
+				
+				if(!that.isEnabled())
+					that.cancelTextEdit();
+			}
+		});
+		
 		this.setLayout(this.card = new CardLayout());
 		this.setOpaque(false);
 		this.add(this.valueLabel, CARD_LABEL);
@@ -191,7 +223,7 @@ public class UrmEditableNumberField extends JPanel {
 		if(this.editing) return;
 		this.editing = true;
 		
-		UrmusicView.blockKeyEvent();
+		if(this.blockKeyEvents) UrmusicView.blockKeyEvent();
 
 		this.card.show(this, CARD_FIELD);
 		
@@ -202,7 +234,7 @@ public class UrmEditableNumberField extends JPanel {
 		if(!this.editing) return;
 		this.editing = false;
 		
-		UrmusicView.freeKeyEvent();
+		if(this.blockKeyEvents) UrmusicView.freeKeyEvent();
 
 		this.setValue((Number) this.valueField.getValue());
 		if(this.onValueChange != null) this.onValueChange.accept(this);
@@ -214,7 +246,7 @@ public class UrmEditableNumberField extends JPanel {
 		if(!this.editing) return;
 		this.editing = false;
 		
-		UrmusicView.freeKeyEvent();
+		if(this.blockKeyEvents) UrmusicView.freeKeyEvent();
 		
 		this.valueLabel.setText(String.valueOf(this.lastValue));
 

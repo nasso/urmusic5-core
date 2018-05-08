@@ -26,12 +26,28 @@ import io.github.nasso.urmusic.model.ffmpeg.FFmpeg;
 import io.github.nasso.urmusic.model.ffmpeg.Muxer;
 
 public class ExportSettings {
+	public static final int QSCALE_MIN = 1;
+	public static final int QSCALE_MAX = 31;
+	
 	public Path destination;
 	
 	public Encoder videoEncoder;
 	public Encoder audioEncoder;
 
 	public Muxer muxer;
+	
+	public boolean useConstantBitrateVideo = false;
+	public boolean useConstantBitrateAudio = true;
+	
+	public int vqscale = 20;
+	public int aqscale = 20;
+	
+	public int bv = 10_000; // kbps
+	public int ba = 384; // kbps
+	
+	public ExportSettings() {
+		this.reset();
+	}
 	
 	public void reset() {
 		this.reset(FFmpeg.getEncoderByName("libx264", "libopenh264", "h264"), FFmpeg.getEncoderByName("aac"), FFmpeg.getMuxerByName("mp4"));
@@ -42,5 +58,20 @@ public class ExportSettings {
 		this.videoEncoder = videoEncoder;
 		this.audioEncoder = audioEncoder;
 		this.muxer = muxer;
+	}
+	
+	public String toString() {
+		return new StringBuilder()
+				.append("destination: ").append(this.destination).append("\n")
+				.append("videoEncoder: ").append(this.videoEncoder).append("\n")
+				.append("audioEncoder: ").append(this.audioEncoder).append("\n")
+				.append("muxer: ").append(this.muxer).append("\n")
+				.append("useConstantBitrateVideo: ").append(this.useConstantBitrateVideo).append("\n")
+				.append("useConstantBitrateAudio: ").append(this.useConstantBitrateAudio).append("\n")
+				.append("vqscale: ").append(this.vqscale).append("\n")
+				.append("aqscale: ").append(this.aqscale).append("\n")
+				.append("bv: ").append(this.bv).append("\n")
+				.append("ba: ").append(this.ba)
+				.toString();
 	}
 }

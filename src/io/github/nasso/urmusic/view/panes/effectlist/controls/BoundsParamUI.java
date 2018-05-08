@@ -41,28 +41,28 @@ public class BoundsParamUI extends EffectParamUI<BoundsParam> {
 	}
 
 	public JComponent buildUI() {
-		this.xField = new UrmEditableNumberField((f) -> {
+		this.xField = new UrmEditableNumberField(true, (f) -> {
 			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			this._vec4.x = f.getValue().floatValue();
 			
 			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 		});
 		
-		this.wField = new UrmEditableNumberField((f) -> {
+		this.wField = new UrmEditableNumberField(true, (f) -> {
 			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			this._vec4.z = f.getValue().floatValue();
 
 			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 		});
 		
-		this.yField = new UrmEditableNumberField((f) -> {
+		this.yField = new UrmEditableNumberField(true, (f) -> {
 			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			this._vec4.y = f.getValue().floatValue();
 
 			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 		});
 		
-		this.hField = new UrmEditableNumberField((f) -> {
+		this.hField = new UrmEditableNumberField(true, (f) -> {
 			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			this._vec4.w = f.getValue().floatValue();
 
