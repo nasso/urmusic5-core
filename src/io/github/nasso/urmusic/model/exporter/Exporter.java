@@ -49,8 +49,7 @@ public class Exporter implements Runnable {
 		int width = UrmusicModel.getCurrentProject().getMainComposition().getWidth();
 		int height = UrmusicModel.getCurrentProject().getMainComposition().getHeight();
 		
-		ProcessBuilder pb = new ProcessBuilder(
-				FFmpeg.FFMPEG_LOCATION.toString(), "-y",
+		Process p = FFmpeg.execute(
 				// Input 1: Raw video data
 				"-f", "rawvideo", "-r", String.valueOf(framerate), "-s", width + "x" + height, "-pix_fmt", "rgb24",
 				"-t", String.valueOf(duration),
@@ -62,17 +61,6 @@ public class Exporter implements Runnable {
 				"-c:v", this.settings.videoEncoder.getName(), "-r", String.valueOf(framerate), "-pix_fmt", "yuv420p",
 				"-c:a", this.settings.audioEncoder.getName(),
 				this.settings.destination.toString());
-		pb.redirectErrorStream(true);
-		pb.redirectOutput(FFmpeg.FFMPEG_OUTPUT_LOG.toFile());
-		pb.redirectInput(ProcessBuilder.Redirect.PIPE);
-		
-		Process p = null;
-		try {
-			p = pb.start();
-		} catch(IOException e) {
-			this.callback.exportException(e);
-			return;
-		}
 		
 		Composition comp = UrmusicModel.getCurrentProject().getMainComposition();
 		int framecount = UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTotalFrameCount();
