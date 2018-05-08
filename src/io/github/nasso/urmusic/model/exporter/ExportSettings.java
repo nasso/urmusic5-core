@@ -17,21 +17,30 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.github.nasso.urmusic.model.renderer.video;
+package io.github.nasso.urmusic.model.exporter;
 
-import java.nio.ByteBuffer;
+import java.nio.file.Path;
 
-import io.github.nasso.urmusic.model.project.Composition;
+import io.github.nasso.urmusic.model.ffmpeg.Encoder;
+import io.github.nasso.urmusic.model.ffmpeg.FFmpeg;
+import io.github.nasso.urmusic.model.ffmpeg.Muxer;
 
-public class CachedFrame {
-	public final int index;
-	public Composition comp;
-	public int frame_pos = 0;
-	public boolean dirty = true;
+public class ExportSettings {
+	public Path destination;
 	
-	public ByteBuffer destRGB = null;
+	public Encoder videoEncoder;
+	public Encoder audioEncoder;
+
+	public Muxer muxer;
 	
-	public CachedFrame(int i) {
-		this.index = i;
+	public void reset() {
+		this.reset(FFmpeg.getEncoderByName("libx264"), FFmpeg.getEncoderByName("aac"), FFmpeg.getMuxerByName("mp4"));
+	}
+	
+	public void reset(Encoder videoEncoder, Encoder audioEncoder, Muxer muxer) {
+		this.destination = null;
+		this.videoEncoder = videoEncoder;
+		this.audioEncoder = audioEncoder;
+		this.muxer = muxer;
 	}
 }

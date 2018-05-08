@@ -17,21 +17,14 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.github.nasso.urmusic.model.renderer.video;
+package io.github.nasso.urmusic.common;
 
-import java.nio.ByteBuffer;
-
-import io.github.nasso.urmusic.model.project.Composition;
-
-public class CachedFrame {
-	public final int index;
-	public Composition comp;
-	public int frame_pos = 0;
-	public boolean dirty = true;
+public interface ExportProgressCallback {
+	public void exportBegin();
+	public void renderBegin();
+	public void renderProgress(float progress);
+	public void renderDone();
+	public void exportDone();
 	
-	public ByteBuffer destRGB = null;
-	
-	public CachedFrame(int i) {
-		this.index = i;
-	}
+	public void exportException(Exception e);
 }

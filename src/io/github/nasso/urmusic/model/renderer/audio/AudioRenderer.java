@@ -33,7 +33,7 @@ import io.github.nasso.urmusic.Urmusic;
 import io.github.nasso.urmusic.common.FFTContext;
 import io.github.nasso.urmusic.common.MathUtils;
 import io.github.nasso.urmusic.model.UrmusicModel;
-import io.github.nasso.urmusic.model.ffmpeg.FFmpegUtils;
+import io.github.nasso.urmusic.model.ffmpeg.FFmpeg;
 
 public class AudioRenderer implements Runnable {
 	public static final Path AUDIO_BUFFER_SOURCE_PATH = Urmusic.URM_HOME.toPath().resolve("current_song.wav").toAbsolutePath();
@@ -353,6 +353,10 @@ public class AudioRenderer implements Runnable {
 		this.sourceToLoad = sourcePath;
 	}
 	
+	public Path getAudioBufferSource() {
+		return this.currentSource;
+	}
+	
 	public int getBufferSize() {
 		return this.bufferSize;
 	}
@@ -373,7 +377,7 @@ public class AudioRenderer implements Runnable {
 			e1.printStackTrace();
 		}
 		
-		Process proc = FFmpegUtils.execute(
+		Process proc = FFmpeg.execute(
 			"-i",
 			newSourcePath.toString(),
 			AudioRenderer.AUDIO_BUFFER_SOURCE_PATH.toString()

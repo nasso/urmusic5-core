@@ -394,6 +394,13 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		
 		this.renderComposition(dest.comp, dest.frame_pos / dest.comp.getTimeline().getFramerate(), dest.index);
 		
+		if(dest.destRGB != null) {
+			int tex = this.getTextureForCacheIndex(dest.comp, dest.index);
+			
+			this.gl.glBindTexture(GL_TEXTURE_2D, tex);
+			this.gl.glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, dest.destRGB);
+		}
+		
 		this.gl.glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	
@@ -417,7 +424,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		}
 	}
 	
-	// TODO: CompositeTrack rendering
+	// TODO: CompositeTrack rendering or smth
 	private void renderTrack(Composition comp, Track t, float time) {
 		TrackRenderTexture dest = this.getTrackTexture(comp, t);
 		
@@ -579,7 +586,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			dest.swapAlt(this.gl, cacheIndex);
 		}
 	}
-
+	
 	public int getCurrentDestTexture(Composition comp) {
 		return this.getTextureForCacheIndex(comp, this.mainRenderer.getCurrentDestCacheFrame().index);
 	}
@@ -591,6 +598,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	public int getTextureForFrame(Composition comp, int frame) {
 		return this.getTextureForCacheIndex(comp, this.mainRenderer.getCacheFor(comp, frame));
 	}
+	
 	private int getTextureForCacheIndex(Composition comp, int index) {
 		if(index > this.mainRenderer.getCacheSize() || index < 0) return -1;
 		

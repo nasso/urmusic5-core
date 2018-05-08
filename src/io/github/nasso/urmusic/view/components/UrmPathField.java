@@ -17,7 +17,7 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.github.nasso.urmusic.view.panes.effectlist.controls;
+package io.github.nasso.urmusic.view.components;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -31,31 +31,25 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
-import io.github.nasso.urmusic.controller.UrmusicController;
-import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.github.nasso.urmusic.model.project.param.FileParam;
-import io.github.nasso.urmusic.view.components.UrmEditableLabel;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 
-public class FileParamUI extends EffectParamUI<FileParam> {
-	private JPanel container;
-	private UrmEditableLabel urlField;
-	private JButton browseButton;
+public class UrmPathField extends JComponent {
+	private Path p;
+	private JTextField field;
+	private JButton browseBtn;
 	
-	public FileParamUI(TrackEffectInstance fx, FileParam param) {
-		super(fx, param);
-	}
-	
-	public JComponent buildUI() {
-		this.container = new JPanel(new BorderLayout(2, 2));
-		this.urlField = new UrmEditableLabel((f) -> UrmusicController.setParamValueNow(this.getParam(), Paths.get(f.getValue())));
-		this.browseButton = new JButton(new AbstractAction(UrmusicStrings.getString("global.browseFileButton")) {
+	public UrmPathField(boolean directory) {
+		this.setLayout(new BorderLayout(2, 2));
+		this.add(this.field = new JTextField(), BorderLayout.CENTER);
+		this.add(this.browseBtn = new JButton(new AbstractAction(UrmusicStrings.getString("global.browseFileButton")) {
 			private JFileChooser fileChooser;
 			
 			public void actionPerformed(ActionEvent e) {
@@ -65,14 +59,14 @@ public class FileParamUI extends EffectParamUI<FileParam> {
 					
 					if(this.fileChooser == null) this.fileChooser = new JFileChooser();
 					SwingUtilities.updateComponentTreeUI(this.fileChooser);
-					this.fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-					int action = this.fileChooser.showOpenDialog(FileParamUI.this);
+					this.fileChooser.setFileSelectionMode(directory ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_ONLY);
+					int action = this.fileChooser.showOpenDialog(UrmPathField.this);
 					
 					if(action == JFileChooser.APPROVE_OPTION) {
 						File f = this.fileChooser.getSelectedFile();
 						
 						if(f != null)
-							UrmusicController.setParamValueNow(FileParamUI.this.getParam(), f.toPath());
+							UrmPathField.this.setPath(f.toPath());
 					}
 					
 					UIManager.setLookAndFeel(laf);
@@ -80,32 +74,50 @@ public class FileParamUI extends EffectParamUI<FileParam> {
 					e1.printStackTrace();
 				}
 			}
+		}), BorderLayout.EAST);
+
+		this.field.getDocument().addDocumentListener(new DocumentListener() {
+			public void removeUpdate(DocumentEvent e) {
+				UrmPathField.this.setPathNoField(Paths.get(UrmPathField.this.field.getText()));
+			}
+			
+			public void insertUpdate(DocumentEvent e) {
+				UrmPathField.this.setPathNoField(Paths.get(UrmPathField.this.field.getText()));
+			}
+			
+			public void changedUpdate(DocumentEvent e) {
+				UrmPathField.this.setPathNoField(Paths.get(UrmPathField.this.field.getText()));
+			}
 		});
 		
-		this.browseButton.setBorder(BorderFactory.createCompoundBorder(
-			BorderFactory.createLineBorder(Color.BLACK, 1),
-			BorderFactory.createEmptyBorder(0, 6, 0, 6)
-		));
-		
-		this.container.setOpaque(false);
-		this.container.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
-		this.container.add(this.urlField, BorderLayout.CENTER);
-		this.container.add(this.browseButton, BorderLayout.EAST);
-		
-		return this.container;
+		this.field.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(0, 4, 0, 4)));
+		this.browseBtn.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.GRAY), BorderFactory.createEmptyBorder(0, 8, 0, 8)));
 	}
 	
-	public void updateControl() {
-		Path p = UrmusicController.getParamValueNow(this.getParam());
+	private boolean setPathNoField(Path p) {
+		if(this.p != null && this.p.equals(p)) return false;
 		
-		this.urlField.setValue(
-			p == null ?
-				UrmusicStrings.getString(
-					"effect." + this.getEffectInstance().getEffectClass().getEffectClassID() +
-					".param." + this.getParam().getID() +
-					".empty") :
-				
-				p.getFileName().toString()
-		);
+		p = p.toAbsolutePath();
+		this.p = p;
+		
+		return true;
+	}
+	
+	public void setPath(Path p) {
+		if(!this.setPathNoField(p)) return;
+		
+		this.field.setText(this.p.toString());
+	}
+	
+	public Path getPath() {
+		return this.p;
+	}
+	
+	public void setEditable(boolean editable) {
+		this.field.setEditable(editable);
+	}
+	
+	public boolean isEditable() {
+		return this.field.isEditable();
 	}
 }

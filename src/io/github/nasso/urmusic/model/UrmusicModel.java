@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.github.nasso.urmusic.common.ExportProgressCallback;
 import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.common.event.VideoRendererListener;
 import io.github.nasso.urmusic.model.effect.AffineTransformVFX;
@@ -35,6 +36,8 @@ import io.github.nasso.urmusic.model.effect.ImageDisplayVFX;
 import io.github.nasso.urmusic.model.effect.MirrorVFX;
 import io.github.nasso.urmusic.model.effect.PolarCoordsVFX;
 import io.github.nasso.urmusic.model.effect.RectangleMaskVFX;
+import io.github.nasso.urmusic.model.exporter.ExportSettings;
+import io.github.nasso.urmusic.model.exporter.Exporter;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
 import io.github.nasso.urmusic.model.project.Track;
@@ -74,6 +77,7 @@ public class UrmusicModel {
 	private static Project project;
 	private static VideoRenderer videoRenderer;
 	private static AudioRenderer audioRenderer;
+	private static Exporter exporter;
 	
 	private static Map<String, TrackEffect> loadedEffects = new HashMap<>();
 	private static Map<String, TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableMap(UrmusicModel.loadedEffects);
@@ -121,6 +125,18 @@ public class UrmusicModel {
 		UrmusicView.dispose();
 		
 		System.exit(0);
+	}
+	
+	public static void export(ExportSettings settings, ExportProgressCallback callback) {
+		if(exporter != null) return;
+		
+		exporter = new Exporter(settings, callback);
+		exporter.start();
+	}
+	
+	public static void cancelExport() {
+		if(exporter == null) return;
+		exporter.cancel();
 	}
 	
 	public static boolean isEffectLoaded(TrackEffect fx) {

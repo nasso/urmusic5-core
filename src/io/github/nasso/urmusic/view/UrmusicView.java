@@ -64,6 +64,7 @@ import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 import io.github.nasso.urmusic.view.data.UrmusicViewState;
 import io.github.nasso.urmusic.view.data.UrmusicViewStateCodec;
 import io.github.nasso.urmusic.view.dialog.UrmusicAboutDialog;
+import io.github.nasso.urmusic.view.dialog.UrmusicExportingDialog;
 
 /**
  * User interface to the controller.
@@ -83,6 +84,7 @@ public class UrmusicView {
 		menuSaveAsAction,
 		menuOpenAction,
 		menuLoadSongAction,
+		menuExportAction,
 		menuExitAction,
 		
 		// Help
@@ -283,6 +285,14 @@ public class UrmusicView {
 			}
 		};
 		
+		UrmusicView.menuExportAction = new AbstractAction(UrmusicStrings.getString("menu.file.export")) {
+			private UrmusicExportingDialog dialog = new UrmusicExportingDialog();
+			
+			public void actionPerformed(ActionEvent e) {
+				this.dialog.open();
+			}
+		};
+		
 		UrmusicView.menuExitAction = new AbstractAction(UrmusicStrings.getString("menu.file.quit")) {
 			public void actionPerformed(ActionEvent e) {
 				UrmusicController.requestExit();
@@ -308,6 +318,8 @@ public class UrmusicView {
 		fileMenu.add(new JMenuItem(UrmusicView.menuOpenAction));
 		fileMenu.addSeparator();
 		fileMenu.add(new JMenuItem(UrmusicView.menuLoadSongAction));
+		fileMenu.addSeparator();
+		fileMenu.add(new JMenuItem(UrmusicView.menuExportAction));
 		fileMenu.addSeparator();
 		fileMenu.add(new JMenuItem(UrmusicView.menuExitAction));
 		

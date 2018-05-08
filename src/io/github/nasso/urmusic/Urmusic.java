@@ -30,6 +30,7 @@ import io.github.nasso.urmusic.common.easing.EasingFunction;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.effect.CircleMaskVFX.CircleMaskVFXInstance;
+import io.github.nasso.urmusic.model.ffmpeg.FFmpeg;
 import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.view.UrmusicView;
 
@@ -69,10 +70,12 @@ public class Urmusic {
 	public static final void init() {
 		Urmusic.setupFiles();
 		
+		FFmpeg.init();
+		
 		UrmusicModel.init();
 		UrmusicController.init();
 		UrmusicView.init();
-
+		
 //		UrmusicController.openProject(Paths.get("./test." + ProjectCodec.FILE_EXT));
 		
 		UrmusicController.addTrack();

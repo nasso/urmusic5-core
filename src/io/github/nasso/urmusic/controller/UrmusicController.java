@@ -29,11 +29,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.nasso.urmusic.common.ExportProgressCallback;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
 import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
+import io.github.nasso.urmusic.model.exporter.ExportSettings;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
 import io.github.nasso.urmusic.model.project.Track;
@@ -102,6 +104,14 @@ public class UrmusicController {
 		UrmusicController.forceImmediateVideoRender();
 		
 		playbackThread.restartPlayback();
+	}
+	
+	public static void export(ExportSettings settings, ExportProgressCallback callback) {
+		UrmusicModel.export(settings, callback);
+	}
+
+	public static void cancelExport() {
+		UrmusicModel.cancelExport();
 	}
 	
 	public static void requestExit() {
@@ -223,6 +233,10 @@ public class UrmusicController {
 			markVideoDirty();
 			callback.run();
 		});
+	}
+	
+	public static Path getCurrentSong() {
+		return UrmusicModel.getAudioRenderer().getAudioBufferSource();
 	}
 	
 	public static Path getCurrentProjectPath() {

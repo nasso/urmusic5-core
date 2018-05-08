@@ -4,23 +4,36 @@
 	"map": {
 		"title": "urmusic",
 
+		"global.browseFileButton": "...",
+		
 		"menu.file": "File",
 		"menu.file.new": "New",
 		"menu.file.save": "Save",
 		"menu.file.saveAs": "Save As...",
 		"menu.file.open": "Open...",
-		"menu.file.loadSong": "Set music file",
+		"menu.file.loadSong": "Load audio file",
+		"menu.file.export": "Export",
 		"menu.file.quit": "Quit",
 		"menu.help": "Help",
 		"menu.help.about": "About",
-		
-		"files.project.desc": "Project files",
 		
 		"dialog.global.ok": "OK",
 		"dialog.global.cancel": "Cancel",
 		"dialog.loadingSong.title": "Loading music file...",
 		"dialog.about.title": "About",
-
+		"dialog.export.title": "Export",
+		"dialog.export.start": "Start",
+		"dialog.export.video.title": "Video",
+		"dialog.export.video.encoder": "Encoder",
+		"dialog.export.audio.title": "Audio",
+		"dialog.export.audio.encoder": "Encoder",
+		"dialog.export.noAudioMessage": "No audio file has been loaded. Please load one and try again.",
+		"dialog.export.invalidVideoEncoder": "Please select a valid video encoder.",
+		"dialog.export.invalidAudioEncoder": "Please select a valid audio encoder.",
+		"dialog.export.invalidDestFileMessage": "Please select a valid destination file",
+		"dialog.export.overwriteDestFileMessage": "The destination file already exists. Overwrite it?",
+		"dialog.export.finishedMessage": "Your video has been exported",
+		
 		"frame.multiCloseWarning.title": "Closing a window",
 		"frame.multiCloseWarning.message": "Would you like to close only this window or close all?",
 		"frame.multiCloseWarning.closeOne": "Close only this one",

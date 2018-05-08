@@ -17,21 +17,26 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.github.nasso.urmusic.model.renderer.video;
+package io.github.nasso.urmusic.model.ffmpeg;
 
-import java.nio.ByteBuffer;
-
-import io.github.nasso.urmusic.model.project.Composition;
-
-public class CachedFrame {
-	public final int index;
-	public Composition comp;
-	public int frame_pos = 0;
-	public boolean dirty = true;
+public class Muxer {
+	private String name;
+	private String desc;
 	
-	public ByteBuffer destRGB = null;
+	Muxer(String name, String desc) {
+		this.name = name;
+		this.desc = desc;
+	}
 	
-	public CachedFrame(int i) {
-		this.index = i;
+	public String getName() {
+		return this.name;
+	}
+	
+	public String getDescription() {
+		return this.desc;
+	}
+	
+	public String toString() {
+		return this.name + " - " + this.desc;
 	}
 }

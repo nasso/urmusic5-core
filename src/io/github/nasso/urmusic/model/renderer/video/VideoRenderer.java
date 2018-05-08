@@ -19,6 +19,7 @@
  ******************************************************************************/
 package io.github.nasso.urmusic.model.renderer.video;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -196,7 +197,8 @@ public class VideoRenderer implements Runnable {
 	private Thread renderingThread;
 	
 	private Object renderLock = new Object();
-	private RenderQueue renderQueue = new RenderQueue(this.renderLock);
+	private Object renderIdleLock = new Object();
+	private RenderQueue renderQueue = new RenderQueue(this.renderIdleLock);
 	
 	public VideoRenderer(int gpuCachedFrameCount) {
 		this.gpuCache = new CachedFrame[gpuCachedFrameCount];
@@ -235,9 +237,9 @@ public class VideoRenderer implements Runnable {
 		try {
 			main_loop: while(!this.renderingThreadStopRequest) {
 				while(this.renderQueue.getAvailableCommands() == 0) {
-					synchronized(this.renderLock) {
+					synchronized(this.renderIdleLock) {
 						this.renderingThreadIdle = true;
-						this.renderLock.wait();
+						this.renderIdleLock.wait();
 						this.renderingThreadIdle = false;
 					}
 					
@@ -320,23 +322,37 @@ public class VideoRenderer implements Runnable {
 	
 	private void doFrame(Composition comp, int frame) {
 		// -- ( runs on the rendering thread ) --
-		
-		float time = frame / comp.getTimeline().getFramerate();
-		int cache = this.getCacheFor(comp, frame);
-		
-		// If there's no cached frame, do the render
-		if(cache == -1) {
+		synchronized(this.renderLock) {
+			int cache = this.getCacheFor(comp, frame);
+			
+			// If there's no cached frame, do the render
+			if(cache == -1) {
+				this.destCacheFrame = this.freeFrameCache(comp);
+				this.gpuCache[this.destCacheFrame].frame_pos = frame;
+				this.gpuCache[this.destCacheFrame].comp = comp;
+				this.gpuCache[this.destCacheFrame].dirty = true;
+				this.gpuCache[this.destCacheFrame].destRGB = null;
+				
+				this.drawable.display();
+				
+				this.gpuCache[this.destCacheFrame].dirty = false;
+			}
+			
+			this.notifyFrameReady(comp, frame / comp.getTimeline().getFramerate());
+		}
+	}
+	
+	public void syncRenderRawRGB(Composition comp, int frame, ByteBuffer destRGB) {
+		synchronized(this.renderLock) {
+			// Force render 
 			this.destCacheFrame = this.freeFrameCache(comp);
 			this.gpuCache[this.destCacheFrame].frame_pos = frame;
 			this.gpuCache[this.destCacheFrame].comp = comp;
 			this.gpuCache[this.destCacheFrame].dirty = true;
+			this.gpuCache[this.destCacheFrame].destRGB = destRGB;
 			
 			this.drawable.display();
-			
-			this.gpuCache[this.destCacheFrame].dirty = false;
 		}
-		
-		this.notifyFrameReady(comp, time);
 	}
 	
 	public CachedFrame[] getCachedFrames() {
