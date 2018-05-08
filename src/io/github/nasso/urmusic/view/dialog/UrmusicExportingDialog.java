@@ -349,12 +349,11 @@ public class UrmusicExportingDialog extends JDialog {
 	}
 	
 	public void open() {
-		/*
 		if(UrmusicController.getCurrentSong() == null) {
 			JOptionPane.showMessageDialog(this, UrmusicStrings.getString("dialog.export.noAudioMessage"), UrmusicStrings.getString("dialog.export.title"), JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		*/
+		
 		this.settings.reset();
 		this.cancelBtn.setEnabled(false);
 		this.startBtn.setEnabled(true);
