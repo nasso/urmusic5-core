@@ -135,9 +135,11 @@ public class FFmpeg {
 		return ENCODERS_UNMODIFIABLE;
 	}
 	
-	public static Encoder getEncoderByName(String name) {
-		for(Encoder e : ENCODERS)
-			if(e.getName().equals(name)) return e;
+	public static Encoder getEncoderByName(String... names) {
+		for(String name : names) {
+			for(Encoder e : ENCODERS)
+				if(e.getName().equals(name)) return e;
+		}
 		
 		return null;
 	}
@@ -146,9 +148,11 @@ public class FFmpeg {
 		return MUXERS_UNMODIFIABLE;
 	}
 	
-	public static Muxer getMuxerByName(String name) {
-		for(Muxer e : MUXERS)
-			if(e.getName().equals(name)) return e;
+	public static Muxer getMuxerByName(String... names) {
+		for(String name : names) {
+			for(Muxer e : MUXERS)
+				if(e.getName().equals(name)) return e;
+		}
 		
 		return null;
 	}

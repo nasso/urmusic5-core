@@ -34,7 +34,7 @@ public class ExportSettings {
 	public Muxer muxer;
 	
 	public void reset() {
-		this.reset(FFmpeg.getEncoderByName("libx264"), FFmpeg.getEncoderByName("aac"), FFmpeg.getMuxerByName("mp4"));
+		this.reset(FFmpeg.getEncoderByName("libx264", "libopenh264", "h264"), FFmpeg.getEncoderByName("aac"), FFmpeg.getMuxerByName("mp4"));
 	}
 	
 	public void reset(Encoder videoEncoder, Encoder audioEncoder, Muxer muxer) {
