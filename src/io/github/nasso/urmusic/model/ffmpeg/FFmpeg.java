@@ -156,8 +156,12 @@ public class FFmpeg {
 		
 		return null;
 	}
-	
+
 	public static Process execute(String... command) {
+		return execute(true, command);
+	}
+	
+	public static Process execute(boolean redirectOutput, String... command) {
 		List<String> cmd = new ArrayList<>(command.length + 1);
 		cmd.add(FFmpeg.FFMPEG_LOCATION.toString());
 		cmd.add("-y");
@@ -167,7 +171,7 @@ public class FFmpeg {
 		
 		ProcessBuilder pb = new ProcessBuilder(cmd);
 		pb.redirectErrorStream(true);
-		pb.redirectOutput(FFmpeg.FFMPEG_OUTPUT_LOG.toFile());
+		if(redirectOutput) pb.redirectOutput(FFmpeg.FFMPEG_OUTPUT_LOG.toFile());
 		
 		try {
 			return pb.start();

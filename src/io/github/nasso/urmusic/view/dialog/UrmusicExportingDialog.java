@@ -24,6 +24,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
@@ -44,12 +45,17 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
+import javax.swing.text.DefaultCaret;
 
-import io.github.nasso.urmusic.common.ExportProgressCallback;
+import io.github.nasso.urmusic.common.ExportJobCallback;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.exporter.ExportSettings;
 import io.github.nasso.urmusic.model.exporter.Exporter.ExportJob;
@@ -62,7 +68,7 @@ import io.github.nasso.urmusic.view.components.UrmPathField;
 import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.layout.VListLayout;
 
-public class UrmusicExportingDialog extends JDialog {
+public class UrmusicExportingDialog extends JDialog implements ExportJobCallback {
 	private static final String CARD_BITRATE_VARIABLE = "variable";
 	private static final String CARD_BITRATE_CONSTANT = "constant";
 	
@@ -105,7 +111,11 @@ public class UrmusicExportingDialog extends JDialog {
 	}
 	
 	private ExportSettings settings = new ExportSettings();
+	private ExportJob job;
 	
+	private JTabbedPane tabbedPane;
+	
+	// Settings
 	private UrmPathField destField;
 	private JComboBox<Muxer> muxerCBox;
 	
@@ -130,7 +140,8 @@ public class UrmusicExportingDialog extends JDialog {
 	private JButton cancelBtn, startBtn;
 	private JProgressBar pBar;
 	
-	private ExportJob job;
+	// Console
+	private JTextArea consoleTextArea;
 	
 	public UrmusicExportingDialog() {
 		JLabel lbl;
@@ -139,22 +150,22 @@ public class UrmusicExportingDialog extends JDialog {
 				JLabel lbl;
 				Color foreground = new Color(0, 0, 0, 128);
 				
-				this.put(ExportSettings.QSCALE_MIN, lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate.variable.low"), SwingConstants.LEFT));
+				this.put(ExportSettings.QSCALE_MIN, lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate.variable.quality"), SwingConstants.LEFT));
 				lbl.setForeground(foreground);
 				lbl.setFont(lbl.getFont().deriveFont(10f));
 				
-				this.put((ExportSettings.QSCALE_MIN + ExportSettings.QSCALE_MAX) / 2, lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate.variable.normal"), SwingConstants.CENTER));
+				this.put((ExportSettings.QSCALE_MIN + ExportSettings.QSCALE_MAX) / 2, lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate.variable.balanced"), SwingConstants.CENTER));
 				lbl.setForeground(foreground);
 				lbl.setFont(lbl.getFont().deriveFont(10f));
 				
-				this.put(ExportSettings.QSCALE_MAX, lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate.variable.high"), SwingConstants.RIGHT));
+				this.put(ExportSettings.QSCALE_MAX, lbl = new JLabel(UrmusicStrings.getString("dialog.export.bitrate.variable.smallSize"), SwingConstants.RIGHT));
 				lbl.setForeground(foreground);
 				lbl.setFont(lbl.getFont().deriveFont(10f));
 			}
 		};
 		
 		JPanel topBar = new JPanel(new GridLayout(1, 2, 8, 8));
-		topBar.add(this.destField = new UrmPathField(false));
+		topBar.add(this.destField = new UrmPathField(false, false));
 		topBar.add(this.muxerCBox = new JComboBox<>(MUXERS));
 
 		JPanel videoFieldsPane = new JPanel(new VListLayout(8));
@@ -303,17 +314,30 @@ public class UrmusicExportingDialog extends JDialog {
 		
 		this.pBar.setStringPainted(true);
 		
-		JPanel container = new JPanel(new BorderLayout(8, 8));
-		container.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-		container.add(topBar, BorderLayout.NORTH);
-		container.add(settingsContainer, BorderLayout.CENTER);
-		container.add(bottomBar, BorderLayout.SOUTH);
+		JPanel settingsPane = new JPanel(new BorderLayout(8, 8));
+		settingsPane.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		settingsPane.add(topBar, BorderLayout.NORTH);
+		settingsPane.add(settingsContainer, BorderLayout.CENTER);
+		settingsPane.add(bottomBar, BorderLayout.SOUTH);
+		
+		JPanel consolePane = new JPanel(new BorderLayout(8, 8));
+		consolePane.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+		consolePane.add(new JScrollPane(this.consoleTextArea = new JTextArea(), ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		((DefaultCaret) this.consoleTextArea.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		this.consoleTextArea.setLineWrap(true);
+		this.consoleTextArea.setWrapStyleWord(true);
+		this.consoleTextArea.setEditable(false);
+		this.consoleTextArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+		
+		this.tabbedPane = new JTabbedPane();
+		this.tabbedPane.add(UrmusicStrings.getString("dialog.export.tab.settings"), settingsPane);
+		this.tabbedPane.add(UrmusicStrings.getString("dialog.export.tab.console"), consolePane);
 		
 		this.setTitle(UrmusicStrings.getString("dialog.export.title"));
 		this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		this.setModalityType(ModalityType.APPLICATION_MODAL);
-		this.setContentPane(container);
-		this.setSize(800, 480);
+		this.setContentPane(this.tabbedPane);
+		this.setSize(800, 360);
 		this.setLocationRelativeTo(null);
 		
 		this.addWindowListener(new WindowListener() {
@@ -432,8 +456,8 @@ public class UrmusicExportingDialog extends JDialog {
 		this.settings.destination = this.destField.getPath();
 		this.settings.videoEncoder = VIDEO_ENCODERS[this.videoEncoderCBox.getSelectedIndex()];
 		
-		this.settings.useConstantBitrateVideo = this.videoUseVariableBitrate.isSelected();
-		this.settings.useConstantBitrateAudio = this.audioUseVariableBitrate.isSelected();
+		this.settings.useConstantBitrateVideo = !this.videoUseVariableBitrate.isSelected();
+		this.settings.useConstantBitrateAudio = !this.audioUseVariableBitrate.isSelected();
 		
 		this.settings.bv = this.videoBitrate.getValue().intValue();
 		this.settings.ba = this.audioBitrate.getValue().intValue();
@@ -441,56 +465,7 @@ public class UrmusicExportingDialog extends JDialog {
 		this.settings.vqscale = this.videoQualitySlider.getValue();
 		this.settings.aqscale = this.audioQualitySlider.getValue();
 		
-		this.job = UrmusicController.export(this.settings, new ExportProgressCallback() {
-			public void exportBegin() {
-				SwingUtilities.invokeLater(() -> {
-					UrmusicExportingDialog.this.cancelBtn.setEnabled(true);
-					UrmusicExportingDialog.this.startBtn.setEnabled(false);
-					UrmusicExportingDialog.this.pBar.setIndeterminate(true);
-				});
-			}
-			
-			public void renderBegin() {
-				SwingUtilities.invokeLater(() -> {
-					UrmusicExportingDialog.this.pBar.setIndeterminate(false);
-					UrmusicExportingDialog.this.pBar.setValue(0);
-				});
-				
-			}
-			
-			public void renderProgress(float progress) {
-				SwingUtilities.invokeLater(() -> {
-					UrmusicExportingDialog.this.pBar.setValue((int) (progress * UrmusicExportingDialog.this.pBar.getMaximum()));
-				});
-			}
-			
-			public void renderDone() {
-				SwingUtilities.invokeLater(() -> {
-					UrmusicExportingDialog.this.pBar.setIndeterminate(true);
-				});
-			}
-			
-			public void exportDone() {
-				SwingUtilities.invokeLater(() -> {
-					UrmusicExportingDialog.this.pBar.setIndeterminate(false);
-					UrmusicExportingDialog.this.pBar.setValue(0);
-					
-					UrmusicExportingDialog.this.cancelBtn.setEnabled(false);
-					UrmusicExportingDialog.this.startBtn.setEnabled(true);
-					
-					JOptionPane.showMessageDialog(UrmusicExportingDialog.this, UrmusicStrings.getString("dialog.export.finishedMessage"), UrmusicStrings.getString("dialog.export.title"), JOptionPane.INFORMATION_MESSAGE);
-				});
-			}
-
-			public void exportException(Exception e) {
-				SwingUtilities.invokeLater(() -> {
-					UrmusicExportingDialog.this.cancelBtn.setEnabled(false);
-					UrmusicExportingDialog.this.startBtn.setEnabled(true);
-					
-					JOptionPane.showMessageDialog(UrmusicExportingDialog.this, e.getMessage(), UrmusicStrings.getString("dialog.export.title"), JOptionPane.ERROR_MESSAGE);
-				});
-			}
-		});
+		this.job = UrmusicController.export(this.settings, this);
 	}
 	
 	private boolean promptCancel() {
@@ -504,5 +479,65 @@ public class UrmusicExportingDialog extends JDialog {
 	public void cancel() {
 		if(this.job != null && !this.job.isCancelled() && this.promptCancel())
 			UrmusicController.cancelExport(this.job);
+	}
+	
+
+	public void exportBegin() {
+		SwingUtilities.invokeLater(() -> {
+			this.cancelBtn.setEnabled(true);
+			this.startBtn.setEnabled(false);
+			this.pBar.setIndeterminate(true);
+		});
+	}
+	
+	public void renderBegin() {
+		SwingUtilities.invokeLater(() -> {
+			this.pBar.setIndeterminate(false);
+			this.pBar.setValue(0);
+		});
+		
+	}
+	
+	public void renderProgress(float progress) {
+		SwingUtilities.invokeLater(() -> {
+			this.pBar.setValue((int) (progress * UrmusicExportingDialog.this.pBar.getMaximum()));
+		});
+	}
+	
+	public void renderDone() {
+		SwingUtilities.invokeLater(() -> {
+			UrmusicExportingDialog.this.pBar.setIndeterminate(true);
+		});
+	}
+	
+	public void exportDone() {
+		SwingUtilities.invokeLater(() -> {
+			this.pBar.setIndeterminate(false);
+			this.pBar.setValue(0);
+			
+			this.cancelBtn.setEnabled(false);
+			this.startBtn.setEnabled(true);
+			
+			JOptionPane.showMessageDialog(this, UrmusicStrings.getString("dialog.export.finishedMessage"), UrmusicStrings.getString("dialog.export.title"), JOptionPane.INFORMATION_MESSAGE);
+		});
+	}
+
+	public void exportException(Exception e) {
+		SwingUtilities.invokeLater(() -> {
+			this.cancelBtn.setEnabled(false);
+			this.startBtn.setEnabled(true);
+			
+			JOptionPane.showMessageDialog(this, e.getMessage(), UrmusicStrings.getString("dialog.export.title"), JOptionPane.ERROR_MESSAGE);
+		});
+	}
+
+	public void exportStdout(String str) {
+		SwingUtilities.invokeLater(() -> {
+			this.consoleTextArea.append(str);
+		});
+	}
+
+	public void exportStderr(String str) {
+		this.exportStdout(str);
 	}
 }

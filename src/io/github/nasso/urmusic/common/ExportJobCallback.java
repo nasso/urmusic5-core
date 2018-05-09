@@ -19,7 +19,7 @@
  ******************************************************************************/
 package io.github.nasso.urmusic.common;
 
-public interface ExportProgressCallback {
+public interface ExportJobCallback {
 	public void exportBegin();
 	public void renderBegin();
 	public void renderProgress(float progress);
@@ -27,4 +27,6 @@ public interface ExportProgressCallback {
 	public void exportDone();
 	
 	public void exportException(Exception e);
+	public void exportStdout(String str);
+	public void exportStderr(String str);
 }

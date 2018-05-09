@@ -20,10 +20,12 @@
 package io.github.nasso.urmusic.model.exporter;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.Scanner;
 
-import io.github.nasso.urmusic.common.ExportProgressCallback;
+import io.github.nasso.urmusic.common.ExportJobCallback;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.ffmpeg.FFmpeg;
 import io.github.nasso.urmusic.model.project.Composition;
@@ -31,13 +33,13 @@ import io.github.nasso.urmusic.model.renderer.audio.AudioRenderer;
 
 public class Exporter {
 	public static class ExportJob implements Runnable {
-		private ExportProgressCallback callback;
+		private ExportJobCallback callback;
 		private ExportSettings settings;
 		
 		private boolean cancelled = false;
 		private boolean done = false;
 		
-		private ExportJob(ExportSettings settings, ExportProgressCallback callback) {
+		private ExportJob(ExportSettings settings, ExportJobCallback callback) {
 			this.callback = callback;
 			this.settings = settings;
 		}
@@ -52,7 +54,7 @@ public class Exporter {
 			int width = UrmusicModel.getCurrentProject().getMainComposition().getWidth();
 			int height = UrmusicModel.getCurrentProject().getMainComposition().getHeight();
 			
-			Process p = FFmpeg.execute(
+			final Process p = FFmpeg.execute(false,
 					// Input 1: Raw video data
 					"-f", "rawvideo", "-r", String.valueOf(framerate), "-s", width + "x" + height, "-pix_fmt", "rgb24",
 					"-t", String.valueOf(duration),
@@ -66,6 +68,14 @@ public class Exporter {
 					"-c:a", this.settings.audioEncoder.getName(),
 					this.settings.useConstantBitrateAudio ? "-b:a" : "-q:a", String.valueOf(this.settings.useConstantBitrateAudio ? this.settings.ba + "K" : this.settings.aqscale),
 					this.settings.destination.toString());
+			
+			new Thread(() -> {
+				Scanner scan = new Scanner(new InputStreamReader(p.getInputStream()));
+				while(scan.hasNextLine()) {
+					this.callback.exportStdout(scan.nextLine() + "\n");
+				}
+				scan.close();
+			}, "urmusic_export_ffmpeg_stdout_thread").start();
 			
 			Composition comp = UrmusicModel.getCurrentProject().getMainComposition();
 			int framecount = UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTotalFrameCount();
@@ -119,7 +129,7 @@ public class Exporter {
 		}
 	}
 
-	public ExportJob start(ExportSettings settings, ExportProgressCallback callback) {
+	public ExportJob start(ExportSettings settings, ExportJobCallback callback) {
 		ExportJob job = new ExportJob(settings, callback);
 		new Thread(job, "urmusic_exporter_thread").start();
 		

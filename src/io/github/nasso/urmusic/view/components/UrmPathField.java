@@ -46,7 +46,7 @@ public class UrmPathField extends JComponent {
 	private JTextField field;
 	private JButton browseBtn;
 	
-	public UrmPathField(boolean directory) {
+	public UrmPathField(boolean directory, final boolean openMode) {
 		this.setLayout(new BorderLayout(2, 2));
 		this.add(this.field = new JTextField(), BorderLayout.CENTER);
 		this.add(this.browseBtn = new JButton(new AbstractAction(UrmusicStrings.getString("global.browseFileButton")) {
@@ -60,7 +60,7 @@ public class UrmPathField extends JComponent {
 					if(this.fileChooser == null) this.fileChooser = new JFileChooser();
 					SwingUtilities.updateComponentTreeUI(this.fileChooser);
 					this.fileChooser.setFileSelectionMode(directory ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_ONLY);
-					int action = this.fileChooser.showOpenDialog(UrmPathField.this);
+					int action = openMode ? this.fileChooser.showOpenDialog(UrmPathField.this) : this.fileChooser.showSaveDialog(UrmPathField.this);
 					
 					if(action == JFileChooser.APPROVE_OPTION) {
 						File f = this.fileChooser.getSelectedFile();

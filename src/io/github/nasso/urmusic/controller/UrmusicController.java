@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.nasso.urmusic.common.ExportProgressCallback;
+import io.github.nasso.urmusic.common.ExportJobCallback;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
@@ -107,7 +107,7 @@ public class UrmusicController {
 		playbackThread.restartPlayback();
 	}
 	
-	public static ExportJob export(ExportSettings settings, ExportProgressCallback callback) {
+	public static ExportJob export(ExportSettings settings, ExportJobCallback callback) {
 		return UrmusicModel.getExporter().start(settings, callback);
 	}
 
