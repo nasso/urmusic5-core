@@ -332,7 +332,7 @@ public class SplittablePane extends JPanel {
 
 		JFrame popup = new JFrame();
 		popup.setVisible(true);
-		popup.setSize(800, 600); // TODO: Maybe custom size for popups?
+		popup.setSize(800, 600);
 		popup.setLocationRelativeTo(null);
 		popup.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		popup.setContentPane(newPane = new SplittablePane(owner, popup));
