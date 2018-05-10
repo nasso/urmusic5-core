@@ -442,10 +442,9 @@ public class UrmusicController {
 	
 	public static void splitTrack() {
 		Track t = UrmusicController.getFocusedTrack();
+		if(t == null) return;
 		
-		if(t != null) {
-			t.splitAt(UrmusicController.getTimePosition());
-		}
+		t.splitAt(UrmusicController.getTimePosition());
 
 		UrmusicController.notifyProjectChanged();
 		// We technically don't have to render after a simple split

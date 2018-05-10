@@ -20,6 +20,7 @@
 package io.github.nasso.urmusic.view;
 
 import java.awt.Component;
+import java.awt.Event;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -48,6 +49,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -281,11 +283,11 @@ public class UrmusicView {
 		
 		UrmusicView.menuSaveAsAction = new AbstractAction(UrmusicStrings.getString("menu.file.saveAs")) {
 			public void actionPerformed(ActionEvent e) {
+				
 				LookAndFeel laf = UIManager.getLookAndFeel();
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					SwingUtilities.updateComponentTreeUI(fileChooser);
-					
 					fileChooser.setFileFilter(projectFilter);
 					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 					int action = fileChooser.showSaveDialog(e.getSource() instanceof Component ? (Component) e.getSource() : null);
@@ -403,16 +405,16 @@ public class UrmusicView {
 		JMenuBar mb = new JMenuBar();
 		
 		JMenu fileMenu = new JMenu(UrmusicStrings.getString("menu.file"));
-		fileMenu.add(new JMenuItem(UrmusicView.menuNewAction));
-		fileMenu.add(new JMenuItem(UrmusicView.menuSaveAction));
-		fileMenu.add(new JMenuItem(UrmusicView.menuSaveAsAction));
-		fileMenu.add(new JMenuItem(UrmusicView.menuOpenAction));
+		fileMenu.add(new JMenuItem(UrmusicView.menuNewAction) {{ this.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK)); }});
+		fileMenu.add(new JMenuItem(UrmusicView.menuSaveAction) {{ this.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK)); }});
+		fileMenu.add(new JMenuItem(UrmusicView.menuSaveAsAction) {{ this.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK | Event.SHIFT_MASK)); }});
+		fileMenu.add(new JMenuItem(UrmusicView.menuOpenAction) {{ this.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK)); }});
 		fileMenu.addSeparator();
-		fileMenu.add(new JMenuItem(UrmusicView.menuLoadSongAction));
+		fileMenu.add(new JMenuItem(UrmusicView.menuLoadSongAction) {{ this.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK | Event.SHIFT_MASK)); }});
 		fileMenu.addSeparator();
-		fileMenu.add(new JMenuItem(UrmusicView.menuExportAction));
+		fileMenu.add(new JMenuItem(UrmusicView.menuExportAction) {{ this.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK)); }});
 		fileMenu.addSeparator();
-		fileMenu.add(new JMenuItem(UrmusicView.menuExitAction));
+		fileMenu.add(new JMenuItem(UrmusicView.menuExitAction) {{ this.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK)); }});
 		
 		JMenu helpMenu = new JMenu(UrmusicStrings.getString("menu.help"));
 		helpMenu.add(new JMenuItem(UrmusicView.menuAboutAction));
@@ -476,7 +478,7 @@ public class UrmusicView {
 	}
 	
 	public static boolean keyEvent(KeyEvent e) {
-		if(UrmusicView.keyEventBlocked) return false;
+		if(UrmusicView.keyEventBlocked || e.getModifiers() != 0) return false;
 		
 		boolean nofocus = true;
 		for(JFrame frame : UrmusicView.frames) {
