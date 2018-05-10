@@ -134,6 +134,30 @@ public class UrmusicView {
 		});
 		UrmusicView.audioLoadingDialog.pack();
 		
+		UrmusicController.addExitRequestValidator((action) -> {
+			if(UrmusicController.projectHasUnsavedChanges()) {
+				int choice = JOptionPane.showConfirmDialog(
+						frames.get(0),
+						UrmusicStrings.getString("dialog.main.askToSave"),
+						UrmusicStrings.getString("title"),
+						JOptionPane.YES_NO_CANCEL_OPTION);
+				
+				switch(choice) {
+					case JOptionPane.YES_OPTION: // Save
+						if(UrmusicController.getCurrentProjectPath() == null) {
+							UrmusicView.menuSaveAsAction.actionPerformed(new ActionEvent(frames.get(0), ActionEvent.ACTION_PERFORMED, "save"));
+						} else {
+							UrmusicController.saveCurrentProject();
+						}
+						break;
+					case JOptionPane.CANCEL_OPTION: // Cancel
+						action.cancel();
+						break;
+					// NO_OPTION = Don't Save
+				}
+			}
+		});
+		
 		UrmusicModel.addExitHook(() -> {
 			UrmusicView.saveViewState();
 			UrmusicView.dispose();
@@ -228,7 +252,7 @@ public class UrmusicView {
 				}
 				
 				// If this is the last window left, exit
-				if(UrmusicView.frames.size() == 1) UrmusicController.requestExit();
+				if(UrmusicView.frames.size() == 1 && !UrmusicController.requestExit()) return;
 				else UrmusicView.frames.remove(frame);
 				
 				// Close the window

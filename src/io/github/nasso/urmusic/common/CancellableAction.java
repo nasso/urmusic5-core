@@ -19,6 +19,14 @@
  ******************************************************************************/
 package io.github.nasso.urmusic.common;
 
-public interface ScriptRuntimeErrorListener {
-	public void onError(String message, int line);
+public class CancellableAction {
+	private boolean cancelled = false;
+	
+	public void cancel() {
+		this.cancelled = true;
+	}
+	
+	public boolean isCancelled() {
+		return this.cancelled;
+	}
 }

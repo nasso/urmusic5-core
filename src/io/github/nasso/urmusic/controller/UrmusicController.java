@@ -29,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.nasso.urmusic.common.ActionValidator;
+import io.github.nasso.urmusic.common.CancellableAction;
 import io.github.nasso.urmusic.common.event.ExportJobCallback;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
@@ -133,7 +135,15 @@ public class UrmusicController {
 		job.cancel();
 	}
 	
-	public static void requestExit() {
+	private static List<ActionValidator> exitRequestValidators = new ArrayList<>();
+	public static boolean requestExit() {
+		CancellableAction action = new CancellableAction();
+		
+		for(ActionValidator v : exitRequestValidators) {
+			v.onAction(action);
+			if(action.isCancelled()) return false;
+		}
+		
 		try {
 			playbackThread.waitForExit();
 		} catch(InterruptedException e) {
@@ -141,6 +151,15 @@ public class UrmusicController {
 		}
 		
 		UrmusicModel.exit();
+		return true; // Should approximately never happen
+	}
+	
+	public static void addExitRequestValidator(ActionValidator v) {
+		exitRequestValidators.add(v);
+	}
+	
+	public static void removeExitRequestValidator(ActionValidator v) {
+		exitRequestValidators.remove(v);
 	}
 	
 	// -- Playback & Frame Control --
@@ -332,7 +351,6 @@ public class UrmusicController {
 	public static <T> void setParamValueNow(EffectParam<T> param, T value) {
 		param.setValue(value, UrmusicController.getTimePosition());
 		
-		System.out.println("UrmusicController.setParamValueNow(" + param.getID() + ", " + value + ")");
 		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}

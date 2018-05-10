@@ -22,6 +22,7 @@
 		
 		"dialog.global.ok": "OK",
 		"dialog.global.cancel": "Cancel",
+		"dialog.main.askToSave": "The current project has unsaved changes, save them?",
 		"dialog.loadingSong.title": "Loading music file...",
 		"dialog.about.title": "About",
 		"dialog.export.tab.settings": "Settings",

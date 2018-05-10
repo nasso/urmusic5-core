@@ -36,9 +36,9 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextAreaEditorKit;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import io.github.nasso.urmusic.common.ScriptRuntimeErrorListener;
 import io.github.nasso.urmusic.common.event.EffectInstanceListener;
 import io.github.nasso.urmusic.common.event.FocusListener;
+import io.github.nasso.urmusic.common.event.ScriptRuntimeErrorListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.param.EffectParam;

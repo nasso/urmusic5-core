@@ -26,7 +26,7 @@ import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-import io.github.nasso.urmusic.common.ScriptRuntimeErrorListener;
+import io.github.nasso.urmusic.common.event.ScriptRuntimeErrorListener;
 import jdk.nashorn.api.scripting.NashornException;
 
 public class Script {
