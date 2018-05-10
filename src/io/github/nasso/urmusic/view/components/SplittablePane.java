@@ -330,7 +330,7 @@ public class SplittablePane extends JPanel {
 	public static SplittablePane popupNew(SplittablePane owner) {
 		SplittablePane newPane; 
 
-		JFrame popup = new JFrame(UrmusicStrings.getString("title"));
+		JFrame popup = new JFrame();
 		popup.setVisible(true);
 		popup.setSize(800, 600); // TODO: Maybe custom size for popups?
 		popup.setLocationRelativeTo(null);

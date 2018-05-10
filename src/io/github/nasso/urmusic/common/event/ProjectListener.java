@@ -17,24 +17,10 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.github.nasso.urmusic.model.project;
+package io.github.nasso.urmusic.common.event;
 
-public class Project {
-	private Composition mainComp = null;
-	
-	public Project() {
-		this(new Composition());
-	}
-	
-	public Project(Composition mainComp) {
-		this.setMainComposition(mainComp);
-	}
-	
-	public Composition getMainComposition() {
-		return this.mainComp;
-	}
-	
-	public void setMainComposition(Composition mainComp) {
-		this.mainComp = mainComp;
-	}
+public interface ProjectListener {
+	public void changed();
+	public void saved();
+	public void loaded();
 }

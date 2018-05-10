@@ -3,6 +3,7 @@
 
 	"map": {
 		"title": "urmusic",
+		"title.untitled": "untitled",
 
 		"global.browseFileButton": "...",
 		

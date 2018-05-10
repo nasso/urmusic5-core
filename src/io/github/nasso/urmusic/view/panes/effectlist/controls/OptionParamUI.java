@@ -54,7 +54,7 @@ public class OptionParamUI extends EffectParamUI<OptionParam> {
 							".option." + p.getOptionName(i)));
 		
 		this.combo.addItemListener((e) -> {
-			if(e.getStateChange() == ItemEvent.SELECTED)
+			if(e.getStateChange() == ItemEvent.SELECTED && this.combo.getSelectedIndex() != UrmusicController.getParamValueNow(this.getParam()))
 				UrmusicController.setParamValueNow(this.getParam(), this.combo.getSelectedIndex());
 		});
 		

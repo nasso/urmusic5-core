@@ -33,6 +33,7 @@ import io.github.nasso.urmusic.common.event.ExportJobCallback;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
+import io.github.nasso.urmusic.common.event.ProjectListener;
 import io.github.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.exporter.ExportSettings;
@@ -60,6 +61,9 @@ public class UrmusicController {
 	
 	private static int frameCursor = 0;
 	
+	private static Path currentProjectPath = null;
+	private static boolean projectHasUnsavedChanges = false;
+	
 	public static void init() {
 		UrmusicModel.addProjectLoadingListener(new ProjectLoadingListener() {
 			public void projectUnloaded(Project p) {
@@ -81,6 +85,20 @@ public class UrmusicController {
 		
 		UrmusicController.addFrameCursorListener((oldPosition, newPosition)  -> {
 			UrmusicModel.getVideoRenderer().queueFrameASAP(UrmusicController.getFocusedComposition(), newPosition);
+		});
+		
+		UrmusicController.addProjectListener(new ProjectListener() {
+			public void saved() {
+				UrmusicController.projectHasUnsavedChanges = false;
+			}
+			
+			public void loaded() {
+				UrmusicController.projectHasUnsavedChanges = false;
+			}
+			
+			public void changed() {
+				UrmusicController.projectHasUnsavedChanges = true;
+			}
 		});
 		
 		UrmusicController.addTrackEffectInstanceFocusListener(new FocusListener<TrackEffect.TrackEffectInstance>() {
@@ -229,6 +247,7 @@ public class UrmusicController {
 	}
 	
 	// -- Project --
+	private static List<ProjectListener> projectListeners = new ArrayList<>();
 	public static void setCurrentSong(Path filePath, Runnable callback) {
 		UrmusicModel.getAudioRenderer().setAudioBufferSource(filePath, () -> {
 			markVideoDirty();
@@ -241,11 +260,12 @@ public class UrmusicController {
 	}
 	
 	public static Path getCurrentProjectPath() {
-		return UrmusicModel.getCurrentProject().getProjectFilePath();
+		return UrmusicController.currentProjectPath;
 	}
 	
 	public static void newProject() {
 		UrmusicModel.setProject(new Project());
+		notifyProjectLoaded();
 	}
 
 	public static void saveCurrentProject() {
@@ -256,8 +276,9 @@ public class UrmusicController {
 		if(where == null) return;
 		
 		try(OutputStream out = new BufferedOutputStream(Files.newOutputStream(where))) {
-			UrmusicModel.getCurrentProject().setProjectFilePath(where.toAbsolutePath());
 			ProjectCodec.save(UrmusicModel.getCurrentProject(), out);
+			UrmusicController.currentProjectPath = where.toAbsolutePath();
+			notifyProjectSaved();
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
@@ -266,8 +287,40 @@ public class UrmusicController {
 	public static void openProject(Path where) {
 		try(BufferedInputStream in = new BufferedInputStream(Files.newInputStream(where))) {
 			UrmusicModel.setProject(ProjectCodec.load(in));
+			UrmusicController.currentProjectPath = where.toAbsolutePath();
+			notifyProjectLoaded();
 		} catch(IOException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	public static boolean projectHasUnsavedChanges() {
+		return projectHasUnsavedChanges;
+	}
+	
+	public static void addProjectListener(ProjectListener l) {
+		if(!projectListeners.contains(l)) projectListeners.add(l);
+	}
+	
+	public static void removeProjectListener(ProjectListener l) {
+		projectListeners.remove(l);
+	}
+	
+	private static void notifyProjectChanged() {
+		for(ProjectListener l : projectListeners) {
+			l.changed();
+		}
+	}
+	
+	private static void notifyProjectSaved() {
+		for(ProjectListener l : projectListeners) {
+			l.saved();
+		}
+	}
+	
+	private static void notifyProjectLoaded() {
+		for(ProjectListener l : projectListeners) {
+			l.loaded();
 		}
 	}
 	
@@ -279,6 +332,8 @@ public class UrmusicController {
 	public static <T> void setParamValueNow(EffectParam<T> param, T value) {
 		param.setValue(value, UrmusicController.getTimePosition());
 		
+		System.out.println("UrmusicController.setParamValueNow(" + param.getID() + ", " + value + ")");
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 
@@ -288,7 +343,8 @@ public class UrmusicController {
 			param.removeKeyFrame(kf);
 		else
 			param.addKeyFrame(UrmusicController.getTimePosition());
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
@@ -299,7 +355,8 @@ public class UrmusicController {
 		if(t == null) return;
 		
 		t.addEffect(e.instance());
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
@@ -311,12 +368,15 @@ public class UrmusicController {
 		
 		for(TrackEffect e : elist)
 			t.addEffect(e.instance());
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
 	public static void moveEffect(Track track, TrackEffectInstance fx, int index) {
 		track.moveEffect(fx, index);
+		
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
@@ -332,6 +392,8 @@ public class UrmusicController {
 		if(fx.isEnabled() == enabled) return;
 		
 		fx.setEnabled(enabled);
+		
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
@@ -340,20 +402,23 @@ public class UrmusicController {
 		if(comp == null) return;
 		
 		comp.getTimeline().addTrack(new Track(comp.getTimeline().getDuration()));
-		
+
+		UrmusicController.notifyProjectChanged();
 		// We technically don't have to render after adding an empty track
 		// UrmusicController.forceImmediateRender();
 	}
 	
 	public static void setTrackEnabled(Track t, boolean isEnabled) {
 		t.setEnabled(isEnabled);
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
 	public static void renameTrack(Track t, String newName) {
 		t.setName(newName);
-		
+
+		UrmusicController.notifyProjectChanged();
 		// No need to render
 	}
 	
@@ -363,26 +428,30 @@ public class UrmusicController {
 		if(t != null) {
 			t.splitAt(UrmusicController.getTimePosition());
 		}
-		
+
+		UrmusicController.notifyProjectChanged();
 		// We technically don't have to render after a simple split
 		// UrmusicController.forceImmediateRender();
 	}
 	
 	public static void moveTrackActivityRange(TrackActivityRange range, float position) {
 		range.moveTo(position);
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
 	public static void setTrackActivityRangeStart(TrackActivityRange range, float start) {
 		range.setStart(start);
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
 	public static void setTrackActivityRangeEnd(TrackActivityRange range, float end) {
 		range.setEnd(end);
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
@@ -403,7 +472,8 @@ public class UrmusicController {
 			UrmusicController.focusTrackEffectInstance(null);
 		
 		UrmusicModel.deleteTrack(comp, i);
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
@@ -419,7 +489,8 @@ public class UrmusicController {
 		
 		t.removeEffect(fx);
 		fx.dispose();
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
@@ -427,7 +498,8 @@ public class UrmusicController {
 		TrackActivityRange r = UrmusicController.getFocusedTrackActivityRange();
 		UrmusicController.focusTrackActivityRange(null);
 		UrmusicModel.deleteTrackActivityRange(r);
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
@@ -439,7 +511,8 @@ public class UrmusicController {
 		if(script == null || newSource == null) return;
 		
 		script.setSource(newSource);
-		
+
+		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	

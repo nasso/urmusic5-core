@@ -17,24 +17,39 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.github.nasso.urmusic.model.project;
+package io.github.nasso.urmusic.common;
 
-public class Project {
-	private Composition mainComp = null;
+import java.util.ArrayList;
+import java.util.List;
+
+import io.github.nasso.urmusic.common.event.ValueChangeListener;
+
+public class ObservableValue<T> {
+	private List<ValueChangeListener<T>> listeners = new ArrayList<>();
+	private T value;
 	
-	public Project() {
-		this(new Composition());
+	public final ObservableValue<T> set(T value) {
+		T old = this.value;
+		this.value = value;
+		this.notifyChange(old, this.value);
+		return this;
 	}
 	
-	public Project(Composition mainComp) {
-		this.setMainComposition(mainComp);
+	public T get() {
+		return this.value;
 	}
 	
-	public Composition getMainComposition() {
-		return this.mainComp;
+	public void addListener(ValueChangeListener<T> l) {
+		if(this.listeners.contains(l)) return;
+		this.listeners.add(l);
 	}
 	
-	public void setMainComposition(Composition mainComp) {
-		this.mainComp = mainComp;
+	public void removeListener(ValueChangeListener<T> l) {
+		this.listeners.remove(l);
+	}
+	
+	protected void notifyChange(T oldValue, T newValue) {
+		for(ValueChangeListener<T> l : this.listeners)
+			l.valueChanged(oldValue, newValue);
 	}
 }

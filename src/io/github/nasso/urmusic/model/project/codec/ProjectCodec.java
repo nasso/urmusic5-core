@@ -32,7 +32,7 @@ public class ProjectCodec {
 	public static final String FILE_EXT = "urmx";
 	
 	public static enum Version {
-		// BEWARE THAT THE ORDER AND INDEX OF DECLARATION FOR EACH VALUE IS FIXED AND SHOULDN'T BE CHANGED
+		// Order IS important!
 		V1_0_0
 	}
 	

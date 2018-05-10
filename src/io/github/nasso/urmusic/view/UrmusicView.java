@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -55,6 +56,9 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import io.github.nasso.urmusic.common.DataUtils;
+import io.github.nasso.urmusic.common.ObservableValue;
+import io.github.nasso.urmusic.common.event.ProjectListener;
+import io.github.nasso.urmusic.common.event.ValueChangeListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.codec.ProjectCodec;
@@ -77,6 +81,8 @@ public class UrmusicView {
 	private static JDialog audioLoadingDialog = null;
 	
 	private static UrmusicViewState viewState = null;
+	
+	private static ObservableValue<String> frameTitle;
 	
 	private static Action
 		// File
@@ -103,6 +109,16 @@ public class UrmusicView {
 		
 		UrmusicView.loadViewState();
 		
+		UrmusicView.frameTitle = new ObservableValue<>();
+		UrmusicView.updateFrameTitle();
+		
+		frameTitle.addListener(new ValueChangeListener<String>() {
+			public void valueChanged(String oldValue, String newValue) {
+				for(JFrame frame : frames)
+					frame.setTitle(newValue);
+			}
+		});
+		
 		UrmusicView.audioLoadingDialog = new JDialog();
 		UrmusicView.audioLoadingDialog.setTitle(UrmusicStrings.getString("dialog.loadingSong.title"));
 		UrmusicView.audioLoadingDialog.setLocationRelativeTo(null);
@@ -123,6 +139,20 @@ public class UrmusicView {
 			UrmusicView.dispose();
 		});
 		
+		UrmusicController.addProjectListener(new ProjectListener() {
+			public void changed() {
+				updateFrameTitle();
+			}
+			
+			public void saved() {
+				updateFrameTitle();
+			}
+			
+			public void loaded() {
+				updateFrameTitle();
+			}
+		});
+		
 		SwingUtilities.invokeLater(() -> {
 			KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(UrmusicView::keyEvent);
 			
@@ -138,6 +168,23 @@ public class UrmusicView {
 		});
 	}
 	
+	private static StringBuilder titleBuilder = null;
+	private static int titleBaseLength = 0;
+	private static void updateFrameTitle() {
+		if(titleBuilder == null) {
+			titleBuilder = new StringBuilder(UrmusicStrings.getString("title")).append(" - ");
+			titleBaseLength = titleBuilder.length();
+		}
+		
+		Path projectPath = UrmusicController.getCurrentProjectPath();
+		
+		titleBuilder.replace(titleBaseLength, titleBuilder.length(), projectPath == null ? UrmusicStrings.getString("title.untitled") : projectPath.getFileName().toString());
+		
+		if(UrmusicController.projectHasUnsavedChanges()) titleBuilder.append("*");
+		
+		frameTitle.set(titleBuilder.toString());
+	}
+	
 	public static void dispose() {
 		for(JFrame frame : UrmusicView.frames) {
 			frame.dispose();
@@ -151,6 +198,7 @@ public class UrmusicView {
 	}
 	
 	public static void registerFrame(JFrame frame) {
+		frame.setTitle(frameTitle.get());
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
 				if(UrmusicView.frames.size() > 1) {
