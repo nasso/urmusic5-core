@@ -122,19 +122,21 @@ public class TimelineTrackRangesBar extends JPanel implements
 				float len = r.getLength() * framerate;
 				
 				g2d.setColor(UrmusicController.getFocusedTrackActivityRange() == r ? TimelineTrackRangesBar.RANGE_FOCUS_COLOR : TimelineTrackRangesBar.RANGE_COLOR);
-				g2d.fillRect(
-					(int) (start * s) + 1,
+				g2d.fillRoundRect(
+					(int) (start * s),
 					1,
-					(int) (len * s) - 3,
-					this.getHeight() - 3
+					(int) (len * s),
+					this.getHeight() - 3,
+					8, 8
 				);
 				
 				g2d.setColor(TimelineTrackRangesBar.RANGE_BORDER_COLOR);
-				g2d.drawRect(
-					(int) (start * s) + 1,
+				g2d.drawRoundRect(
+					(int) (start * s),
 					1,
-					(int) (len * s) - 3,
-					this.getHeight() - 3
+					(int) (len * s),
+					this.getHeight() - 3,
+					8, 8
 				);
 			}
 		}
