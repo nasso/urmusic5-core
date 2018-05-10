@@ -17,7 +17,7 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.github.nasso.urmusic.common;
+package io.github.nasso.urmusic.common.event;
 
 public interface ExportJobCallback {
 	public void exportBegin();

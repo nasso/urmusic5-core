@@ -56,6 +56,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import io.github.nasso.urmusic.common.DataUtils;
 import io.github.nasso.urmusic.controller.UrmusicController;
+import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.project.codec.ProjectCodec;
 import io.github.nasso.urmusic.view.components.SplittablePane;
 import io.github.nasso.urmusic.view.data.UrmusicSplittedPaneState;
@@ -116,6 +117,11 @@ public class UrmusicView {
 			}
 		});
 		UrmusicView.audioLoadingDialog.pack();
+		
+		UrmusicModel.addExitHook(() -> {
+			UrmusicView.saveViewState();
+			UrmusicView.dispose();
+		});
 		
 		SwingUtilities.invokeLater(() -> {
 			KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(UrmusicView::keyEvent);

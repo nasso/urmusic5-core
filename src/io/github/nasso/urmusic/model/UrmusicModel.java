@@ -47,7 +47,6 @@ import io.github.nasso.urmusic.model.project.VideoEffectInstance;
 import io.github.nasso.urmusic.model.renderer.audio.AudioRenderer;
 import io.github.nasso.urmusic.model.renderer.video.VideoRenderer;
 import io.github.nasso.urmusic.model.scripting.ScriptManager;
-import io.github.nasso.urmusic.view.UrmusicView;
 
 /**
  * Where stuff happens, rendering, exporting, importing...<br />
@@ -114,13 +113,11 @@ public class UrmusicModel {
 	}
 	
 	public static void exit() {
-		UrmusicView.saveViewState();
+		notifyExitHooks();
 		
 		UrmusicModel.setProject(null);
 		UrmusicModel.videoRenderer.dispose();
 		UrmusicModel.audioRenderer.dispose();
-		
-		UrmusicView.dispose();
 		
 		System.exit(0);
 	}
@@ -240,6 +237,21 @@ public class UrmusicModel {
 	private static void notifyProjectUnloaded(Project p) {
 		for(ProjectLoadingListener l : UrmusicModel.projectLoadingListeners) {
 			l.projectUnloaded(p);
+		}
+	}
+	
+	private static List<Runnable> exitHooks = new ArrayList<>();
+	public static void addExitHook(Runnable l) {
+		UrmusicModel.exitHooks.add(l);
+	}
+	
+	public static void removeExitHook(Runnable l) {
+		UrmusicModel.exitHooks.remove(l);
+	}
+
+	private static void notifyExitHooks() {
+		for(Runnable l : UrmusicModel.exitHooks) {
+			l.run();
 		}
 	}
 }

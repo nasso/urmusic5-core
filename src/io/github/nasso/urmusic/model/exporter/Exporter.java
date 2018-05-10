@@ -25,7 +25,7 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Scanner;
 
-import io.github.nasso.urmusic.common.ExportJobCallback;
+import io.github.nasso.urmusic.common.event.ExportJobCallback;
 import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.ffmpeg.FFmpeg;
 import io.github.nasso.urmusic.model.project.Composition;

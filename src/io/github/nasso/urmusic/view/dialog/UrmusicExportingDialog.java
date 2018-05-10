@@ -55,7 +55,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.text.DefaultCaret;
 
-import io.github.nasso.urmusic.common.ExportJobCallback;
+import io.github.nasso.urmusic.common.event.ExportJobCallback;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.exporter.ExportSettings;
 import io.github.nasso.urmusic.model.exporter.Exporter.ExportJob;

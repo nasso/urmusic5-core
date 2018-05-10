@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import io.github.nasso.urmusic.common.ExportJobCallback;
+import io.github.nasso.urmusic.common.event.ExportJobCallback;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
 import io.github.nasso.urmusic.common.event.MultiFocusListener;
