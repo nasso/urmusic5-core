@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import io.github.nasso.urmusic.common.DataUtils;
@@ -86,6 +87,11 @@ public class Urmusic {
 		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(0f, 50f, EasingFunction.LINEAR);
 		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(2f, 100f, EasingFunction.EASE_IN_ELASTIC);
 		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(4f, 200f, EasingFunction.EASE_IN_OUT_ELASTIC);
+		
+		// save there just so we don't get annoyed
+		if(System.getProperty("os.name").equals("Linux")) {
+			UrmusicController.saveCurrentProject(Paths.get("/dev/null"));
+		}
 		
 //		UrmusicController.saveCurrentProject(Paths.get("./test." + ProjectCodec.FILE_EXT));
 		

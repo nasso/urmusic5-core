@@ -144,11 +144,7 @@ public class UrmusicView {
 				
 				switch(choice) {
 					case JOptionPane.YES_OPTION: // Save
-						if(UrmusicController.getCurrentProjectPath() == null) {
-							UrmusicView.menuSaveAsAction.actionPerformed(new ActionEvent(frames.get(0), ActionEvent.ACTION_PERFORMED, "save"));
-						} else {
-							UrmusicController.saveCurrentProject();
-						}
+						UrmusicView.menuSaveAction.actionPerformed(new ActionEvent(frames.get(0), ActionEvent.ACTION_PERFORMED, "save"));
 						break;
 					case JOptionPane.CANCEL_OPTION: // Cancel
 						action.cancel();
@@ -311,6 +307,23 @@ public class UrmusicView {
 		
 		UrmusicView.menuOpenAction = new AbstractAction(UrmusicStrings.getString("menu.file.open")) {
 			public void actionPerformed(ActionEvent e) {
+				if(UrmusicController.projectHasUnsavedChanges()) {
+					int choice = JOptionPane.showConfirmDialog(
+							frames.get(0),
+							UrmusicStrings.getString("dialog.main.askToSave"),
+							UrmusicStrings.getString("title"),
+							JOptionPane.YES_NO_CANCEL_OPTION);
+					
+					switch(choice) {
+						case JOptionPane.YES_OPTION: // Save
+							UrmusicView.menuSaveAction.actionPerformed(e);
+							break;
+						case JOptionPane.CANCEL_OPTION: // Cancel
+							return;
+						// NO_OPTION = Don't Save
+					}
+				}
+				
 				LookAndFeel laf = UIManager.getLookAndFeel();
 				try {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
