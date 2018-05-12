@@ -478,9 +478,7 @@ public class UrmusicController {
 		if(comp == null) return;
 		if(t == null) return;
 		
-		int i = comp.getTimeline().getTracks().indexOf(t);
-		
-		if(i < 0) return;
+		if(!comp.getTimeline().getTracks().contains(t)) return;
 		
 		if(UrmusicController.focusedTrack == t)
 			UrmusicController.focusTrack(null);
@@ -488,7 +486,8 @@ public class UrmusicController {
 		if(t.getEffects().contains(UrmusicController.focusedEffect))
 			UrmusicController.focusTrackEffectInstance(null);
 		
-		UrmusicModel.deleteTrack(comp, i);
+		comp.getTimeline().removeTrack(t);
+		UrmusicModel.disposeTrack(t);
 
 		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
@@ -519,7 +518,7 @@ public class UrmusicController {
 	public static void deleteTrackActivityRange(TrackActivityRange r) {
 		if(r == null) return;
 		if(r == UrmusicController.getFocusedTrackActivityRange()) UrmusicController.focusTrackActivityRange(null);
-		UrmusicModel.deleteTrackActivityRange(r);
+		r.getTrack().removeActiveRange(r);
 		
 		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();

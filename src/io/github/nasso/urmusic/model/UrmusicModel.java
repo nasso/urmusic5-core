@@ -39,7 +39,6 @@ import io.github.nasso.urmusic.model.exporter.Exporter;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
 import io.github.nasso.urmusic.model.project.Track;
-import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.model.project.VideoEffect;
@@ -200,22 +199,6 @@ public class UrmusicModel {
 		if(fx instanceof VideoEffectInstance) {
 			UrmusicModel.videoRenderer.disposeEffectInstance(fx);
 		}
-	}
-	
-	// -- Edit --
-	public static void deleteTrackActivityRange(TrackActivityRange range) {
-		if(range == null) return;
-		
-		range.getTrack().removeActiveRange(range);
-	}
-	
-	public static void deleteTrack(Composition comp, int trackIndex) {
-		if(comp == null || trackIndex < 0 || trackIndex >= comp.getTimeline().getTracks().size()) return;
-		
-		Track t = comp.getTimeline().getTracks().get(trackIndex);
-		
-		comp.getTimeline().removeTrack(trackIndex);
-		UrmusicModel.disposeTrack(t);
 	}
 	
 	// -- Listeners --
