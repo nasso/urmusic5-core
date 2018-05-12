@@ -191,10 +191,16 @@ public class TimelineTrackRangesBar extends JPanel implements
 			if(this.pressedOnRange != null) {
 				switch(this.rangeDragAction) {
 					case MOVE:
-						UrmusicController.moveTrackActivityRange(this.pressedOnRange, this.pressedOnRange.getStart() + this.pixelToTimePos(e.getX()) - this.pixelToTimePos(this.pressedAtX));
+						UrmusicController.moveTrackActivityRange(
+							this.pressedOnRange,
+							this.pressedOnRange.getStart() + this.pixelToTimePos(e.getX()) - this.pixelToTimePos(this.pressedAtX)
+						);
 						break;
 					case RESIZE_END:
-						UrmusicController.setTrackActivityRangeEnd(this.pressedOnRange, this.pixelToTimePos(e.getX() - (int) (this.view.getHorizontalScale() / 2)));
+						UrmusicController.setTrackActivityRangeEnd(
+							this.pressedOnRange,
+							this.pixelToTimePos(e.getX())
+						);
 						break;
 				}
 				

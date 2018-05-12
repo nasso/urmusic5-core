@@ -48,8 +48,8 @@ public class Track {
 		}
 
 		public void setStart(float start) {
-			start = Math.min(start, this.end - 1);
-			start = Math.max(start, this.startFrameMin());
+			start = Math.min(start, this.end);
+			start = Math.max(start, this.startTimeMin());
 			
 			if(this.start == start) return;
 			this.start = start;
@@ -61,8 +61,8 @@ public class Track {
 		}
 
 		public void setEnd(float end) {
-			end = Math.max(end, this.start + 1);
-			end = Math.min(end, this.endFrameMax());
+			end = Math.max(end, this.start);
+			end = Math.min(end, this.endTimeMax());
 			
 			if(this.end == end) return;
 			this.end = end;
@@ -75,7 +75,7 @@ public class Track {
 		
 		public void moveTo(float newStart) {
 			float len = this.getLength();
-			newStart = MathUtils.clamp(newStart, this.startFrameMin(), this.endFrameMax() - len);
+			newStart = MathUtils.clamp(newStart, this.startTimeMin(), this.endTimeMax() - len);
 			
 			if(this.start == newStart) return;
 			
@@ -85,20 +85,20 @@ public class Track {
 			this.track.notifyTrackRangesChangedEvent();
 		}
 		
-		private float startFrameMin() {
-			int thisIndex = this.track.activityRangesLengths.indexOf(this);
+		private float startTimeMin() {
+			int thisIndex = this.track.activityRanges.indexOf(this);
 			
 			if(thisIndex <= 0) return 0;
 			
-			return this.track.activityRangesLengths.get(thisIndex - 1).end;
+			return this.track.activityRanges.get(thisIndex - 1).end;
 		}
 		
-		private float endFrameMax() {
-			int thisIndex = this.track.activityRangesLengths.indexOf(this);
+		private float endTimeMax() {
+			int thisIndex = this.track.activityRanges.indexOf(this);
 			
-			if(thisIndex == this.track.activityRangesLengths.size() - 1) return Float.MAX_VALUE;
+			if(thisIndex == this.track.activityRanges.size() - 1) return Float.MAX_VALUE;
 			
-			return this.track.activityRangesLengths.get(thisIndex + 1).start;
+			return this.track.activityRanges.get(thisIndex + 1).start;
 		}
 	}
 	
@@ -111,8 +111,8 @@ public class Track {
 	/**
 	 * @see Track#getActivityRanges()
 	 */
-	private List<TrackActivityRange> activityRangesLengths = new ArrayList<>();
-	private List<TrackActivityRange> unmodifiableRanges = Collections.unmodifiableList(this.activityRangesLengths);
+	private List<TrackActivityRange> activityRanges = new ArrayList<>();
+	private List<TrackActivityRange> unmodifiableRanges = Collections.unmodifiableList(this.activityRanges);
 	
 	private List<TrackListener> listeners = new ArrayList<>();
 	
@@ -121,7 +121,6 @@ public class Track {
 	}
 	
 	public Track() {
-		
 	}
 	
 	public String getName() {
@@ -223,7 +222,7 @@ public class Track {
 	public TrackActivityRange addActiveRange(float start, float len) {
 		TrackActivityRange r = new TrackActivityRange(this, start, start + len);
 		
-		this.activityRangesLengths.add(r);
+		this.activityRanges.add(r);
 		
 		this.notifyTrackRangesChangedEvent();
 		
@@ -231,22 +230,22 @@ public class Track {
 	}
 	
 	public void removeActiveRange(TrackActivityRange r) {
-		this.activityRangesLengths.remove(r);
+		this.activityRanges.remove(r);
 		
 		this.notifyTrackRangesChangedEvent();
 	}
 	
 	/**
 	 * If the given frame is on an active range, split this range at this point.<br>
-	 * If it isn't, nothing happens.
+	 * If it isn't, or is on the bounds of a range, nothing happens.
 	 * @param time
 	 */
 	public void splitAt(float time) {
 		int i = 0; 
 		TrackActivityRange r = null;
 		
-		for(i = 0; i < this.activityRangesLengths.size(); i++) {
-			if((r = this.activityRangesLengths.get(i)).contains(time)) break;
+		for(i = 0; i < this.activityRanges.size(); i++) {
+			if((r = this.activityRanges.get(i)).containsExclusive(time)) break;
 			
 			r = null;
 		}
@@ -255,7 +254,7 @@ public class Track {
 		TrackActivityRange r2 = new TrackActivityRange(this, time, r.getEnd());
 		r.setEnd(time);
 		
-		this.activityRangesLengths.add(i + 1, r2);
+		this.activityRanges.add(i + 1, r2);
 		
 		this.notifyTrackRangesChangedEvent();
 	}
@@ -268,7 +267,7 @@ public class Track {
 	}
 	
 	public TrackActivityRange getRangeAt(float time) {
-		for(TrackActivityRange r : this.activityRangesLengths) {
+		for(TrackActivityRange r : this.activityRanges) {
 			if(r.contains(time)) return r;
 		}
 		

@@ -30,4 +30,8 @@ public interface FloatRange {
 	public default boolean contains(float x) {
 		return x >= this.getStart() && x <= this.getEnd();
 	}
+
+	public default boolean containsExclusive(float x) {
+		return x > this.getStart() && x < this.getEnd();
+	}
 }

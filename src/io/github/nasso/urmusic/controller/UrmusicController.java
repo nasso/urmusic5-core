@@ -445,7 +445,7 @@ public class UrmusicController {
 		if(t == null) return;
 		
 		t.splitAt(UrmusicController.getTimePosition());
-
+		
 		UrmusicController.notifyProjectChanged();
 		// We technically don't have to render after a simple split
 		// UrmusicController.forceImmediateRender();
@@ -513,9 +513,14 @@ public class UrmusicController {
 	
 	public static void deleteFocusedTrackActivityRange() {
 		TrackActivityRange r = UrmusicController.getFocusedTrackActivityRange();
-		UrmusicController.focusTrackActivityRange(null);
+		deleteTrackActivityRange(r);
+	}
+	
+	public static void deleteTrackActivityRange(TrackActivityRange r) {
+		if(r == null) return;
+		if(r == UrmusicController.getFocusedTrackActivityRange()) UrmusicController.focusTrackActivityRange(null);
 		UrmusicModel.deleteTrackActivityRange(r);
-
+		
 		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
