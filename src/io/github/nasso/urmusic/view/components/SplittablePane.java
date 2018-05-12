@@ -28,6 +28,7 @@ import java.awt.Point;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -278,8 +279,16 @@ public class SplittablePane extends JPanel {
 			
 			if(entry.viewInstance == null) {
 				try {
-					entry.viewInstance = entry.cls.newInstance();
+					entry.viewInstance = entry.cls.getDeclaredConstructor().newInstance();
 				} catch(InstantiationException | IllegalAccessException e) {
+					e.printStackTrace();
+				} catch(IllegalArgumentException e) {
+					e.printStackTrace();
+				} catch(InvocationTargetException e) {
+					e.printStackTrace();
+				} catch(NoSuchMethodException e) {
+					e.printStackTrace();
+				} catch(SecurityException e) {
 					e.printStackTrace();
 				}
 			}
