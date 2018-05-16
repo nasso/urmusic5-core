@@ -27,8 +27,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Dictionary;
@@ -223,6 +223,7 @@ public class UrmusicExportingDialog extends JDialog implements ExportJobCallback
 		// Bitrate
 		this.videoBitrateCardsPane.add(new JPanel() {
 			{
+				// Using Box Layout to center vertically
 				BoxLayout bl = new BoxLayout(this, BoxLayout.X_AXIS);
 				this.setLayout(bl);
 				
@@ -340,18 +341,9 @@ public class UrmusicExportingDialog extends JDialog implements ExportJobCallback
 		this.setSize(800, 360);
 		this.setLocationRelativeTo(null);
 		
-		this.addWindowListener(new WindowListener() {
+		this.addWindowListener(new WindowAdapter() {
 			public void windowOpened(WindowEvent e) {
 				UrmusicView.blockKeyEvent();
-			}
-			
-			public void windowIconified(WindowEvent e) {
-			}
-			
-			public void windowDeiconified(WindowEvent e) {
-			}
-			
-			public void windowDeactivated(WindowEvent e) {
 			}
 			
 			public void windowClosing(WindowEvent e) {
@@ -362,12 +354,6 @@ public class UrmusicExportingDialog extends JDialog implements ExportJobCallback
 				
 				UrmusicView.freeKeyEvent();
 				UrmusicExportingDialog.this.setVisible(false);
-			}
-			
-			public void windowClosed(WindowEvent e) {
-			}
-			
-			public void windowActivated(WindowEvent e) {
 			}
 		});
 	}
