@@ -78,9 +78,10 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		this.add(this.infoPane, BorderLayout.WEST);
 		this.add(this.timelineLayer = new JLayer<>(this.timelinePane, this.caretPane), BorderLayout.CENTER);
 		
-		List<Track> tracks = UrmusicController.getFocusedComposition().getTimeline().getTracks();
+		Timeline tl = UrmusicController.getFocusedComposition().getTimeline();
+		List<Track> tracks = tl.getTracks();
 		for(int i = 0; i < tracks.size(); i++) {
-			this.addTrack(i, tracks.get(i));
+			this.addTrack(i, tracks.get(i), tl);
 		}
 		
 		this.addMouseListener(this);
@@ -122,7 +123,7 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		if(newFocus != null) {
 			List<Track> tracks = newFocus.getTimeline().getTracks();
 			for(int i = 0; i < tracks.size(); i++) {
-				this.addTrack(i, tracks.get(i));
+				this.addTrack(i, tracks.get(i), newFocus.getTimeline());
 			}
 		}
 	}
@@ -139,8 +140,8 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		return this.getPreferredSize();
 	}
 	
-	private void addTrack(int index, Track track) {
-		TimelineTrackHead head = new TimelineTrackHead(track);
+	private void addTrack(int index, Track track, Timeline tl) {
+		TimelineTrackHead head = new TimelineTrackHead(track, tl);
 		head.setPreferredSize(new Dimension(TimelineView.CHANNEL_WIDTH, TimelineView.CHANNEL_HEIGHT));
 		this.infoPane.add(head);
 		
@@ -185,12 +186,27 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		this.repaint();
 	}
 	
+	private void moveTrack(int oldIndex, int newIndex) {
+		TimelineTrackHead head = (TimelineTrackHead) this.infoPane.getComponent(oldIndex);
+		TimelineTrackRangesBar ranges = (TimelineTrackRangesBar) this.timelinePane.getComponent(oldIndex);
+		
+		this.infoPane.remove(oldIndex);
+		this.timelinePane.remove(oldIndex);
+		
+		this.infoPane.add(head, newIndex);
+		this.timelinePane.add(ranges, newIndex);
+	}
+	
 	public void trackAdded(Timeline src, int index, Track track) {
-		SwingUtilities.invokeLater(() -> this.addTrack(index, track));
+		SwingUtilities.invokeLater(() -> this.addTrack(index, track, src));
 	}
 	
 	public void trackRemoved(Timeline src, int index, Track track) {
 		SwingUtilities.invokeLater(() -> this.removeTrack(index));
+	}
+
+	public void trackMoved(Timeline src, int oldIndex, int newIndex, Track track) {
+		SwingUtilities.invokeLater(() -> this.moveTrack(oldIndex, newIndex));
 	}
 	
 	public void durationChanged(Timeline src) {

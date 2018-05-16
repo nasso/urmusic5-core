@@ -183,13 +183,6 @@ public class Track {
 		return item;
 	}
 	
-	public void moveEffect(TrackEffectInstance e, int newPos) {
-		if(!this.checkEffectIndex(newPos)) return;
-		
-		int ei = this.effects.indexOf(e);
-		if(ei >= 0) this.moveEffect(ei, newPos);
-	}
-	
 	public void moveEffect(int currPos, int newPos) {
 		if(!this.checkEffectIndex(currPos) || !this.checkEffectIndex(newPos)) return;
 		

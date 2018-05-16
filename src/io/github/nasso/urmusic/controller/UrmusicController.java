@@ -42,6 +42,7 @@ import io.github.nasso.urmusic.model.exporter.ExportSettings;
 import io.github.nasso.urmusic.model.exporter.Exporter.ExportJob;
 import io.github.nasso.urmusic.model.project.Composition;
 import io.github.nasso.urmusic.model.project.Project;
+import io.github.nasso.urmusic.model.project.Timeline;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.Track.TrackActivityRange;
 import io.github.nasso.urmusic.model.project.TrackEffect;
@@ -392,7 +393,7 @@ public class UrmusicController {
 	}
 	
 	public static void moveEffect(Track track, TrackEffectInstance fx, int index) {
-		track.moveEffect(fx, index);
+		track.moveEffect(track.getEffects().indexOf(fx), index);
 		
 		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
@@ -431,6 +432,23 @@ public class UrmusicController {
 
 		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
+	}
+	
+	public static void moveTrack(Timeline tl, Track t, int i) {
+		if(tl == null || t == null || !tl.getTracks().contains(t) || i < 0 || i >= tl.getTracks().size()) return;
+		
+		tl.moveTrack(tl.getTracks().indexOf(t), i);
+
+		UrmusicController.notifyProjectChanged();
+		UrmusicController.markVideoDirty();
+	}
+	
+	public static void moveTrackUp(Timeline tl, Track t) {
+		UrmusicController.moveTrack(tl, t, tl.getTracks().indexOf(t) - 1);
+	}
+	
+	public static void moveTrackDown(Timeline tl, Track t) {
+		UrmusicController.moveTrack(tl, t, tl.getTracks().indexOf(t) + 1);
 	}
 	
 	public static void renameTrack(Track t, String newName) {

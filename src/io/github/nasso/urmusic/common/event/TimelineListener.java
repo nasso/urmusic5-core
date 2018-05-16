@@ -39,4 +39,15 @@ public interface TimelineListener {
 	 * @param track
 	 */
 	public void trackRemoved(Timeline src, int index, Track track);
+	
+	/**
+	 * A track that is already present in the tracklist has been moved in the same tracklist, without getting removed.<br />
+	 * Other tracks are shifted, just like when inserting/removing a track.
+	 * 
+	 * @param src
+	 * @param oldIndex
+	 * @param newIndex
+	 * @param track
+	 */
+	public void trackMoved(Timeline src, int oldIndex, int newIndex, Track track);
 }

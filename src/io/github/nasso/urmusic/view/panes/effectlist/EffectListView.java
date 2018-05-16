@@ -128,6 +128,9 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 	public void trackRemoved(Timeline src, int index, Track track) {
 		SwingUtilities.invokeLater(() -> this.removeTrack(track));
 	}
+
+	public void trackMoved(Timeline src, int oldIndex, int newIndex, Track track) {
+	}
 	
 	public void focusChanged(Track oldFocus, Track newFocus) {
 		SwingUtilities.invokeLater(() -> {

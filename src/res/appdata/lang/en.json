@@ -67,6 +67,8 @@
 		"view.timeline.name": "Timeline",
 		"view.timeline.menu.add": "Add",
 		"view.timeline.menu.add.track": "Track",
+		"view.timeline.track.menu.moveUp": "Move Up",
+		"view.timeline.track.menu.moveDown": "Move Down",
 
 		"view.effectList.name": "Effects",
 		"view.effectList.menu.add": "Add",

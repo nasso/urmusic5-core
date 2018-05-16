@@ -84,11 +84,15 @@ public class Timeline {
 	}
 	
 	public Track addTrack(Track t) {
-		if(t == null)
+		return this.addTrack(t, this.tracks.size());
+	}
+	
+	public Track addTrack(Track t, int i) {
+		if(t == null || i > this.tracks.size())
 			return null;
 		
-		this.tracks.add(t);
-		this.notifyTrackAdded(this.tracks.size() - 1, t);
+		this.tracks.add(i, t);
+		this.notifyTrackAdded(i, t);
 		return t;
 	}
 	
@@ -113,6 +117,15 @@ public class Timeline {
 		
 		this.removeTrack(i);
 	}
+	
+	public void moveTrack(int curPos, int newPos) {
+		if(curPos < 0 || curPos >= this.tracks.size() || newPos < 0 || newPos >= this.tracks.size()) return;
+		
+		Track t = this.tracks.remove(curPos);
+		this.tracks.add(newPos, t);
+		
+		this.notifyTrackMoved(curPos, newPos, t);
+	}
 
 	private void notifyDurationChanged() {
 		for(TimelineListener l : this.timelineListeners) {
@@ -135,6 +148,12 @@ public class Timeline {
 	private void notifyTrackRemoved(int index, Track t) {
 		for(TimelineListener l : this.timelineListeners) {
 			l.trackRemoved(this, index, t);
+		}
+	}
+	
+	private void notifyTrackMoved(int oldIndex, int newIndex, Track t) {
+		for(TimelineListener l : this.timelineListeners) {
+			l.trackMoved(this, oldIndex, newIndex, t);
 		}
 	}
 }

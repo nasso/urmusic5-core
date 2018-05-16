@@ -22,34 +22,58 @@ package io.github.nasso.urmusic.view.panes.timeline;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 
 import io.github.nasso.urmusic.common.event.TrackListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
+import io.github.nasso.urmusic.model.project.Timeline;
 import io.github.nasso.urmusic.model.project.Track;
 import io.github.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.github.nasso.urmusic.view.components.UrmEditableLabel;
 import io.github.nasso.urmusic.view.components.UrmIconButton;
+import io.github.nasso.urmusic.view.data.UrmusicStrings;
 import io.github.nasso.urmusic.view.data.UrmusicUIRes;
 
 public class TimelineTrackHead extends JPanel implements TrackListener {
 	private Track track;
+	private Timeline timeline;
 	
 	private UrmEditableLabel nameLabel;
 	private JCheckBox enableCheckbox;
 	private JButton deleteBtn;
 	
-	public TimelineTrackHead(Track t) {
+	private JPopupMenu popup;
+	
+	public TimelineTrackHead(Track t, Timeline tl) {
 		super(new BorderLayout());
 		this.setBackground(Color.WHITE);
 		this.setOpaque(true);
+		
+		this.timeline = tl;
+		
+		this.popup = new JPopupMenu();
+		this.popup.add(new JMenuItem(new AbstractAction(UrmusicStrings.getString("view.timeline.track.menu.moveUp")) {
+			public void actionPerformed(ActionEvent e) {
+				UrmusicController.moveTrackUp(TimelineTrackHead.this.timeline, TimelineTrackHead.this.track);
+			}
+		}));
+		this.popup.add(new JMenuItem(new AbstractAction(UrmusicStrings.getString("view.timeline.track.menu.moveDown")) {
+			public void actionPerformed(ActionEvent e) {
+				UrmusicController.moveTrackDown(TimelineTrackHead.this.timeline, TimelineTrackHead.this.track);
+			}
+		}));
+		this.setComponentPopupMenu(this.popup);
 		
 		this.nameLabel = new UrmEditableLabel((l) -> {
 			UrmusicController.renameTrack(t, l.getValue());
