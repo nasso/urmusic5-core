@@ -118,7 +118,7 @@ public class EffectListView extends UrmViewPane implements TimelineListener, Foc
 	private void buildUI() {
 		this.effectListContainer.setLayout(this.effectListCards);
 		
-		this.add(new JScrollPane(this.effectListContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		this.add(new JScrollPane(this.effectListContainer, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
 	}
 
 	public void trackAdded(Timeline src, int index, Track track) {
