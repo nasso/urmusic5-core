@@ -32,4 +32,9 @@ public interface RGBA32 extends Cloneable {
 	public float getAlphaf();
 	
 	public RGBA32 clone();
+	
+	public static String toHexString(int value) {
+		String istr = Integer.toHexString(value);
+		return "#" + ("00000000" + istr).substring(istr.length());
+	}
 }

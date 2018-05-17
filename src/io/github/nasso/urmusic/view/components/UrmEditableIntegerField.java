@@ -32,6 +32,7 @@ import java.awt.event.MouseMotionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 import javax.swing.BorderFactory;
@@ -59,6 +60,8 @@ public class UrmEditableIntegerField extends JPanel {
 	
 	private Integer lastValue = null;
 	private int step = 1;
+	
+	private String minDigitString = null;
 	
 	private boolean editing = false;
 	
@@ -121,10 +124,18 @@ public class UrmEditableIntegerField extends JPanel {
 	public UrmEditableIntegerField(boolean blockKeyEvents) {
 		this(blockKeyEvents, null);
 	}
-	
+
 	public UrmEditableIntegerField(boolean blockKeyEvents, Consumer<UrmEditableIntegerField> onValueChange) {
+		this(blockKeyEvents, onValueChange, 0);
+	}
+	
+	public UrmEditableIntegerField(boolean blockKeyEvents, Consumer<UrmEditableIntegerField> onValueChange, int minDigitCount) {
 		this.blockKeyEvents = blockKeyEvents;
 		this.onValueChange = onValueChange;
+		
+		char[] digits = new char[minDigitCount < 1 ? 1 : minDigitCount];
+		Arrays.fill(digits, '0');
+		this.minDigitString = new String(digits);
 		
 		this.valueLabel = new JLabel();
 		this.valueLabel.setCursor(Cursor.getPredefinedCursor(Cursor.E_RESIZE_CURSOR));
@@ -248,7 +259,7 @@ public class UrmEditableIntegerField extends JPanel {
 		
 		if(this.blockKeyEvents) UrmusicView.freeKeyEvent();
 		
-		this.valueLabel.setText(String.valueOf(this.lastValue));
+		this.valueLabel.setText(this.stringifyDigits(this.lastValue));
 
 		this.card.show(this, UrmEditableIntegerField.CARD_LABEL);
 	}
@@ -264,7 +275,7 @@ public class UrmEditableIntegerField extends JPanel {
 	public void setValue(Number val) {
 		this.lastValue = val.intValue();
 		
-		this.valueLabel.setText(String.valueOf(this.lastValue));
+		this.valueLabel.setText(this.stringifyDigits(this.lastValue));
 		this.valueField.setText(this.valueLabel.getText());
 	}
 	
@@ -278,5 +289,10 @@ public class UrmEditableIntegerField extends JPanel {
 
 	public void setStep(int step) {
 		this.step = step;
+	}
+	
+	private String stringifyDigits(Integer i) {
+		String str = String.valueOf(i);
+		return str.length() < this.minDigitString.length() ? this.minDigitString.substring(0, this.minDigitString.length() - str.length()) + str : str;
 	}
 }

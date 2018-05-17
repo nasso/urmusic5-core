@@ -72,6 +72,7 @@ import io.github.nasso.urmusic.view.data.UrmusicViewState;
 import io.github.nasso.urmusic.view.data.UrmusicViewStateCodec;
 import io.github.nasso.urmusic.view.dialog.UrmusicAboutDialog;
 import io.github.nasso.urmusic.view.dialog.UrmusicExportingDialog;
+import io.github.nasso.urmusic.view.dialog.UrmusicProjectSettingsDialog;
 
 /**
  * User interface to the controller.
@@ -95,6 +96,9 @@ public class UrmusicView {
 		menuLoadSongAction,
 		menuExportAction,
 		menuExitAction,
+		
+		// Edit
+		menuProjectSettingsAction,
 		
 		// Help
 		menuAboutAction;
@@ -266,6 +270,7 @@ public class UrmusicView {
 		JFileChooser fileChooser = new JFileChooser();
 		FileFilter projectFilter = new FileNameExtensionFilter(UrmusicStrings.getString("files.project.desc") + " (*." + ProjectCodec.FILE_EXT + ")", ProjectCodec.FILE_EXT);
 
+		// File
 		UrmusicView.menuNewAction = new AbstractAction(UrmusicStrings.getString("menu.file.new")) {
 			public void actionPerformed(ActionEvent e) {
 				UrmusicController.newProject();
@@ -399,6 +404,15 @@ public class UrmusicView {
 				this.aboutDialog.setVisible(true);
 			}
 		};
+		
+		// Edit
+		UrmusicView.menuProjectSettingsAction = new AbstractAction(UrmusicStrings.getString("menu.edit.projectSettings")) {
+			private final UrmusicProjectSettingsDialog settingsDialog = new UrmusicProjectSettingsDialog();
+			
+			public void actionPerformed(ActionEvent e) {
+				this.settingsDialog.open();
+			}
+		};
 	}
 	
 	private static JMenuBar buildMenu() {
@@ -415,11 +429,15 @@ public class UrmusicView {
 		fileMenu.add(new JMenuItem(UrmusicView.menuExportAction) {{ this.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK)); }});
 		fileMenu.addSeparator();
 		fileMenu.add(new JMenuItem(UrmusicView.menuExitAction) {{ this.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, Event.CTRL_MASK)); }});
+
+		JMenu editMenu = new JMenu(UrmusicStrings.getString("menu.edit"));
+		editMenu.add(new JMenuItem(UrmusicView.menuProjectSettingsAction));
 		
 		JMenu helpMenu = new JMenu(UrmusicStrings.getString("menu.help"));
 		helpMenu.add(new JMenuItem(UrmusicView.menuAboutAction));
 		
 		mb.add(fileMenu);
+		mb.add(editMenu);
 		mb.add(helpMenu);
 		
 		return mb;

@@ -150,8 +150,7 @@ public class MutableRGBA32 implements RGBA32 {
 	}
 	
 	public String toString() {
-		String istr = Integer.toHexString(this.value);
-		return "#" + ("00000000" + istr).substring(istr.length());
+		return RGBA32.toHexString(this.value);
 	}
 	
 	public boolean equals(Object o) {

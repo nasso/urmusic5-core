@@ -31,6 +31,7 @@ import java.util.List;
 
 import io.github.nasso.urmusic.common.ActionValidator;
 import io.github.nasso.urmusic.common.CancellableAction;
+import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.common.event.ExportJobCallback;
 import io.github.nasso.urmusic.common.event.FocusListener;
 import io.github.nasso.urmusic.common.event.FrameCursorListener;
@@ -345,6 +346,16 @@ public class UrmusicController {
 	}
 	
 	// -- Edit --
+	public static void updateProjectSettings(int frameWidth, int frameHeight, float framerate, float duration, RGBA32 rgba) {
+		UrmusicModel.getCurrentProject().getMainComposition().setWidth(frameWidth);
+		UrmusicModel.getCurrentProject().getMainComposition().setHeight(frameHeight);
+		UrmusicModel.getCurrentProject().getMainComposition().getTimeline().setFramerate(framerate);
+		UrmusicModel.getCurrentProject().getMainComposition().setClearColor(rgba);
+
+		UrmusicController.notifyProjectChanged();
+		UrmusicController.markVideoDirty();
+	}
+	
 	public static <T> T getParamValueNow(EffectParam<T> param) {
 		return param.getValue(UrmusicController.getTimePosition());
 	}
