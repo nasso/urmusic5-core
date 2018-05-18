@@ -98,7 +98,7 @@ class TrackChunk implements Chunk {
 		tr.setName(this.name.build());
 		tr.setEnabled(this.enabled);
 		for(int i = 0; i < this.ranges.start.length; i++)
-			tr.addActiveRange(this.ranges.start[i], this.ranges.end[i]);
+			tr.addActiveRange(this.ranges.start[i], this.ranges.end[i] - this.ranges.start[i]);
 		for(int i = 0; i < this.effects.length; i++)
 			tr.addEffect(this.effects[i].build());
 		
