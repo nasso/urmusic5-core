@@ -286,6 +286,7 @@ public class UrmusicController {
 	
 	public static void newProject() {
 		UrmusicModel.setProject(new Project());
+		UrmusicController.currentProjectPath = null;
 		notifyProjectLoaded();
 	}
 
