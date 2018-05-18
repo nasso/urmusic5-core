@@ -167,7 +167,7 @@ public class UrmEditableNumberField extends JPanel {
 				}
 				
 				SwingUtilities.invokeLater(() -> {
-					UrmEditableNumberField.this.valueField.setText(UrmEditableNumberField.this.valueLabel.getText());
+					UrmEditableNumberField.this.valueField.setText(String.valueOf(UrmEditableNumberField.this.lastValue));
 					UrmEditableNumberField.this.valueField.selectAll();
 					
 					// Set text to empty string to let the field reduce the size
@@ -248,7 +248,10 @@ public class UrmEditableNumberField extends JPanel {
 		
 		if(this.blockKeyEvents) UrmusicView.freeKeyEvent();
 		
-		this.valueLabel.setText(String.valueOf(this.lastValue));
+		this.valueLabel.setText(String.valueOf(Math.round(this.lastValue * 100.0f) / 100.0f));
+		SwingUtilities.invokeLater(() -> {
+			this.valueField.setText(null);
+		});
 
 		this.card.show(this, CARD_LABEL);
 	}
@@ -260,12 +263,14 @@ public class UrmEditableNumberField extends JPanel {
 	public void setOnValueChange(Consumer<UrmEditableNumberField> onValueChange) {
 		this.onValueChange = onValueChange;
 	}
-
+	
 	public void setValue(Number val) {
-		this.lastValue = Math.round(val.floatValue() * 100.0f) / 100.0f;
+		this.lastValue = val.floatValue();
 		
-		this.valueLabel.setText(String.valueOf(this.lastValue));
-		this.valueField.setText(this.valueLabel.getText());
+		this.valueLabel.setText(String.valueOf(Math.round(this.lastValue * 100.0f) / 100.0f));
+		SwingUtilities.invokeLater(() -> {
+			this.valueField.setText(null);
+		});
 	}
 	
 	public Number getValue() {
