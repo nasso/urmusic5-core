@@ -350,6 +350,7 @@ public class UrmusicController {
 		UrmusicModel.getCurrentProject().getMainComposition().setWidth(frameWidth);
 		UrmusicModel.getCurrentProject().getMainComposition().setHeight(frameHeight);
 		UrmusicModel.getCurrentProject().getMainComposition().getTimeline().setFramerate(framerate);
+		UrmusicModel.getCurrentProject().getMainComposition().getTimeline().setDuration(duration);
 		UrmusicModel.getCurrentProject().getMainComposition().setClearColor(rgba);
 
 		UrmusicController.notifyProjectChanged();
