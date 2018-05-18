@@ -77,8 +77,6 @@ public class Urmusic {
 		UrmusicController.init();
 		UrmusicView.init();
 		
-//		UrmusicController.openProject(Paths.get("./test." + ProjectCodec.FILE_EXT));
-		
 		UrmusicController.addTrack();
 		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
 		
@@ -92,8 +90,6 @@ public class Urmusic {
 		if(System.getProperty("os.name").equals("Linux")) {
 			UrmusicController.saveCurrentProject(Paths.get("/dev/null"));
 		}
-		
-//		UrmusicController.saveCurrentProject(Paths.get("./test." + ProjectCodec.FILE_EXT));
 		
 //		UrmusicController.addEffect(new TestVFX());
 	}
