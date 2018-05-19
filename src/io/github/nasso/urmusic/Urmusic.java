@@ -77,6 +77,7 @@ public class Urmusic {
 		UrmusicController.init();
 		UrmusicView.init();
 		
+		// Test stuff below this line!
 		UrmusicController.addTrack();
 		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
 		

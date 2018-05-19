@@ -118,7 +118,7 @@ public class GLVG implements VGPathMethods {
 	// Frame control
 	/**
 	 * You should wrap the rendering code between {@link GLVG#begin(GL3, int, int)} and {@link GLVG#end(int)},
-	 * but you shouldn't do any other OpenGL rendering/state changes between those calls, because this actually
+	 * but you shouldn't do any other OpenGL operation (rendering/state changes) between those calls, because this actually
 	 * binds another framebuffer (and that's why {@link GLVG#end(int)} needs the output FBO).
 	 * 
 	 * @param gl

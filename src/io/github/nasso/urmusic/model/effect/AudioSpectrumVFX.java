@@ -19,9 +19,10 @@
  ******************************************************************************/
 package io.github.nasso.urmusic.model.effect;
 
+import static com.jogamp.opengl.GL.*;
+
 import org.joml.Vector2fc;
 
-import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
 
 import io.github.nasso.urmusic.common.BoolValue;
@@ -39,6 +40,7 @@ import io.github.nasso.urmusic.model.project.param.OptionParam;
 import io.github.nasso.urmusic.model.project.param.Point2DParam;
 import io.github.nasso.urmusic.model.project.param.RGBA32Param;
 import io.github.nasso.urmusic.model.renderer.audio.AudioRenderer;
+import io.github.nasso.urmusic.model.renderer.video.NGLUtils;
 import io.github.nasso.urmusic.model.renderer.video.glvg.GLVG;
 
 public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
@@ -60,6 +62,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 	private static final String PNAME_exponent = "exponent";
 	private static final String PNAME_size = "size";
 	private static final String PNAME_count = "count";
+	private static final String PNAME_blendingMode = "blendingMode";
 	
 	private class AudioSpectrumVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
 		private VideoEffectArgs args;
@@ -81,8 +84,21 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		private float exponent;
 		private float size;
 		private int count;
+		private int blendingMode;
 		
 		private GLVG vg;
+		private NGLUtils glu = new NGLUtils("audio spectrum instance glu");
+		
+		private int gl_dest_fbo;
+		private int gl_dest_fbo_tex;
+		private int gl_vao_fullQuad;
+		private int gl_prog_blend;
+		private int gl_prog_blend_inputTex;
+		private int gl_prog_blend_destTex;
+		private int gl_prog_blend_blendingMode;
+		
+		private int dest_width = -1;
+		private int dest_height = -1;
 		
 		private float[] audioData = new float[AudioRenderer.FFT_SIZE];
 		private float[] xy = new float[2];
@@ -106,10 +122,33 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			this.addParameter(new FloatParam(PNAME_exponent, 2.0f, 1.0f, 0.0f, Float.MAX_VALUE));
 			this.addParameter(new FloatParam(PNAME_size, 2.0f, 1.0f, 0.0f, Float.MAX_VALUE));
 			this.addParameter(new IntParam(PNAME_count, 128, 1, 1, Integer.MAX_VALUE));
+			this.addParameter(new OptionParam(PNAME_blendingMode, 8, 
+				"srcOver",
+				"dstOver",
+				"srcIn",
+				"dstIn",
+				"srcOut",
+				"dstOut",
+				"srcAtop",
+				"dstAtop",
+				"copy",
+				"add",
+				"xor"
+			));
 		}
 		
 		public void setupVideo(GL3 gl) {
 			this.vg = new GLVG(gl);
+			
+			this.gl_dest_fbo = this.glu.genFramebuffer(gl);
+			this.gl_dest_fbo_tex = this.glu.genTexture(gl);
+			
+			this.gl_vao_fullQuad = this.glu.createFullQuadVAO(gl);
+			
+			this.gl_prog_blend = this.glu.createProgram(gl, "fx/audio_spectrum/", "main_vert.vs", "main_frag.fs");
+			this.gl_prog_blend_inputTex = gl.glGetUniformLocation(this.gl_prog_blend, "inputTex");
+			this.gl_prog_blend_destTex = gl.glGetUniformLocation(this.gl_prog_blend, "destTex");
+			this.gl_prog_blend_blendingMode = gl.glGetUniformLocation(this.gl_prog_blend, "blendingMode");
 		}
 		
 		private void xyToPolar() {
@@ -319,6 +358,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			this.exponent = ((float) args.parameters.get(PNAME_exponent));
 			this.size = ((float) args.parameters.get(PNAME_size));
 			this.count = ((int) args.parameters.get(PNAME_count));
+			this.blendingMode = ((int) args.parameters.get(PNAME_blendingMode));
 			
 			if(!this.faceA && !this.faceB) {
 				args.cancelled = true;
@@ -334,8 +374,25 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			}
 			
 			UrmusicModel.getAudioRenderer().getFreqData(args.time + this.millisOffset / 1000.0f, this.duration / 1000.0f, this.audioData);
-			
-			gl.glClear(GL.GL_COLOR_BUFFER_BIT);
+
+			if(this.dest_width != args.width || this.dest_height != args.height) {
+				gl.glBindTexture(GL_TEXTURE_2D, this.gl_dest_fbo_tex);
+				gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, args.width, args.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, null);
+				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				
+				if(this.dest_width == -1 || this.dest_height == -1) {
+					gl.glBindFramebuffer(GL_FRAMEBUFFER, this.gl_dest_fbo);
+					gl.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this.gl_dest_fbo_tex, 0);
+				}
+				
+				this.dest_width = args.width;
+				this.dest_height = args.height;
+				
+				gl.glBindTexture(GL_TEXTURE_2D, 0);
+			}
 			
 			this.vg.begin(gl, args.width, args.height);
 			this.vg.setLineWidth(this.size);
@@ -357,11 +414,24 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 					break;
 			}
 			
-			this.vg.end(args.fboOutput);
+			// Render directly for "COPY" mode
+			if(this.blendingMode == 8) this.vg.end(args.fboOutput);
+			else {
+				this.vg.end(this.gl_dest_fbo);
+				
+				gl.glBindFramebuffer(GL_FRAMEBUFFER, args.fboOutput);
+				gl.glUseProgram(this.gl_prog_blend);
+				this.glu.uniformTexture(gl, this.gl_prog_blend_inputTex, this.gl_dest_fbo_tex, 0);
+				this.glu.uniformTexture(gl, this.gl_prog_blend_destTex, args.texInput, 1);
+				gl.glUniform1i(this.gl_prog_blend_blendingMode, this.blendingMode);
+				gl.glBindVertexArray(this.gl_vao_fullQuad);
+				gl.glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+			}
 		}
 		
 		public void disposeVideo(GL3 gl) {
 			this.vg.dispose(gl);
+			this.glu.dispose(gl);
 		}
 	}
 	
