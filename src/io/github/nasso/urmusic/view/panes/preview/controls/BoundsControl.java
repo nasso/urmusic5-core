@@ -39,11 +39,14 @@ import org.joml.Vector4fc;
 
 import io.github.nasso.urmusic.common.BoolValue;
 import io.github.nasso.urmusic.common.MathUtils;
+import io.github.nasso.urmusic.common.event.EffectParamListener;
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.model.project.param.BoundsParam;
+import io.github.nasso.urmusic.model.project.param.EffectParam;
+import io.github.nasso.urmusic.model.project.param.KeyFrame;
 import io.github.nasso.urmusic.view.panes.preview.PreviewView;
 
-public class BoundsControl extends PreviewParamControl<BoundsParam> implements MouseListener, MouseMotionListener {
+public class BoundsControl extends PreviewParamControl<BoundsParam> implements MouseListener, MouseMotionListener, EffectParamListener<Vector4fc> {
 	private static final int BORDER_SIZE = 10;
 	
 	private static final Stroke LINE_BORDER_STROKE = new BasicStroke(3);
@@ -63,6 +66,10 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 	
 	public BoundsControl(PreviewView view, BoundsParam param) {
 		super(view, param);
+
+		Vector4fc currVal = UrmusicController.getParamValueNow(param);
+		if(currVal.z() != 0 && currVal.w() != 0) this.lastValidRatio = currVal.z() / currVal.w();
+		param.addEffectParamListener(this);
 		
 		this.setOpaque(false);
 		
@@ -168,8 +175,6 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 	
 	public void updateComponentLayout() {
 		Vector4fc p = UrmusicController.getParamValueNow(this.getParam());
-		
-		if(this._vec4.z != 0 && this._vec4.w != 0) this.lastValidRatio = this._vec4.z / this._vec4.w;
 		
 		// Calc rect coords
 		float x = p.x();
@@ -350,5 +355,15 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 		if(e.getButton() == MouseEvent.BUTTON1) {
 			this.pressed = false;
 		}
+	}
+
+	public void valueChanged(EffectParam<Vector4fc> source, Vector4fc newVal) {
+		if(newVal.z() != 0 && newVal.w() != 0) this.lastValidRatio = newVal.z() / newVal.w();
+	}
+
+	public void keyFrameAdded(EffectParam<Vector4fc> source, KeyFrame<Vector4fc> kf) {
+	}
+
+	public void keyFrameRemoved(EffectParam<Vector4fc> source, KeyFrame<Vector4fc> kf) {
 	}
 }
