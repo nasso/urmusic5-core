@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 
 import io.github.nasso.urmusic.controller.UrmusicController;
 import io.github.nasso.urmusic.view.components.UrmMenu;
@@ -63,7 +64,7 @@ public class TimelineView extends UrmViewPane {
 	private void buildUI() {
 		this.body = new TimelineMainScrollable(this);
 		
-		JScrollPane scrollPane = new JScrollPane(this.body, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		JScrollPane scrollPane = new JScrollPane(this.body, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setBorder(null);
 		this.add(scrollPane, BorderLayout.CENTER);
 		this.setBackground(Color.LIGHT_GRAY);
