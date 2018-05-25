@@ -36,7 +36,7 @@ import io.github.nasso.urmusic.model.UrmusicModel;
 import io.github.nasso.urmusic.model.ffmpeg.FFmpeg;
 
 public class AudioRenderer implements Runnable {
-	public static final Path AUDIO_BUFFER_SOURCE_PATH = Urmusic.URM_HOME.toPath().resolve("current_song.wav").toAbsolutePath();
+	public static final Path AUDIO_BUFFER_SOURCE_PATH = Urmusic.getHome().toPath().resolve("current_song.wav").toAbsolutePath();
 	
 	public static final int FFT_SIZE = 1 << 14;
 	

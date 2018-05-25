@@ -34,10 +34,10 @@ import java.util.regex.Pattern;
 import io.github.nasso.urmusic.Urmusic;
 
 public class FFmpeg {
-	public static final Path FFMPEG_LOCATION = Urmusic.URM_STATIC_LIB_FOLDER.toPath().resolve("ffmpeg").toAbsolutePath();
-	public static final Path FFMPEG_OUTPUT_LOG = Urmusic.URM_HOME.toPath().resolve("log").resolve("ffmpeg_out.txt");
-	public static final Path FFMPEG_ENCODERS_OUTPUT = Urmusic.URM_HOME.toPath().resolve("log").resolve("ffmpeg_encoders.txt");
-	public static final Path FFMPEG_MUXERS_OUTPUT = Urmusic.URM_HOME.toPath().resolve("log").resolve("ffmpeg_muxers.txt");
+	public static final Path FFMPEG_LOCATION = Urmusic.getStaticLibFolder().toPath().resolve("ffmpeg").toAbsolutePath();
+	public static final Path FFMPEG_OUTPUT_LOG = Urmusic.getHome().toPath().resolve("log").resolve("ffmpeg_out.txt");
+	public static final Path FFMPEG_ENCODERS_OUTPUT = Urmusic.getHome().toPath().resolve("log").resolve("ffmpeg_encoders.txt");
+	public static final Path FFMPEG_MUXERS_OUTPUT = Urmusic.getHome().toPath().resolve("log").resolve("ffmpeg_muxers.txt");
 	
 	private static final Pattern AVCODEC_REGEX = Pattern.compile("^ ([VA])(.)(.)(.)(.)(.) ([^\\=\\s]+)\\s+(.*)$");
 	private static final Pattern FORMATS_REGEX = Pattern.compile("^ (.)(.) ([^\\=\\s]+)\\s+(.*)$");

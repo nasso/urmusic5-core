@@ -36,20 +36,28 @@ import io.github.nasso.urmusic.model.project.param.FloatParam;
 import io.github.nasso.urmusic.view.UrmusicView;
 
 public class Urmusic {
-	public static final boolean URM_FORCE_RES_EXPORT = true;
-	public static final File URM_STATIC_LIB_FOLDER = new File(System.getProperty("staticLibFolder"));
-	public static final File URM_HOME = new File(System.getProperty("user.home") + File.separatorChar + ".urmusic");
+	private static File URM_STATIC_LIB_FOLDER;
+	private static File URM_HOME;
 	
 	private Urmusic() {
 	}
 	
-	@SuppressWarnings("unused")
+	public static final File getStaticLibFolder() {
+		return URM_STATIC_LIB_FOLDER;
+	}
+	
+	public static final File getHome() {
+		return URM_HOME;
+	}
+	
 	private static final void setupFiles() {
 		if(!Urmusic.URM_HOME.exists()) Urmusic.URM_HOME.mkdirs();
 		
 		try {
 			String internalAppdataFolder = "res/appdata";
 			List<Path> appdata = DataUtils.listFilesInResource(internalAppdataFolder);
+			
+			boolean forceResExport = System.getProperty("forceResExport") != null;
 			
 			for(Path p : appdata) {
 				String parentStr = Urmusic.URM_HOME.getAbsolutePath() + File.separator;
@@ -59,7 +67,7 @@ public class Urmusic {
 				
 				File f = new File(parentStr, p.getFileName().toString());
 				
-				if(Urmusic.URM_FORCE_RES_EXPORT || !f.exists()) DataUtils.exportResource(internalAppdataFolder + File.separatorChar + p.toString(), f.getAbsolutePath());
+				if(forceResExport || !f.exists()) DataUtils.exportResource(internalAppdataFolder + File.separatorChar + p.toString(), f.getAbsolutePath());
 			}
 		} catch(IOException e) {
 			e.printStackTrace();
@@ -96,6 +104,24 @@ public class Urmusic {
 	}
 	
 	public static void main(String[] args) {
+		String os = System.getProperty("os.name");
+		
+		if((os.indexOf("mac") >= 0) || (os.indexOf("darwin") >= 0)) {
+			// TODO: Add Mac OS binaries
+		} else if(os.indexOf("win") >= 0) {
+			URM_STATIC_LIB_FOLDER = new File("libs/static/win32").getAbsoluteFile();
+		} else if(os.indexOf("nux") >= 0) {
+			URM_STATIC_LIB_FOLDER = new File("libs/static/linux").getAbsoluteFile();
+		} else {
+			String f = System.getProperty("staticLibFolder");
+			if(f != null) URM_STATIC_LIB_FOLDER = new File(f).getAbsoluteFile();
+		}
+		
+		String homeFolderName = System.getProperty("homeOverride");
+		if(homeFolderName == null) homeFolderName = "urmusic";
+		
+		URM_HOME = new File(System.getProperty("user.home") + File.separatorChar + "." + homeFolderName).getAbsoluteFile();
+		
 		Urmusic.init();
 	}
 }

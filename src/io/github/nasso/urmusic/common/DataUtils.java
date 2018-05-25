@@ -79,7 +79,7 @@ public class DataUtils {
 	 * @return
 	 */
 	public static File localFile(String path) {
-		return new File(Urmusic.URM_HOME, path);
+		return new File(Urmusic.getHome(), path);
 	}
 	
 	/**
