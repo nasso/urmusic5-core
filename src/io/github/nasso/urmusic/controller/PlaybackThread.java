@@ -27,7 +27,6 @@ public class PlaybackThread extends Thread {
 	private boolean shouldQuit = false;
 	private boolean shouldRestart = false;
 	private boolean playingBack = false;
-	private float fps = 30;
 	
 	private Object lock = new Object();
 	
@@ -61,7 +60,7 @@ public class PlaybackThread extends Thread {
 					int cacheForNext = -1;
 					while(this.isPlayingBack() && !this.shouldRestart) {
 						frameStartTime = System.nanoTime();
-						idealFrameTime = (long) (PlaybackThread.SECOND_NANO / this.fps);
+						idealFrameTime = (long) (PlaybackThread.SECOND_NANO / UrmusicController.getFocusedComposition().getTimeline().getFramerate());
 						
 						// Stop playback when we reach the end
 						if(UrmusicController.getFrameCursor() == UrmusicController.getFocusedComposition().getTimeline().getTotalFrameCount() - 1) {
@@ -134,13 +133,5 @@ public class PlaybackThread extends Thread {
 		}
 		
 		this.join();
-	}
-
-	public float getFPS() {
-		return this.fps;
-	}
-
-	public void setFPS(float fps) {
-		this.fps = fps;
 	}
 }

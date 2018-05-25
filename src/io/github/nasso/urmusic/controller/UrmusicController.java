@@ -85,7 +85,6 @@ public class UrmusicController {
 		UrmusicModel.setProject(new Project());
 		
 		UrmusicController.playbackThread = new PlaybackThread();
-		UrmusicController.playbackThread.setFPS(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getFramerate());
 		
 		UrmusicController.addFrameCursorListener((oldPosition, newPosition)  -> {
 			UrmusicModel.getVideoRenderer().queueFrameASAP(UrmusicController.getFocusedComposition(), newPosition);
