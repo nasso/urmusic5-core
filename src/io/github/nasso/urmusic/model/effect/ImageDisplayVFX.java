@@ -20,6 +20,7 @@
 package io.github.nasso.urmusic.model.effect;
 
 import java.awt.image.BufferedImage;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.joml.Matrix4f;
@@ -137,8 +138,9 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 				return;
 			}
 			
-			if(!src.equals(this.lastSrc)) {
-				this.lastSrc = src.toAbsolutePath();
+			src = src.toAbsolutePath();
+			if(!src.equals(this.lastSrc) && Files.exists(src) && Files.isRegularFile(src)) {
+				this.lastSrc = src;
 				this.reloadImage();
 			}
 			
