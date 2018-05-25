@@ -431,6 +431,8 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		// Clear the args before starting
 		this.fxArgs.clear();
 		
+		boolean firstEffect = true;
+		
 		// Apply the effects
 		for(int j = 0; j < t.getEffectCount(); j++) {
 			TrackEffectInstance fx = t.getEffect(j);
@@ -450,7 +452,8 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 				// Bind the framebuffer and the dest buffer
 				this.gl.glBindFramebuffer(GL_FRAMEBUFFER, this.trackRenderingFBO);
 				
-				if(j == 0) {
+				if(firstEffect) {
+					firstEffect = false;
 					this.gl.glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, dest.getDestBuffer(), 0);
 					this.gl.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, dest.getDepthBuffer());
 
