@@ -31,17 +31,19 @@ class CompositionChunk implements Chunk {
 	static final int ID = buildBigInt('C', 'O', 'M', 'P');
 	
 	TimelineChunk timeline;
+	StringChunk name;
 	int clearColor;
 	int width;
 	int height;
 
 	public int size() {
-		return 8 + 4 + 4 + 4 + this.timeline.size();
+		return 8 + this.name.size() + 4 + 4 + 4 + this.timeline.size();
 	}
 	
 	public void write(OutputStream out) throws IOException {
 		writeBigInt(out, ID);
 		writeBigInt(out, this.size());
+		this.name.write(out);
 		writeBigInt(out, this.clearColor);
 		writeBigInt(out, this.width);
 		writeBigInt(out, this.height);
@@ -52,6 +54,7 @@ class CompositionChunk implements Chunk {
 		Chunk.assertInt(in, ID);
 		
 		int size = readBigInt(in); size -= 8;
+		(this.name = new StringChunk()).read(in); size -= this.name.size();
 		this.clearColor = readBigInt(in); size -= 4;
 		this.width = readBigInt(in); size -= 4;
 		this.height = readBigInt(in); size -= 4;
@@ -64,6 +67,7 @@ class CompositionChunk implements Chunk {
 		CompositionChunk ch = new CompositionChunk();
 		
 		ch.timeline = TimelineChunk.from(comp.getTimeline());
+		ch.name = StringChunk.from(comp.getName());
 		ch.clearColor = comp.getClearColor().getRGBA();
 		ch.width = comp.getWidth();
 		ch.height = comp.getHeight();
@@ -72,7 +76,7 @@ class CompositionChunk implements Chunk {
 	}
 	
 	public Composition build() {
-		Composition comp = new Composition(this.timeline.build());
+		Composition comp = new Composition(this.name.build(), this.timeline.build());
 		comp.setClearColor(this.clearColor);
 		comp.setWidth(this.width);
 		comp.setHeight(this.height);

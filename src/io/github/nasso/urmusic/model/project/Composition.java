@@ -27,6 +27,8 @@ import io.github.nasso.urmusic.common.RGBA32;
 import io.github.nasso.urmusic.common.event.CompositionListener;
 
 public class Composition {
+	private String name;
+	
 	private Timeline timeline;
 	private MutableRGBA32 clearColor = new MutableRGBA32();
 	private int width = 1280, height = 720;
@@ -34,11 +36,20 @@ public class Composition {
 	private List<CompositionListener> listeners = new ArrayList<>();
 	
 	public Composition() {
-		this(new Timeline());
+		this("Composition", new Timeline());
+	}
+	
+	public Composition(String name) {
+		this(name, new Timeline());
 	}
 	
 	public Composition(Timeline tl) {
+		this("Composition", tl);
+	}
+	
+	public Composition(String name, Timeline tl) {
 		this.timeline = tl;
+		this.name = name;
 	}
 	
 	public Timeline getTimeline() {
@@ -63,6 +74,17 @@ public class Composition {
 		if(this.height == height) return;
 		
 		this.setSize(this.width, height);
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public void setName(String name) {
+		if(this.name.equals(name)) return;
+		
+		this.name = name;
+		this.notifyRenamed();
 	}
 	
 	public void setSize(int w, int h) {
@@ -103,6 +125,12 @@ public class Composition {
 	
 	public void removeListener(CompositionListener l) {
 		this.listeners.remove(l);
+	}
+	
+	private void notifyRenamed() {
+		for(CompositionListener l : this.listeners) {
+			l.nameChanged(this);
+		}
 	}
 	
 	private void notifyClearColorChanged() {

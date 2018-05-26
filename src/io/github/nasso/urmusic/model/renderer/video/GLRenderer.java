@@ -629,4 +629,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 	public void dispose(Composition comp) {
 		this.disposedCompositions.add(comp);
 	}
+
+	public void nameChanged(Composition comp) {
+	}
 }
