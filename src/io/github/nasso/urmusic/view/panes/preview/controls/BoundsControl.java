@@ -315,12 +315,12 @@ public class BoundsControl extends PreviewParamControl<BoundsParam> implements M
 
 	public void mouseDragged(MouseEvent e) {
 		if(this.pressed) {
-			int relx = e.getXOnScreen() - this.pressPoint.x;
-			int rely = e.getYOnScreen() - this.pressPoint.y;
+			float relx = this.xUIToPos(e.getXOnScreen()) - this.xUIToPos(this.pressPoint.x);
+			float rely = this.yUIToPos(e.getYOnScreen()) - this.yUIToPos(this.pressPoint.y);
 			
 			this._vec4.set(UrmusicController.getParamValueNow(this.getParam()));
 			this._vec4.x += relx;
-			this._vec4.y -= rely;
+			this._vec4.y += rely;
 			
 			UrmusicController.setParamValueNow(this.getParam(), this._vec4);
 			
