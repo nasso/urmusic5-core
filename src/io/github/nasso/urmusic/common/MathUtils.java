@@ -313,4 +313,29 @@ public class MathUtils {
 			return MathUtils.lerp(flrv, celv, index - flr);
 		}
 	}
+	
+	public static String prettyTime(float s, boolean withMillis) {
+		if(s == 0.0f) return withMillis ? "0:00.000" : "0:00";
+		
+		int millis = (int) Math.floor((s % 60f) * 1000);
+		int seconds = (int) Math.floor(s % 60f);
+		int minutes = (int) Math.floor(s / 60f % 60f);
+		int hours = (int) Math.floor(s / 3600f);
+		
+		String zeroMin = "0" + minutes;
+		zeroMin = zeroMin.substring(zeroMin.length() - 2);
+		
+		String zeroSec = "0" + seconds;
+		zeroSec = zeroSec.substring(zeroSec.length() - 2);
+		
+		if(withMillis) {
+			String zeroMilli = "000" + millis;
+			zeroMilli = zeroMilli.substring(zeroMilli.length() - 3);
+			
+			zeroSec += "." + zeroMilli;
+		}
+		
+		if(hours != 0) return hours + ":" + zeroMin + ":" + zeroSec;
+		else return minutes + ":" + zeroSec;
+	}
 }

@@ -41,6 +41,7 @@ public class TimelineView extends UrmViewPane {
 	public static final int CHANNEL_WIDTH = 140;
 	
 	private TimelineMainScrollable body;
+	private TimelineStatusBar statusBar;
 	
 	private float horizontalScale = 1;
 	private float horizontalScroll = 0.0f;
@@ -68,10 +69,13 @@ public class TimelineView extends UrmViewPane {
 		scrollPane.setBorder(null);
 		this.add(scrollPane, BorderLayout.CENTER);
 		this.setBackground(Color.LIGHT_GRAY);
+		
+		this.add(this.statusBar = new TimelineStatusBar(this), BorderLayout.NORTH);
 	}
 	
 	public void dispose() {
 		this.body.dispose();
+		this.statusBar.dispose();
 	}
 	
 	public float getHorizontalScale() {

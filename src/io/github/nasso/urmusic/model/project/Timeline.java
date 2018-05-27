@@ -65,11 +65,11 @@ public class Timeline {
 		this.notifyFramerateChanged();
 	}
 
-	public void addTracklistListener(TimelineListener l) {
+	public void addTimelineListener(TimelineListener l) {
 		this.timelineListeners.add(l);
 	}
 	
-	public void removeTracklistListener(TimelineListener l) {
+	public void removeTimelineListener(TimelineListener l) {
 		this.timelineListeners.remove(l);
 	}
 	

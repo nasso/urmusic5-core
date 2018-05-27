@@ -88,7 +88,7 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		this.addMouseMotionListener(this);
 		this.addMouseWheelListener(this);
 		
-		UrmusicController.getFocusedComposition().getTimeline().addTracklistListener(this);
+		UrmusicController.getFocusedComposition().getTimeline().addTimelineListener(this);
 		UrmusicController.addFrameCursorListener(this);
 		UrmusicController.addCompositionFocusListener(this);
 		UrmusicController.addEffectParameterFocusListener(this);
@@ -96,7 +96,7 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 	}
 	
 	public void dispose() {
-		UrmusicController.getFocusedComposition().getTimeline().removeTracklistListener(this);
+		UrmusicController.getFocusedComposition().getTimeline().removeTimelineListener(this);
 		UrmusicController.removeFrameCursorListener(this);
 		UrmusicController.removeCompositionFocusListener(this);
 		UrmusicController.removeEffectParameterFocusListener(this);
@@ -115,8 +115,8 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		Composition oldFocusComp = oldFocus;
 		Composition newFocusComp = newFocus;
 		
-		if(oldFocusComp != null) oldFocusComp.getTimeline().removeTracklistListener(this);
-		if(newFocusComp != null) newFocusComp.getTimeline().addTracklistListener(this);
+		if(oldFocusComp != null) oldFocusComp.getTimeline().removeTimelineListener(this);
+		if(newFocusComp != null) newFocusComp.getTimeline().addTimelineListener(this);
 		
 		this.removeAllTracks();
 		
