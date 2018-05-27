@@ -442,7 +442,7 @@ public class UrmusicController {
 
 	public static void setEffectEnabled(TrackEffectInstance fx, boolean enabled) {
 		if(fx.isEnabled() == enabled) return;
-		
+
 		fx.setEnabled(enabled);
 		
 		UrmusicController.notifyProjectChanged();

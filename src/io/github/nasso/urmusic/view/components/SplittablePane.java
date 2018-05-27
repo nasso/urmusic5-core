@@ -110,7 +110,7 @@ public class SplittablePane extends JPanel {
 	public SplittablePane(SplittablePane owner, JFrame popup) {
 		this.ownerPane = owner;
 		this.ownerFrame = popup;
-		this.buildUI(owner == null ? 0 : owner.viewCombo.getSelectedIndex());
+		this.buildUI(owner == null ? -1 : owner.viewCombo.getSelectedIndex());
 	}
 
 	private void buildUI(int viewID) {
@@ -121,6 +121,7 @@ public class SplittablePane extends JPanel {
 		this.viewCombo = new JComboBox<>();
 		this.viewCombo.setFont(this.viewCombo.getFont().deriveFont(Font.PLAIN, 11f));
 		for(int i = 0; i < this.viewPaneEntries.length; i++) this.viewCombo.addItem(this.viewPaneEntries[i]);
+		this.viewCombo.setSelectedIndex(-1);
 		this.viewCombo.addItemListener((e) -> {
 			SplittablePane.this.updateView(e);
 		});
@@ -177,8 +178,8 @@ public class SplittablePane extends JPanel {
 		this.add(this.splitPane, SplittablePane.CARD_SPLIT);
 		
 		this.cardLayout.show(this, SplittablePane.CARD_MAIN);
-		if(viewID == 0) this.updateView(null);
-		else this.viewCombo.setSelectedIndex(viewID); 
+		
+		if(viewID != -1) this.viewCombo.setSelectedIndex(viewID); // If not -1, update viewCombo; will update the view through the listener
 	}
 	
 	public void popup() {
