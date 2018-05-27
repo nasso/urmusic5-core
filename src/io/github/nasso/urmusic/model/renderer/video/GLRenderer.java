@@ -424,7 +424,6 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		}
 	}
 	
-	// TODO: CompositeTrack rendering or smth
 	private void renderTrack(Composition comp, Track t, float time) {
 		TrackRenderTexture dest = this.getTrackTexture(comp, t);
 		

@@ -79,7 +79,6 @@ public class UrmusicModel {
 	private static Map<String, TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableMap(UrmusicModel.loadedEffects);
 	
 	public static void init() {
-		// TODO: User prefs
 		UrmusicModel.videoRenderer = new VideoRenderer(200);
 		UrmusicModel.audioRenderer = new AudioRenderer(8192);
 		

@@ -106,7 +106,6 @@ public class UrmusicView {
 	private static boolean keyEventBlocked = false;
 	
 	public static void init() {
-		// TODO: Load Locale from pref file
 		UrmusicStrings.init(UrmusicView.getLocale());
 		UrmusicUIRes.init();
 		
@@ -362,7 +361,7 @@ public class UrmusicView {
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					SwingUtilities.updateComponentTreeUI(fileChooser);
 
-					// TODO: File filter for songs
+					// TODO: File filter for audio files?
 					fileChooser.setFileFilter(null);
 					fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 					int action = fileChooser.showOpenDialog(e.getSource() instanceof Component ? (Component) e.getSource() : null);
