@@ -35,6 +35,7 @@ public class UrmusicUIRes {
 	public static final ImageIcon KEY_FRAME_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-camera-automation-16.png"));
 	public static final ImageIcon KEY_FRAME_ICON_BLUE = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-camera-automation-16-blue.png"));
 	public static final ImageIcon KEY_FRAME_ICON_RED = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-camera-automation-16-red.png"));
+	public static final ImageIcon DUPLICATE_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-copy-16.png"));
 	public static final ImageIcon SORT_UP_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-sort-up-16.png"));
 	public static final ImageIcon SORT_DOWN_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-sort-down-16.png"));
 	public static final ImageIcon CODE_ICON = new ImageIcon(Urmusic.class.getResource("/res/ui/icons8-source-code-16.png"));

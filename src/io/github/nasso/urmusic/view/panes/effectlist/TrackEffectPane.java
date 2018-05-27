@@ -58,6 +58,7 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 	private JLabel labelExpand;
 	private JCheckBox chbxEnabled;
 	private JLabel labelName;
+	private JLabel labelDuplicate;
 	private JLabel labelMoveUp;
 	private JLabel labelMoveDown;
 	private JLabel labelDelete;
@@ -110,6 +111,9 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 		this.labelName.setHorizontalAlignment(SwingConstants.LEFT);
 		this.labelName.setBackground(new Color(0xcccccc));
 		
+		this.labelDuplicate = new JLabel(UrmusicUIRes.DUPLICATE_ICON);
+		this.labelDuplicate.addMouseListener(this.createClickListener(1, this::duplicate));
+		
 		this.labelMoveUp = new JLabel(UrmusicUIRes.SORT_UP_ICON);
 		this.labelMoveUp.addMouseListener(this.createClickListener(1, this::moveUp));
 		
@@ -128,6 +132,8 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 		this.headerPane.add(Box.createHorizontalStrut(2));
 		this.headerPane.add(this.labelName);
 		this.headerPane.add(Box.createHorizontalGlue());
+		this.headerPane.add(this.labelDuplicate);
+		this.headerPane.add(Box.createHorizontalStrut(2));
 		this.headerPane.add(this.labelMoveUp);
 		this.headerPane.add(Box.createHorizontalStrut(2));
 		this.headerPane.add(this.labelMoveDown);
@@ -156,6 +162,10 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 	
 	private void removeParam(int i) {
 		this.contentPane.remove(i);
+	}
+	
+	private void duplicate() {
+		UrmusicController.duplicateTrackEffect(this.track, this.fx);
 	}
 	
 	private void moveUp() {

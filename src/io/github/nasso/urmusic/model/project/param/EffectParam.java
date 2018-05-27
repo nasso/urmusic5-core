@@ -82,16 +82,17 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 		return this.addKeyFrame(time, this.getValue(time));
 	}
 	
-	public KeyFrame<T> addKeyFrame(float time, T val) {
+	public KeyFrame<T> addKeyFrame(float time, Object val) {
 		if(!this.canAnimate) return null;
 		
 		return this.addKeyFrame(time, val, EasingFunction.EASE);
 	}
 	
-	public KeyFrame<T> addKeyFrame(float time, T val, EasingFunction func) {
+	public KeyFrame<T> addKeyFrame(float time, Object val, EasingFunction func) {
 		if(!this.canAnimate) return null;
 		
-		T valClone = this.cloneValue(val);
+		@SuppressWarnings("unchecked")
+		T valClone = this.cloneValue((T) val);
 		
 		int i;
 		for(i = 0; i < this.keyFrames.size(); i++) {
@@ -197,10 +198,13 @@ public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	 * @param val
 	 * @param time
 	 */
-	public void setValue(T val, float time) {
+	public void setValue(Object val, float time) {
+		@SuppressWarnings("unchecked")
+		T tVal = (T) val;
+		
 		if(!this.isAutomated()) {
-			this.setStaticValue(val);
-			this.notifyValueChanged(val);
+			this.setStaticValue(tVal);
+			this.notifyValueChanged(tVal);
 			
 			return;
 		}

@@ -386,7 +386,7 @@ public class UrmusicController {
 		if(t == null) return;
 		
 		t.addEffect(e.instance());
-
+		
 		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
@@ -399,6 +399,27 @@ public class UrmusicController {
 		
 		for(TrackEffect e : elist)
 			t.addEffect(e.instance());
+
+		UrmusicController.notifyProjectChanged();
+		UrmusicController.markVideoDirty();
+	}
+	
+	public static void duplicateTrackEffect(Track track, TrackEffectInstance fx) {
+		int i = track.getEffects().indexOf(fx) + 1;
+		
+		TrackEffectInstance copy = UrmusicModel.instanciateEffectById(fx.getEffectClass().getEffectClassID());
+		copy.getScript().setSource(copy.getScript().getSource());
+		
+		for(EffectParam<?> param : fx.getParameterListUnmodifiable()) {
+			EffectParam<?> paramCopy = copy.getParamByID(param.getID());
+			
+			if(param.isAutomated()) {
+				for(KeyFrame<?> kf : param.getKeyFrames())
+					paramCopy.addKeyFrame(kf.getPosition(), kf.getValue(), kf.getEasingFunction());
+			} else paramCopy.setValue(param.getValue(0), 0);
+		}
+		
+		track.addEffect(copy, i);
 
 		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
