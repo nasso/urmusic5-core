@@ -195,6 +195,9 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		
 		this.infoPane.add(head, newIndex);
 		this.timelinePane.add(ranges, newIndex);
+
+		this.revalidate();
+		this.repaint();
 	}
 	
 	public void trackAdded(Timeline src, int index, Track track) {
