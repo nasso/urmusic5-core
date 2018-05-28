@@ -104,7 +104,7 @@ public class Urmusic {
 	}
 	
 	public static void main(String[] args) {
-		String os = System.getProperty("os.name");
+		String os = System.getProperty("os.name").toLowerCase();
 		
 		if((os.indexOf("mac") >= 0) || (os.indexOf("darwin") >= 0)) {
 			// TODO: Add Mac OS binaries
