@@ -183,6 +183,7 @@
 		"effect.urm.audio_spectrum.param.color.name": "Color",
 		"effect.urm.audio_spectrum.param.faceA.name": "Face A",
 		"effect.urm.audio_spectrum.param.faceB.name": "Face B",
+		"effect.urm.audio_spectrum.param.zeroLast.name": "Zero Last",
 		"effect.urm.audio_spectrum.param.polar.name": "Polar",
 		"effect.urm.audio_spectrum.param.startPoint.name": "Start Point",
 		"effect.urm.audio_spectrum.param.endPoint.name": "End Point",

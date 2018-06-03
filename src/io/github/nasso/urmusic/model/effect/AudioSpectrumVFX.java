@@ -48,6 +48,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 	private static final String PNAME_color = "color";
 	private static final String PNAME_faceA = "faceA";
 	private static final String PNAME_faceB = "faceB";
+	private static final String PNAME_zeroLast = "zeroLast";
 	private static final String PNAME_polar = "polar";
 	private static final String PNAME_startPoint = "startPoint";
 	private static final String PNAME_endPoint = "endPoint";
@@ -72,6 +73,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		private Vector2fc endPoint;
 		private boolean faceA;
 		private boolean faceB;
+		private boolean zeroLast;
 		private boolean polar;
 		private float millisOffset;
 		private float duration;
@@ -108,6 +110,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			this.addParameter(new RGBA32Param(PNAME_color, 0xFFFFFFFF));
 			this.addParameter(new BooleanParam(PNAME_faceA, BoolValue.TRUE));
 			this.addParameter(new BooleanParam(PNAME_faceB, BoolValue.TRUE));
+			this.addParameter(new BooleanParam(PNAME_zeroLast, BoolValue.FALSE));
 			this.addParameter(new BooleanParam(PNAME_polar, BoolValue.FALSE));
 			this.addParameter(new Point2DParam(PNAME_startPoint, -500, 150));
 			this.addParameter(new Point2DParam(PNAME_endPoint, +500, 150));
@@ -174,7 +177,8 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 				this.xy[1] = -this.startPoint.y();
 				if(this.polar) this.xyToPolar();
 				
-				this.vg.moveTo(this.xy[0], this.xy[1]);
+				if(this.zeroLast)
+					this.vg.moveTo(this.xy[0], this.xy[1]);
 				
 				for(int i = 0; i < this.count; i++) {
 					float p = (float) i / (this.count - 1);
@@ -187,22 +191,26 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 					this.xy[1] = -MathUtils.lerp(this.startPoint.y(), this.endPoint.y(), p) + freqVal * expandY + minExpandY;
 					if(this.polar) this.xyToPolar();
 					
-					this.vg.lineTo(this.xy[0], this.xy[1]);
+					if(this.zeroLast || i != 0) this.vg.lineTo(this.xy[0], this.xy[1]);
+					else this.vg.moveTo(this.xy[0], this.xy[1]);
 				}
 				
-				this.xy[0] = this.endPoint.x();
-				this.xy[1] = -this.endPoint.y();
-				if(this.polar) this.xyToPolar();
-				
-				this.vg.lineTo(this.xy[0], this.xy[1]);
+				if(this.zeroLast) {
+					this.xy[0] = this.endPoint.x();
+					this.xy[1] = -this.endPoint.y();
+					if(this.polar) this.xyToPolar();
+					
+					this.vg.lineTo(this.xy[0], this.xy[1]);
+				}
 			}
 
 			if(this.faceB) {
 				this.xy[0] = this.startPoint.x();
 				this.xy[1] = -this.startPoint.y();
 				if(this.polar) this.xyToPolar();
-				
-				this.vg.moveTo(this.xy[0], this.xy[1]);
+
+				if(this.zeroLast)
+					this.vg.moveTo(this.xy[0], this.xy[1]);
 				
 				for(int i = 0; i < this.count; i++) {
 					float p = (float) i / (this.count - 1);
@@ -215,14 +223,17 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 					this.xy[1] = -MathUtils.lerp(this.startPoint.y(), this.endPoint.y(), p) - freqVal * expandY - minExpandY;
 					if(this.polar) this.xyToPolar();
 
-					this.vg.lineTo(this.xy[0], this.xy[1]);
+					if(this.zeroLast || i != 0) this.vg.lineTo(this.xy[0], this.xy[1]);
+					else this.vg.moveTo(this.xy[0], this.xy[1]);
 				}
 
-				this.xy[0] = this.endPoint.x();
-				this.xy[1] = -this.endPoint.y();
-				if(this.polar) this.xyToPolar();
-				
-				this.vg.lineTo(this.xy[0], this.xy[1]);
+				if(this.zeroLast) {
+					this.xy[0] = this.endPoint.x();
+					this.xy[1] = -this.endPoint.y();
+					if(this.polar) this.xyToPolar();
+					
+					this.vg.lineTo(this.xy[0], this.xy[1]);
+				}
 			}
 		}
 		
@@ -346,6 +357,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			this.endPoint = ((Vector2fc) args.parameters.get(PNAME_endPoint));
 			this.faceA = args.parameters.get(PNAME_faceA) == BoolValue.TRUE;
 			this.faceB = args.parameters.get(PNAME_faceB) == BoolValue.TRUE;
+			this.zeroLast = args.parameters.get(PNAME_zeroLast) == BoolValue.TRUE;
 			this.polar = args.parameters.get(PNAME_polar) == BoolValue.TRUE;
 			this.millisOffset = ((float) args.parameters.get(PNAME_millisOffset));
 			this.duration = ((float) args.parameters.get(PNAME_duration));
