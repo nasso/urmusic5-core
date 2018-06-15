@@ -17,7 +17,7 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.gitlab.nasso.urmusic.model.effect;
+package io.gitlab.nasso.urmusic.plugin.standardfxlibrary;
 
 import org.joml.Vector2fc;
 

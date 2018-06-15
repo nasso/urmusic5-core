@@ -154,7 +154,21 @@ public class DataUtils {
 	 * @throws URISyntaxException 
 	 */
 	public static List<Path> listFilesInResource(String path) throws IOException, URISyntaxException {
-		URI uri = DataUtils.class.getClassLoader().getResource(path).toURI();
+		return listFilesInResource(path, DataUtils.class.getClassLoader());
+	}
+	
+	/**
+	 * Returns all the files in the given folder in the class path, including the content of subdirectories.
+	 * Only the files are returned, directories are ommited.
+	 * 
+	 * @param path
+	 * @param cloader The {@link ClassLoader} to use
+	 * @return
+	 * @throws IOException 
+	 * @throws URISyntaxException 
+	 */
+	public static List<Path> listFilesInResource(String path, ClassLoader cloader) throws IOException, URISyntaxException {
+		URI uri = cloader.getResource(path).toURI();
 		
 		Closeable thingToClose = null;
 		
@@ -174,11 +188,19 @@ public class DataUtils {
 	}
 	
 	public static InputStream getFileInputStream(String filePath, boolean inJar) throws IOException {
-		if(inJar) return DataUtils.class.getClassLoader().getResourceAsStream(filePath);
+		return inJar ? getFileInputStream(filePath, DataUtils.class.getClassLoader()) : getFileInputStream(filePath, null);
+	}
+	
+	public static InputStream getFileInputStream(String filePath, ClassLoader cloader) throws IOException {
+		if(cloader != null) return cloader.getResourceAsStream(filePath);
 		else return new BufferedInputStream(new FileInputStream(new File(filePath)));
 	}
 	
 	public static void exportResource(String resPath, String destPath) throws IOException {
+		exportResource(resPath, destPath, DataUtils.class.getClassLoader());
+	}
+	
+	public static void exportResource(String resPath, String destPath, ClassLoader cloader) throws IOException {
 		resPath = DataUtils.normalizeSeparators(resPath, "/");
 		
 		File dest = new File(destPath);
@@ -187,7 +209,7 @@ public class DataUtils {
 		if(destParent != null && !destParent.exists())
 			destParent.mkdirs();
 		
-		BufferedInputStream in = new BufferedInputStream(DataUtils.getFileInputStream(resPath, true));
+		BufferedInputStream in = new BufferedInputStream(DataUtils.getFileInputStream(resPath, cloader));
 		BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(dest));
 		
 		byte[] buffer = new byte[4096];
@@ -217,6 +239,19 @@ public class DataUtils {
 	
 	public static String readFile(CharSequence filePath, boolean inJar) throws IOException {
 		InputStream in = DataUtils.getFileInputStream(filePath.toString(), inJar);
+		if(in == null) {
+			System.err.println("Can't find ressource: " + filePath);
+			return null;
+		}
+		
+		String str = DataUtils.readAllString(in);
+		in.close();
+		
+		return str;
+	}
+	
+	public static String readFile(CharSequence filePath, ClassLoader cloader) throws IOException {
+		InputStream in = DataUtils.getFileInputStream(filePath.toString(), cloader);
 		if(in == null) {
 			System.err.println("Can't find ressource: " + filePath);
 			return null;

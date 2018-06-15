@@ -1,0 +1,2 @@
+Manifest-Version: 1.0
+Plugin-Main: io.gitlab.nasso.urmusic.plugin.standardfxlibrary.Main

@@ -17,7 +17,7 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.gitlab.nasso.urmusic.model.effect;
+package io.gitlab.nasso.urmusic.plugin.standardfxlibrary;
 
 import static com.jogamp.opengl.GL.*;
 
@@ -89,7 +89,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 		private int blendingMode;
 		
 		private GLVG vg;
-		private NGLUtils glu = new NGLUtils("audio spectrum instance glu");
+		private NGLUtils glu = new NGLUtils("audio spectrum instance glu", AudioSpectrumVFX.class.getClassLoader());
 		
 		private int gl_dest_fbo;
 		private int gl_dest_fbo_tex;
@@ -110,7 +110,7 @@ public class AudioSpectrumVFX extends TrackEffect implements VideoEffect {
 			this.addParameter(new RGBA32Param(PNAME_color, 0xFFFFFFFF));
 			this.addParameter(new BooleanParam(PNAME_faceA, BoolValue.TRUE));
 			this.addParameter(new BooleanParam(PNAME_faceB, BoolValue.TRUE));
-			this.addParameter(new BooleanParam(PNAME_zeroLast, BoolValue.FALSE));
+			this.addParameter(new BooleanParam(PNAME_zeroLast, BoolValue.TRUE));
 			this.addParameter(new BooleanParam(PNAME_polar, BoolValue.FALSE));
 			this.addParameter(new Point2DParam(PNAME_startPoint, -500, 150));
 			this.addParameter(new Point2DParam(PNAME_endPoint, +500, 150));

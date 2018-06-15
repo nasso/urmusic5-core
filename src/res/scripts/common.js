@@ -19,7 +19,7 @@
  ******************************************************************************/
 urmusic = urm = {};
 (function commonSetup() {
-	var UrmusicModel = Java.type("io.github.nasso.urmusic.model.UrmusicModel");
+	var UrmusicModel = Java.type("io.gitlab.nasso.urmusic.model.UrmusicModel");
 	var _audio = UrmusicModel.getAudioRenderer();
 
 	urm.clamp = function(value, min, max) {
@@ -88,7 +88,7 @@ urmusic = urm = {};
 		return _audio.peakAmp(n_time, n_duration);
 	};
 	
-	var remote = Java.type("io.github.nasso.urmusic.model.scripting.ScriptAPIUtils");
+	var remote = Java.type("io.gitlab.nasso.urmusic.model.scripting.ScriptAPIUtils");
 	
 	urm.seedRandom = function(n_seed, n_time) {
 		if(typeof n_seed !== "number") throw new Error("Invalid argument for 'n_seed': expected number, got " + (typeof n_seed));

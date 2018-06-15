@@ -17,7 +17,7 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.gitlab.nasso.urmusic.model.effect;
+package io.gitlab.nasso.urmusic.plugin.standardfxlibrary;
 
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
@@ -51,7 +51,7 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 	private static final String PNAME_blendingMode = "blendingMode";
 	private static final String PNAME_opacity = "opacity";
 	
-	private NGLUtils glu = new NGLUtils("image display global");
+	private NGLUtils glu = new NGLUtils("image display global", ImageDisplayVFX.class.getClassLoader());
 	
 	private int prog, quadVAO;
 	private int loc_xform, loc_inputTex, loc_imageTex, loc_blending, loc_opacity;

@@ -96,9 +96,15 @@ public class NGLUtils {
 	private final TIntList programs = new TIntArrayList();
 	
 	private final String name;
+	private final ClassLoader cloader;
 	
 	public NGLUtils(String name) {
+		this(name, NGLUtils.class.getClassLoader());
+	}
+	
+	public NGLUtils(String name, ClassLoader cloader) {
 		this.name = name;
+		this.cloader = cloader;
 	}
 	
 	public final int genBuffer(GL3 gl) {
@@ -182,11 +188,11 @@ public class NGLUtils {
 	private final void readGLSLSourceLines(String wdir, String shaderPath, StringBuilder lines) throws IOException {
 		String filePath = wdir + shaderPath;
 		
-		InputStream in = DataUtils.getFileInputStream(filePath.toString(), true);
+		InputStream in = DataUtils.getFileInputStream(filePath.toString(), this.cloader);
 		
 		// If it's still null, try to guess the missing extension
 		for(int i = 0; i < NGLUtils.GLSL_FILE_EXTENSIONS.length && in == null; i++)
-			in = DataUtils.getFileInputStream(filePath.toString() + "." + NGLUtils.GLSL_FILE_EXTENSIONS[i], true);
+			in = DataUtils.getFileInputStream(filePath.toString() + "." + NGLUtils.GLSL_FILE_EXTENSIONS[i], this.cloader);
 		
 		// If we couldn't guess the extension, welp rip m8 guess ur file doesn't exist or u have some weird extension
 		if(in == null) {
@@ -255,6 +261,7 @@ public class NGLUtils {
 			}, null);
 		} catch(IOException e) {
 			e.printStackTrace();
+			return 0;
 		}
 		
 		gl.glCompileShader(vs);
@@ -283,7 +290,7 @@ public class NGLUtils {
 		
 		gl.glGetProgramiv(progID, GL_LINK_STATUS, this.buf1a);
 		if(this.buf1a.get(0) == GL_FALSE) {
-			System.err.println(ShaderUtil.getProgramInfoLog(gl, progID));
+			System.err.println("Couldn't link program:\n" + ShaderUtil.getProgramInfoLog(gl, progID));
 			gl.glDeleteProgram(progID);
 			gl.glDeleteShader(vs);
 			gl.glDeleteShader(fs);

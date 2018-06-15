@@ -21,25 +21,39 @@ package io.gitlab.nasso.urmusic;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.security.Policy;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.JarFile;
 
 import io.gitlab.nasso.urmusic.common.DataUtils;
-import io.gitlab.nasso.urmusic.common.easing.EasingFunction;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
 import io.gitlab.nasso.urmusic.model.UrmusicModel;
-import io.gitlab.nasso.urmusic.model.effect.CircleMaskVFX.CircleMaskVFXInstance;
 import io.gitlab.nasso.urmusic.model.ffmpeg.FFmpeg;
-import io.gitlab.nasso.urmusic.model.project.param.FloatParam;
+import io.gitlab.nasso.urmusic.plugin.UrmPlugin;
+import io.gitlab.nasso.urmusic.plugin.UrmPluginPolicy;
 import io.gitlab.nasso.urmusic.view.UrmusicView;
 
 public class Urmusic {
+	private static UrmPlugin[] URM_PLUGINS;
+	private static File URM_PLUGIN_FOLDER;
 	private static File URM_STATIC_LIB_FOLDER;
 	private static File URM_HOME;
 	
 	private Urmusic() {
+	}
+	
+	public static final UrmPlugin[] getPlugins() {
+		return URM_PLUGINS;
+	}
+	
+	public static final File getPluginFolder() {
+		return URM_PLUGIN_FOLDER;
 	}
 	
 	public static final File getStaticLibFolder() {
@@ -78,29 +92,54 @@ public class Urmusic {
 	
 	public static final void init() {
 		Urmusic.setupFiles();
-		
 		FFmpeg.init();
+		loadPlugins();
 		
 		UrmusicModel.init();
 		UrmusicController.init();
 		UrmusicView.init();
 		
 		// Test stuff below this line!
-		UrmusicController.addTrack();
-		UrmusicController.focusTrack(UrmusicModel.getCurrentProject().getMainComposition().getTimeline().getTracks().get(0));
-		
-		UrmusicController.addEffect(UrmusicModel.STOCK_EFFECTS[1]);
-		CircleMaskVFXInstance fx = (CircleMaskVFXInstance) UrmusicController.getFocusedTrack().getEffect(0);
-		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(0f, 50f, EasingFunction.LINEAR);
-		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(2f, 100f, EasingFunction.EASE_IN_ELASTIC);
-		((FloatParam) fx.getParamByID("outerRadius")).addKeyFrame(4f, 200f, EasingFunction.EASE_IN_OUT_ELASTIC);
-		
-		// save there just so we don't get annoyed
-		if(System.getProperty("os.name").equals("Linux")) {
-			UrmusicController.saveCurrentProject(Paths.get("/dev/null"));
-		}
 		
 //		UrmusicController.addEffect(new TestVFX());
+	}
+	
+	public static void loadPlugins() {
+		Policy.setPolicy(new UrmPluginPolicy());
+		System.setSecurityManager(new SecurityManager());
+		
+		List<UrmPlugin> pluginList = new ArrayList<>();
+		for(File f : URM_PLUGIN_FOLDER.listFiles()) {
+			try {
+				JarFile jar = new JarFile(f);
+				String mainClassName = jar.getManifest().getMainAttributes().getValue("Plugin-Main");
+				jar.close();
+				
+				if(mainClassName == null) return;
+				
+				URLClassLoader ld = URLClassLoader.newInstance(new URL[] { f.toURI().toURL() });
+				Class<?> mainClass = ld.loadClass(mainClassName);
+				
+				if(mainClass == null) return;
+				
+				UrmPlugin plugin = (UrmPlugin) mainClass.newInstance();
+				pluginList.add(plugin);
+				
+				System.out.println("Found plugin: " + plugin.getName());
+			} catch(MalformedURLException e) {
+				e.printStackTrace();
+			} catch(InstantiationException e) {
+				e.printStackTrace();
+			} catch(IllegalAccessException e) {
+				e.printStackTrace();
+			} catch(ClassNotFoundException e) {
+				e.printStackTrace();
+			} catch(IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		URM_PLUGINS = pluginList.toArray(new UrmPlugin[pluginList.size()]);
 	}
 	
 	public static void main(String[] args) {
@@ -121,6 +160,16 @@ public class Urmusic {
 		if(homeFolderName == null) homeFolderName = "urmusic";
 		
 		URM_HOME = new File(System.getProperty("user.home") + File.separatorChar + "." + homeFolderName).getAbsoluteFile();
+		URM_PLUGIN_FOLDER = new File("./plugins").getAbsoluteFile();
+		
+		if(!URM_PLUGIN_FOLDER.exists() || !URM_PLUGIN_FOLDER.isDirectory())
+			URM_PLUGIN_FOLDER.mkdir();
+		
+		try {
+			URM_PLUGIN_FOLDER = URM_PLUGIN_FOLDER.getCanonicalFile();
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 		
 		Urmusic.init();
 	}

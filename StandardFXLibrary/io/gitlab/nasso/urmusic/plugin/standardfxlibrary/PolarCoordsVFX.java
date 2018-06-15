@@ -17,9 +17,7 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.gitlab.nasso.urmusic.model.effect;
-
-import org.joml.Vector2fc;
+package io.gitlab.nasso.urmusic.plugin.standardfxlibrary;
 
 import com.jogamp.opengl.GL;
 import com.jogamp.opengl.GL3;
@@ -30,74 +28,65 @@ import io.gitlab.nasso.urmusic.model.project.VideoEffect;
 import io.gitlab.nasso.urmusic.model.project.VideoEffectArgs;
 import io.gitlab.nasso.urmusic.model.project.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.BooleanParam;
-import io.gitlab.nasso.urmusic.model.project.param.Point2DParam;
 import io.gitlab.nasso.urmusic.model.renderer.video.NGLUtils;
 
-public class MirrorVFX extends TrackEffect implements VideoEffect {
-	private static final String PNAME_edge0 = "edge0";
-	private static final String PNAME_edge1 = "edge1";
-	private static final String PNAME_invert = "invert";
+public class PolarCoordsVFX extends TrackEffect implements VideoEffect {
+	private static final String PNAME_polarToRect = "polarToRect";
 	
-	private NGLUtils glu = new NGLUtils("mirror effect global");
+	private NGLUtils glu = new NGLUtils("polar coords global", PolarCoordsVFX.class.getClassLoader());
 	
 	private int prog, quadVAO;
-	private int loc_inputTex, loc_edge;
+	private int loc_inputTex, loc_aspectRatio, loc_modePolarToRect;
 	
-	public class MirrorVFXInstance extends TrackEffectInstance implements VideoEffectInstance  {
+	private class PolarCoordsVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
 		public void setupParameters() {
-			this.addParameter(new Point2DParam(PNAME_edge0, 0, 100));
-			this.addParameter(new Point2DParam(PNAME_edge1, 0, -100));
-			this.addParameter(new BooleanParam(PNAME_invert, BoolValue.FALSE));
+			this.addParameter(new BooleanParam(PNAME_polarToRect, BoolValue.FALSE));
 		}
 		
 		public void setupVideo(GL3 gl) {
 		}
-		
+
 		public void applyVideo(GL3 gl, VideoEffectArgs args) {
-			Vector2fc edge0 = (Vector2fc) args.parameters.get(PNAME_edge0);
-			Vector2fc edge1 = (Vector2fc) args.parameters.get(PNAME_edge1);
-			boolean invert = args.parameters.get(PNAME_invert) == BoolValue.TRUE;
+			boolean polarToRect = args.parameters.get(PNAME_polarToRect) == BoolValue.TRUE;
 			
-			gl.glUseProgram(MirrorVFX.this.prog);
-			MirrorVFX.this.glu.uniformTexture(gl, MirrorVFX.this.loc_inputTex, args.texInput, 0);
+			gl.glUseProgram(PolarCoordsVFX.this.prog);
+			PolarCoordsVFX.this.glu.uniformTexture(gl, PolarCoordsVFX.this.loc_inputTex, args.texInput, 0);
+			gl.glUniform1f(PolarCoordsVFX.this.loc_aspectRatio, (float) args.width / args.height);
+			gl.glUniform1i(PolarCoordsVFX.this.loc_modePolarToRect, polarToRect ? 1 : 0);
 			
-			float e0x = (+edge0.x() / (args.width /2)) * 0.5f + 0.5f;
-			float e0y = (-edge0.y() / (args.height/2)) * 0.5f + 0.5f;
-			float e1x = (+edge1.x() / (args.width /2)) * 0.5f + 0.5f;
-			float e1y = (-edge1.y() / (args.height/2)) * 0.5f + 0.5f;
-			
-			if(invert) gl.glUniform4f(MirrorVFX.this.loc_edge, e1x, e1y, e0x, e0y);
-			else gl.glUniform4f(MirrorVFX.this.loc_edge, e0x, e0y, e1x, e1y);
-			
-			gl.glBindVertexArray(MirrorVFX.this.quadVAO);
+			gl.glBindVertexArray(PolarCoordsVFX.this.quadVAO);
 			gl.glDrawArrays(GL.GL_TRIANGLE_STRIP, 0, 4);
 		}
-		
+
 		public void disposeVideo(GL3 gl) {
+			
 		}
+		
 	}
 	
 	public TrackEffectInstance instance() {
-		return new MirrorVFXInstance();
+		return new PolarCoordsVFXInstance();
 	}
-	
+
 	public void globalVideoSetup(GL3 gl) {
-		this.prog = this.glu.createProgram(gl, "fx/mirror/", "main_vert.vs", "main_frag.fs");
+		this.prog = this.glu.createProgram(gl, "fx/polar_coords/", "main_vert.vs", "main_frag.fs");
 		
 		this.loc_inputTex = gl.glGetUniformLocation(this.prog, "inputTex");
-		this.loc_edge = gl.glGetUniformLocation(this.prog, "edge");
+		this.loc_aspectRatio = gl.glGetUniformLocation(this.prog, "aspectRatio");
+		this.loc_modePolarToRect = gl.glGetUniformLocation(this.prog, "modePolarToRect");
 		
 		this.quadVAO = this.glu.createFullQuadVAO(gl);
 	}
-	
+
 	public void globalVideoDispose(GL3 gl) {
 		this.glu.dispose(gl);
 	}
-	
+
 	public void effectMain() {
+		
 	}
-	
+
 	public String getEffectClassID() {
-		return "urm.mirror";
+		return "urm.polar_coords";
 	}
 }

@@ -17,7 +17,7 @@
  * 
  * Contact "nasso": nassomails -at- gmail dot com
  ******************************************************************************/
-package io.gitlab.nasso.urmusic.model.effect;
+package io.gitlab.nasso.urmusic.plugin.standardfxlibrary;
 
 import org.joml.Matrix4f;
 import org.joml.Vector2fc;
@@ -41,7 +41,7 @@ public class AffineTransformVFX extends TrackEffect implements VideoEffect {
 	private static final String PNAME_scale = "scale";
 	private static final String PNAME_opacity = "opacity";
 	
-	private NGLUtils glu = new NGLUtils("affine transform global");
+	private NGLUtils glu = new NGLUtils("affine transform global", AffineTransformVFX.class.getClassLoader());
 	
 	private int prog, quadVAO;
 	private int loc_inputTex, loc_xform, loc_opacity;

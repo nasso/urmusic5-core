@@ -25,27 +25,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import io.gitlab.nasso.urmusic.Urmusic;
 import io.gitlab.nasso.urmusic.common.event.ProjectLoadingListener;
 import io.gitlab.nasso.urmusic.common.event.VideoRendererListener;
-import io.gitlab.nasso.urmusic.model.effect.AffineTransformVFX;
-import io.gitlab.nasso.urmusic.model.effect.AudioScopeVFX;
-import io.gitlab.nasso.urmusic.model.effect.AudioSpectrumVFX;
-import io.gitlab.nasso.urmusic.model.effect.CircleMaskVFX;
-import io.gitlab.nasso.urmusic.model.effect.ImageDisplayVFX;
-import io.gitlab.nasso.urmusic.model.effect.MirrorVFX;
-import io.gitlab.nasso.urmusic.model.effect.PolarCoordsVFX;
-import io.gitlab.nasso.urmusic.model.effect.RectangleMaskVFX;
 import io.gitlab.nasso.urmusic.model.exporter.Exporter;
 import io.gitlab.nasso.urmusic.model.project.Composition;
 import io.gitlab.nasso.urmusic.model.project.Project;
 import io.gitlab.nasso.urmusic.model.project.Track;
 import io.gitlab.nasso.urmusic.model.project.TrackEffect;
+import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.VideoEffect;
 import io.gitlab.nasso.urmusic.model.project.VideoEffectInstance;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.gitlab.nasso.urmusic.model.renderer.audio.AudioRenderer;
 import io.gitlab.nasso.urmusic.model.renderer.video.VideoRenderer;
 import io.gitlab.nasso.urmusic.model.scripting.ScriptManager;
+import io.gitlab.nasso.urmusic.plugin.UrmPlugin;
 
 /**
  * Where stuff happens, rendering, exporting, importing...<br />
@@ -54,20 +48,6 @@ import io.gitlab.nasso.urmusic.model.scripting.ScriptManager;
  * @author nasso
  */
 public class UrmusicModel {
-	public static final TrackEffect[] STOCK_EFFECTS = new TrackEffect[] {
-		// Basics
-		new ImageDisplayVFX(),
-		new CircleMaskVFX(),
-		new RectangleMaskVFX(),
-		new AffineTransformVFX(),
-		new PolarCoordsVFX(),
-		new MirrorVFX(),
-		
-		// Audio
-		new AudioScopeVFX(),
-		new AudioSpectrumVFX(),
-	};
-	
 	private UrmusicModel() { }
 
 	private static Project project;
@@ -105,8 +85,14 @@ public class UrmusicModel {
 			e.printStackTrace();
 		}
 		
-		for(TrackEffect fx : UrmusicModel.STOCK_EFFECTS) {
-			UrmusicModel.loadEffect(fx);
+		UrmPlugin[] plugins = Urmusic.getPlugins();
+		for(int i = 0; i < plugins.length; i++) {
+			TrackEffect[] pluginEffects = plugins[i].getEffects();
+			
+			for(int j = 0; j < pluginEffects.length; j++) {
+				System.out.println("Loading effect: " + pluginEffects[j].getEffectClassID());
+				UrmusicModel.loadEffect(pluginEffects[j]);
+			}
 		}
 	}
 	
