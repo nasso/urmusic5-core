@@ -2,208 +2,485 @@
 	"locale_name": "English (United-States)",
 
 	"map": {
-		"title": "urmusic",
-		"title.untitled": "untitled",
-
-		"global.browseFileButton": "...",
-		"global.na": "N/A",
+		"title": {
+			"": "urmusic",
+			"untitled": "untitled"
+		},
 		
-		"files.project.desc": "Project files",
+		"global": {
+			"browseFileButton": "...",
+			"na": "N/A"
+		},
 		
-		"menu.file": "File",
-		"menu.file.new": "New",
-		"menu.file.save": "Save",
-		"menu.file.saveAs": "Save As...",
-		"menu.file.open": "Open...",
-		"menu.file.loadSong": "Load Audio File",
-		"menu.file.export": "Export",
-		"menu.file.quit": "Quit",
-		"menu.edit": "Edit",
-		"menu.edit.projectSettings": "Project Settings...",
-		"menu.help": "Help",
-		"menu.help.about": "About",
+		"files": {
+			"project": {
+				"desc": "Project files"
+			}
+		},
 		
-		"dialog.global.ok": "OK",
-		"dialog.global.apply": "Apply",
-		"dialog.global.cancel": "Cancel",
+		"menu": {
+			"file": {
+				"": "File",
+				"new": "New",
+				"save": "Save",
+				"saveAs": "Save As...",
+				"open": "Open...",
+				"loadSong": "Load Audio File",
+				"export": "Export",
+				"quit": "Quit"
+			},
+			"edit": {
+				"": "Edit",
+				"projectSettings": "Project Settings..."
+			},
+			"help": {
+				"": "Help",
+				"about": "About"
+			}
+		},
 		
-		"dialog.colorPicker.title": "Pick a color",
-		"dialog.main.askToSave": "The current project has unsaved changes, save them?",
-		"dialog.loadingSong.title": "Loading music file...",
-		"dialog.about.title": "About",
+		"dialog": {
+			"global": {
+				"ok": "OK",
+				"apply": "Apply",
+				"cancel": "Cancel"
+			},
+			
+			"colorPicker": {
+				"title": "Pick a color"
+			},
+			
+			"main": {
+				"askToSave": "The current project has unsaved changes, save them?"
+			},
+			
+			"loadingSong": {
+				"title": "Loading music file..."
+			},
+			
+			"about": {
+				"title": "About"
+			},
+			
+			"projectSettings": {
+				"title": "Project Settings",
+				"frameWidth": "Width",
+				"frameHeight": "Height",
+				"framerate": "Framerate",
+				"duration": "Duration",
+				"background": "Background"
+			},
+			
+			"export": {
+				"tab": {
+					"settings": "Settings",
+					"console": "Console"
+				},
+				"title": "Export",
+				"start": "Start",
+				"video": {
+					"title": "Video"
+				},
+				"audio": {
+					"title": "Audio"
+				},
+				"encoder": "Encoder",
+				"variableBitrate": "Variable bitrate",
+				"bitrate": {
+					"": "Bitrate",
+					"variable": {
+						"quality": "High Quality",
+						"balanced": "Balanced",
+						"smallSize": "Small size"
+					}
+				},
+				"noAudioMessage": "No audio file has been loaded. Please load one and try again.",
+				"invalidVideoEncoder": "Please select a valid video encoder.",
+				"invalidAudioEncoder": "Please select a valid audio encoder.",
+				"invalidDestFileMessage": "Please select a valid destination file",
+				"overwriteDestFileMessage": "The destination file already exists. Overwrite it?",
+				"promptCancel": "Are you sure you want to cancel the export?",
+				"finishedMessage": "Your video has been exported"
+			}
+		},
 		
-		"dialog.projectSettings.title": "Project Settings",
-		"dialog.projectSettings.frameWidth": "Width",
-		"dialog.projectSettings.frameHeight": "Height",
-		"dialog.projectSettings.framerate": "Framerate",
-		"dialog.projectSettings.duration": "Duration",
-		"dialog.projectSettings.background": "Background",
+		"frame": {
+			"multiCloseWarning": {
+				"title": "Closing a window",
+				"message": "Would you like to close only this window or close all?",
+				"closeOne": "Close only this one",
+				"closeAll": "Close all",
+				"cancel": "Cancel"
+			}
+		},
 		
-		"dialog.export.tab.settings": "Settings",
-		"dialog.export.tab.console": "Console",
-		"dialog.export.title": "Export",
-		"dialog.export.start": "Start",
-		"dialog.export.video.title": "Video",
-		"dialog.export.audio.title": "Audio",
-		"dialog.export.encoder": "Encoder",
-		"dialog.export.variableBitrate": "Variable bitrate",
-		"dialog.export.bitrate": "Bitrate",
-		"dialog.export.bitrate.variable.quality": "High Quality",
-		"dialog.export.bitrate.variable.balanced": "Balanced",
-		"dialog.export.bitrate.variable.smallSize": "Small size",
-		"dialog.export.noAudioMessage": "No audio file has been loaded. Please load one and try again.",
-		"dialog.export.invalidVideoEncoder": "Please select a valid video encoder.",
-		"dialog.export.invalidAudioEncoder": "Please select a valid audio encoder.",
-		"dialog.export.invalidDestFileMessage": "Please select a valid destination file",
-		"dialog.export.overwriteDestFileMessage": "The destination file already exists. Overwrite it?",
-		"dialog.export.promptCancel": "Are you sure you want to cancel the export?",
-		"dialog.export.finishedMessage": "Your video has been exported",
+		"view": {
+			"preview": {
+				"name": "Preview",
+				"menu": {
+					"view": {
+						"": "View",
+						"fit": "Fit",
+						"fitMax": "Fit up to 100%",
+						"original": "Original (100%)",
+						"center": "Center"
+					}
+				}
+			},
+			
+			"project": {
+				"name": "Project",
+				"menu": {
+					"add": {
+						"": "Add",
+						"importFile": "Import File",
+						"newDirectory": "New Folder"
+					}
+				},
+				"dialog": {
+					"importFile": {
+						"title": "Import File"
+					}
+				}
+			},
+			
+			"timeline": {
+				"name": "Timeline",
+				"menu": {
+					"add": {
+						"": "Add",
+						"track": "Track"
+					}
+				},
+				"track": {
+					"menu": {
+						"moveUp": "Move Up",
+						"moveDown": "Move Down"
+					}
+				}
+			},
+			
+			"effectList": {
+				"name": "Effects",
+				"menu": {
+					"add": {
+						"": "Add",
+						"effect": "Effect"
+					}
+				},
+				"dialog": {
+					"add": {
+						"title": "Pick an effect to add"
+					}
+				}
+			},
+			
+			"scriptEditor": {
+				"name": "Script Editor"
+			}
+		},
 		
-		"frame.multiCloseWarning.title": "Closing a window",
-		"frame.multiCloseWarning.message": "Would you like to close only this window or close all?",
-		"frame.multiCloseWarning.closeOne": "Close only this one",
-		"frame.multiCloseWarning.closeAll": "Close all",
-		"frame.multiCloseWarning.cancel": "Cancel",
-
-		"view.preview.name": "Preview",
-		"view.preview.menu.view": "View",
-		"view.preview.menu.view.fit": "Fit",
-		"view.preview.menu.view.fitMax": "Fit up to 100%",
-		"view.preview.menu.view.original": "Original (100%)",
-		"view.preview.menu.view.center": "Center",
-
-		"view.project.name": "Project",
-		"view.project.menu.add": "Add",
-		"view.project.menu.add.importFile": "Import File",
-		"view.project.menu.add.newDirectory": "New Folder",
-		"view.project.dialog.importFile.title": "Import File",
-
-		"view.timeline.name": "Timeline",
-		"view.timeline.menu.add": "Add",
-		"view.timeline.menu.add.track": "Track",
-		"view.timeline.track.menu.moveUp": "Move Up",
-		"view.timeline.track.menu.moveDown": "Move Down",
-
-		"view.effectList.name": "Effects",
-		"view.effectList.menu.add": "Add",
-		"view.effectList.menu.add.effect": "Effect",
-		"view.effectList.dialog.add.title": "Pick an effect to add",
-		
-		"effect.urm.image_display.name": "Image Display",
-		"effect.urm.image_display.param.source.name": "Source",
-		"effect.urm.image_display.param.source.empty": "none",
-		"effect.urm.image_display.param.bounds.name": "Bounds",
-		"effect.urm.image_display.param.blendingMode.name": "Blending Mode",
-		"effect.urm.image_display.param.blendingMode.option.srcOver": "Source Over",
-		"effect.urm.image_display.param.blendingMode.option.dstOver": "Destination Over",
-		"effect.urm.image_display.param.blendingMode.option.srcIn": "Source In",
-		"effect.urm.image_display.param.blendingMode.option.dstIn": "Destination In",
-		"effect.urm.image_display.param.blendingMode.option.srcOut": "Source Out",
-		"effect.urm.image_display.param.blendingMode.option.dstOut": "Destination Out",
-		"effect.urm.image_display.param.blendingMode.option.srcAtop": "Source Atop",
-		"effect.urm.image_display.param.blendingMode.option.dstAtop": "Destination Atop",
-		"effect.urm.image_display.param.blendingMode.option.copy": "Copy",
-		"effect.urm.image_display.param.blendingMode.option.add": "Add",
-		"effect.urm.image_display.param.blendingMode.option.xor": "XOR",
-		"effect.urm.image_display.param.opacity.name": "Opacity",
-
-		"effect.urm.circle_mask.name": "Circle Mask",
-		"effect.urm.circle_mask.param.position.name": "Position",
-		"effect.urm.circle_mask.param.color.name": "Color",
-		"effect.urm.circle_mask.param.innerRadius.name": "Inner Radius",
-		"effect.urm.circle_mask.param.outerRadius.name": "Outer Radius",
-		"effect.urm.circle_mask.param.innerFade.name": "Inner Fade",
-		"effect.urm.circle_mask.param.outerFade.name": "Outer Fade",
-		"effect.urm.circle_mask.param.blendingMode.name": "Blending Mode",
-		"effect.urm.circle_mask.param.blendingMode.option.srcOver": "Source Over",
-		"effect.urm.circle_mask.param.blendingMode.option.dstOver": "Destination Over",
-		"effect.urm.circle_mask.param.blendingMode.option.srcIn": "Source In",
-		"effect.urm.circle_mask.param.blendingMode.option.dstIn": "Destination In",
-		"effect.urm.circle_mask.param.blendingMode.option.srcOut": "Source Out",
-		"effect.urm.circle_mask.param.blendingMode.option.dstOut": "Destination Out",
-		"effect.urm.circle_mask.param.blendingMode.option.srcAtop": "Source Atop",
-		"effect.urm.circle_mask.param.blendingMode.option.dstAtop": "Destination Atop",
-		"effect.urm.circle_mask.param.blendingMode.option.copy": "Copy",
-		"effect.urm.circle_mask.param.blendingMode.option.add": "Add",
-		"effect.urm.circle_mask.param.blendingMode.option.xor": "XOR",
-		"effect.urm.circle_mask.param.invert.name": "Invert",
-
-		"effect.urm.rectangle_mask.name": "Rectangle Mask",
-		"effect.urm.rectangle_mask.param.color.name": "Color",
-		"effect.urm.rectangle_mask.param.bounds.name": "Bounds",
-		"effect.urm.rectangle_mask.param.blendingMode.name": "Blending Mode",
-		"effect.urm.rectangle_mask.param.blendingMode.option.srcOver": "Source Over",
-		"effect.urm.rectangle_mask.param.blendingMode.option.dstOver": "Destination Over",
-		"effect.urm.rectangle_mask.param.blendingMode.option.srcIn": "Source In",
-		"effect.urm.rectangle_mask.param.blendingMode.option.dstIn": "Destination In",
-		"effect.urm.rectangle_mask.param.blendingMode.option.srcOut": "Source Out",
-		"effect.urm.rectangle_mask.param.blendingMode.option.dstOut": "Destination Out",
-		"effect.urm.rectangle_mask.param.blendingMode.option.srcAtop": "Source Atop",
-		"effect.urm.rectangle_mask.param.blendingMode.option.dstAtop": "Destination Atop",
-		"effect.urm.rectangle_mask.param.blendingMode.option.copy": "Copy",
-		"effect.urm.rectangle_mask.param.blendingMode.option.add": "Add",
-		"effect.urm.rectangle_mask.param.blendingMode.option.xor": "XOR",
-		"effect.urm.rectangle_mask.param.invert.name": "Invert",
-
-		"effect.urm.affine_transform.name": "Affine Transform",
-		"effect.urm.affine_transform.param.translation.name": "Translate",
-		"effect.urm.affine_transform.param.rotation.name": "Rotation",
-		"effect.urm.affine_transform.param.scale.name": "Scale",
-		"effect.urm.affine_transform.param.opacity.name": "Opacity",
-		
-		"effect.urm.polar_coords.name": "Polar Coordinates",
-		"effect.urm.polar_coords.param.polarToRect.name": "Polar to Rectangle",
-		
-		"effect.urm.audio_scope.name": "Audio Scope",
-		"effect.urm.audio_scope.param.startPoint.name": "Start Point",
-		"effect.urm.audio_scope.param.endPoint.name": "End Point",
-		"effect.urm.audio_scope.param.millisOffset.name": "Time Offset (ms)",
-		"effect.urm.audio_scope.param.duration.name": "Duration",
-		"effect.urm.audio_scope.param.lineWidth.name": "Line Width",
-		"effect.urm.audio_scope.param.precision.name": "Precision",
-
-		"effect.urm.audio_spectrum.name": "Audio Spectrum",
-		"effect.urm.audio_spectrum.param.blendingMode.name": "Blending Mode",
-		"effect.urm.audio_spectrum.param.blendingMode.option.srcOver": "Source Over",
-		"effect.urm.audio_spectrum.param.blendingMode.option.dstOver": "Destination Over",
-		"effect.urm.audio_spectrum.param.blendingMode.option.srcIn": "Source In",
-		"effect.urm.audio_spectrum.param.blendingMode.option.dstIn": "Destination In",
-		"effect.urm.audio_spectrum.param.blendingMode.option.srcOut": "Source Out",
-		"effect.urm.audio_spectrum.param.blendingMode.option.dstOut": "Destination Out",
-		"effect.urm.audio_spectrum.param.blendingMode.option.srcAtop": "Source Atop",
-		"effect.urm.audio_spectrum.param.blendingMode.option.dstAtop": "Destination Atop",
-		"effect.urm.audio_spectrum.param.blendingMode.option.copy": "Copy",
-		"effect.urm.audio_spectrum.param.blendingMode.option.add": "Add",
-		"effect.urm.audio_spectrum.param.blendingMode.option.xor": "XOR",
-		"effect.urm.audio_spectrum.param.mode.name": "Mode",
-		"effect.urm.audio_spectrum.param.mode.option.outline": "Outline",
-		"effect.urm.audio_spectrum.param.mode.option.lines": "Lines",
-		"effect.urm.audio_spectrum.param.mode.option.fill": "Fill",
-		"effect.urm.audio_spectrum.param.mode.option.dots": "Dots",
-		"effect.urm.audio_spectrum.param.color.name": "Color",
-		"effect.urm.audio_spectrum.param.faceA.name": "Face A",
-		"effect.urm.audio_spectrum.param.faceB.name": "Face B",
-		"effect.urm.audio_spectrum.param.zeroLast.name": "Zero Last",
-		"effect.urm.audio_spectrum.param.polar.name": "Polar",
-		"effect.urm.audio_spectrum.param.startPoint.name": "Start Point",
-		"effect.urm.audio_spectrum.param.endPoint.name": "End Point",
-		"effect.urm.audio_spectrum.param.millisOffset.name": "Time Offset (ms)",
-		"effect.urm.audio_spectrum.param.duration.name": "Duration",
-		"effect.urm.audio_spectrum.param.minDecibel.name": "Min Decibel",
-		"effect.urm.audio_spectrum.param.maxDecibel.name": "Max Decibel",
-		"effect.urm.audio_spectrum.param.minFreq.name": "Min Frequency (%)",
-		"effect.urm.audio_spectrum.param.maxFreq.name": "Max Frequency (%)",
-		"effect.urm.audio_spectrum.param.height.name": "Height",
-		"effect.urm.audio_spectrum.param.minHeight.name": "Min Height",
-		"effect.urm.audio_spectrum.param.exponent.name": "Exponent",
-		"effect.urm.audio_spectrum.param.size.name": "Size",
-		"effect.urm.audio_spectrum.param.count.name": "Count",
-		
-		"effect.urm.mirror.name": "Mirror",
-		"effect.urm.mirror.param.edge0.name": "Edge 1",
-		"effect.urm.mirror.param.edge1.name": "Edge 2",
-		"effect.urm.mirror.param.invert.name": "Invert",
-		
-		"view.scriptEditor.name": "Script Editor"
+		"effect": {
+			"urm": {
+				"image_display": {
+					"name": "Image Display",
+					"param": {
+						"source": {
+							"name": "Source",
+							"empty": "none"
+						},
+						
+						"bounds": {
+							"name": "Bounds"
+						},
+						
+						"blendingMode": {
+							"name": "Blending Mode",
+							"option": {
+								"srcOver": "Source Over",
+								"dstOver": "Destination Over",
+								"srcIn": "Source In",
+								"dstIn": "Destination In",
+								"srcOut": "Source Out",
+								"dstOut": "Destination Out",
+								"srcAtop": "Source Atop",
+								"dstAtop": "Destination Atop",
+								"copy": "Copy",
+								"add": "Add",
+								"xor": "XOR"
+							}
+						},
+						
+						"opacity": {
+							"name": "Opacity"
+						}
+					}
+				},
+				
+				"circle_mask": {
+					"name": "Circle Mask",
+					"param": {
+						"position": {
+							"name": "Position"
+						},
+						
+						"color": {
+							"name": "Color"
+						},
+						
+						"innerRadius": {
+							"name": "Inner Radius"
+						},
+						
+						"outerRadius": {
+							"name": "Outer Radius"
+						},
+						
+						"innerFade": {
+							"name": "Inner Fade"
+						},
+						
+						"outerFade": {
+							"name": "Outer Fade"
+						},
+						
+						"blendingMode": {
+							"name": "Blending Mode",
+							"option": {
+								"srcOver": "Source Over",
+								"dstOver": "Destination Over",
+								"srcIn": "Source In",
+								"dstIn": "Destination In",
+								"srcOut": "Source Out",
+								"dstOut": "Destination Out",
+								"srcAtop": "Source Atop",
+								"dstAtop": "Destination Atop",
+								"copy": "Copy",
+								"add": "Add",
+								"xor": "XOR"
+							}
+						},
+						
+						"invert": {
+							"name": "Invert"
+						}
+					}
+				},
+				
+				"rectangle_mask": {
+					"name": "Rectangle Mask",
+					"param": {
+						"color": {
+							"name": "Color"
+						},
+						
+						"bounds": {
+							"name": "Bounds"
+						},
+						
+						"blendingMode": {
+							"name": "Blending Mode",
+							"option": {
+								"srcOver": "Source Over",
+								"dstOver": "Destination Over",
+								"srcIn": "Source In",
+								"dstIn": "Destination In",
+								"srcOut": "Source Out",
+								"dstOut": "Destination Out",
+								"srcAtop": "Source Atop",
+								"dstAtop": "Destination Atop",
+								"copy": "Copy",
+								"add": "Add",
+								"xor": "XOR"
+							}
+						},
+						
+						"invert": {
+							"name": "Invert"
+						}
+					}
+				},
+				
+				"affine_transform": {
+					"name": "Affine Transform",
+					"param": {
+						"translation": {
+							"name": "Translate"
+						},
+						
+						"rotation": {
+							"name": "Rotation"
+						},
+						
+						"scale": {
+							"name": "Scale"
+						},
+						
+						"opacity": {
+							"name": "Opacity"
+						}
+					}
+				},
+				
+				"polar_coords": {
+					"name": "Polar Coordinates",
+					"param": {
+						"polarToRect": {
+							"name": "Polar to Rectangle"
+						}
+					}
+				},
+				
+				"audio_scope": {
+					"name": "Audio Scope",
+					"param": {
+						"startPoint": {
+							"name": "Start Point"
+						},
+						
+						"endPoint": {
+							"name": "End Point"
+						},
+						
+						"millisOffset": {
+							"name": "Time Offset (ms)"
+						},
+						
+						"duration": {
+							"name": "Duration"
+						},
+						
+						"lineWidth": {
+							"name": "Line Width"
+						},
+						
+						"precision": {
+							"name": "Precision"
+						}
+					}
+				},
+				
+				"audio_spectrum": {
+					"name": "Audio Spectrum",
+					"param": {
+						"blendingMode": {
+							"name": "Blending Mode",
+							"option": {
+								"srcOver": "Source Over",
+								"dstOver": "Destination Over",
+								"srcIn": "Source In",
+								"dstIn": "Destination In",
+								"srcOut": "Source Out",
+								"dstOut": "Destination Out",
+								"srcAtop": "Source Atop",
+								"dstAtop": "Destination Atop",
+								"copy": "Copy",
+								"add": "Add",
+								"xor": "XOR"
+							}
+						},
+						
+						"mode": {
+							"name": "Mode",
+							"option": {
+								"outline": "Outline",
+								"lines": "Lines",
+								"fill": "Fill",
+								"dots": "Dots"
+							}
+						},
+						
+						"color": {
+							"name": "Color"
+						},
+						
+						"faceA": {
+							"name": "Face A"
+						},
+						
+						"faceB": {
+							"name": "Face B"
+						},
+						
+						"zeroLast": {
+							"name": "Zero Last"
+						},
+						
+						"polar": {
+							"name": "Polar"
+						},
+						
+						"startPoint": {
+							"name": "Start Point"
+						},
+						
+						"endPoint": {
+							"name": "End Point"
+						},
+						
+						"millisOffset": {
+							"name": "Time Offset (ms)"
+						},
+						
+						"duration": {
+							"name": "Duration"
+						},
+						
+						"minDecibel": {
+							"name": "Min Decibel"
+						},
+						
+						"maxDecibel": {
+							"name": "Max Decibel"
+						},
+						
+						"minFreq": {
+							"name": "Min Frequency (%)"
+						},
+						
+						"maxFreq": {
+							"name": "Max Frequency (%)"
+						},
+						
+						"height": {
+							"name": "Height"
+						},
+						
+						"minHeight": {
+							"name": "Min Height"
+						},
+						
+						"exponent": {
+							"name": "Exponent"
+						},
+						
+						"size": {
+							"name": "Size"
+						},
+						
+						"count": {
+							"name": "Count"
+						}
+					}
+				},
+				
+				"mirror": {
+					"name": "Mirror",
+					"param": {
+						"edge0": {
+							"name": "Edge 1"
+						},
+						
+						"edge1": {
+							"name": "Edge 2"
+						},
+						
+						"invert": {
+							"name": "Invert"
+						}
+					}
+				}
+			}
+		}
 	}
 }

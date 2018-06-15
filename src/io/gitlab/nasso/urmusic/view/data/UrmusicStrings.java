@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import io.gitlab.nasso.urmusic.common.DataUtils;
@@ -35,9 +36,28 @@ import io.gitlab.nasso.urmusic.common.DataUtils;
 public class UrmusicStrings {
 	private static final Gson gson = new Gson();
 	
-	private static final Map<String, String> langmap = new HashMap<String, String>();
+	private static final Map<String, String> langmap = new HashMap<>();
 	private static String currentLangTag = null;
 	private static String currentLangName = null;
+	
+	private static final void mapLocalTree(String prefix, JsonObject map) {
+		for(String key : map.keySet()) {
+			if(key.isEmpty()) continue;
+			
+			JsonElement v = map.get(key);
+			
+			if(v.isJsonObject()) {
+				JsonObject sub = (JsonObject) v;
+				
+				if(sub.has("")) {
+					JsonElement e = sub.get("");
+					if(e.isJsonPrimitive()) langmap.put(prefix + key, e.getAsString());
+				}
+				
+				mapLocalTree(prefix + key + ".", sub);
+			} else if(v.isJsonPrimitive()) langmap.put(prefix + key, v.getAsString());
+		}
+	}
 	
 	public static final void init(Locale loc) {
 		currentLangTag = loc.toLanguageTag();
@@ -54,9 +74,7 @@ public class UrmusicStrings {
 			currentLangName = root.get("locale_name").getAsString();
 			
 			JsonObject map = root.getAsJsonObject("map");
-			for(String key : map.keySet()) {
-				langmap.put(key, map.get(key).getAsString());
-			}
+			mapLocalTree("", map);
 		} catch(FileNotFoundException e) {
 			e.printStackTrace();
 		}
