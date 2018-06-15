@@ -22,7 +22,7 @@
 	<classpathentry kind="lib" path="/urmusic5-dev/libs/jogl/jogl-all-natives-windows-amd64.jar"/>
 	<classpathentry kind="lib" path="/urmusic5-dev/libs/jogl/jogl-all-natives-windows-i586.jar"/>
 	<classpathentry kind="lib" path="/urmusic5-dev/libs/jogl/jogl-all.jar" sourcepath="/urmusic5-dev/libs/jogl/jogl-java-src.zip"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/urmusic5-dev"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/urmusic5-core"/>
 	<classpathentry kind="lib" path="/urmusic5-dev/libs/joml/joml-1.9.3.jar" sourcepath="/urmusic5-dev/libs/joml/joml-1.9.3-sources.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:platform:/resource/urmusic5-dev/libs/joml/joml-1.9.3-javadoc.jar!/"/>
