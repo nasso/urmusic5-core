@@ -64,7 +64,7 @@ public class EffectPickerDialog extends JDialog {
 		}
 		
 		public Component getListCellRendererComponent(JList<? extends TrackEffect> list, TrackEffect value, int index, boolean isSelected, boolean cellHasFocus) {
-			this.setText(UrmusicStrings.getString("effect." + value.getEffectClassID() + ".name"));
+			this.setText(UrmusicStrings.getString(UrmusicModel.getSourcePackage(value), "effect." + value.getEffectClassID() + ".name"));
 			
 			this.setOpaque(isSelected);
 			this.setBackground(cellHasFocus ? BACKGROUND_SELECTED_FOCUSED : BACKGROUND_SELECTED);			

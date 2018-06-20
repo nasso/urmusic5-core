@@ -1,0 +1,302 @@
+{
+	"effect": {
+		"image_display": {
+			"name": "Image Display",
+			"param": {
+				"source": {
+					"name": "Source",
+					"empty": "none"
+				},
+				
+				"bounds": {
+					"name": "Bounds"
+				},
+				
+				"blendingMode": {
+					"name": "Blending Mode",
+					"option": {
+						"srcOver": "Source Over",
+						"dstOver": "Destination Over",
+						"srcIn": "Source In",
+						"dstIn": "Destination In",
+						"srcOut": "Source Out",
+						"dstOut": "Destination Out",
+						"srcAtop": "Source Atop",
+						"dstAtop": "Destination Atop",
+						"copy": "Copy",
+						"add": "Add",
+						"xor": "XOR"
+					}
+				},
+				
+				"opacity": {
+					"name": "Opacity"
+				}
+			}
+		},
+		
+		"circle_mask": {
+			"name": "Circle Mask",
+			"param": {
+				"position": {
+					"name": "Position"
+				},
+				
+				"color": {
+					"name": "Color"
+				},
+				
+				"innerRadius": {
+					"name": "Inner Radius"
+				},
+				
+				"outerRadius": {
+					"name": "Outer Radius"
+				},
+				
+				"innerFade": {
+					"name": "Inner Fade"
+				},
+				
+				"outerFade": {
+					"name": "Outer Fade"
+				},
+				
+				"blendingMode": {
+					"name": "Blending Mode",
+					"option": {
+						"srcOver": "Source Over",
+						"dstOver": "Destination Over",
+						"srcIn": "Source In",
+						"dstIn": "Destination In",
+						"srcOut": "Source Out",
+						"dstOut": "Destination Out",
+						"srcAtop": "Source Atop",
+						"dstAtop": "Destination Atop",
+						"copy": "Copy",
+						"add": "Add",
+						"xor": "XOR"
+					}
+				},
+				
+				"invert": {
+					"name": "Invert"
+				}
+			}
+		},
+		
+		"rectangle_mask": {
+			"name": "Rectangle Mask",
+			"param": {
+				"color": {
+					"name": "Color"
+				},
+				
+				"bounds": {
+					"name": "Bounds"
+				},
+				
+				"blendingMode": {
+					"name": "Blending Mode",
+					"option": {
+						"srcOver": "Source Over",
+						"dstOver": "Destination Over",
+						"srcIn": "Source In",
+						"dstIn": "Destination In",
+						"srcOut": "Source Out",
+						"dstOut": "Destination Out",
+						"srcAtop": "Source Atop",
+						"dstAtop": "Destination Atop",
+						"copy": "Copy",
+						"add": "Add",
+						"xor": "XOR"
+					}
+				},
+				
+				"invert": {
+					"name": "Invert"
+				}
+			}
+		},
+		
+		"affine_transform": {
+			"name": "Affine Transform",
+			"param": {
+				"translation": {
+					"name": "Translate"
+				},
+				
+				"rotation": {
+					"name": "Rotation"
+				},
+				
+				"scale": {
+					"name": "Scale"
+				},
+				
+				"opacity": {
+					"name": "Opacity"
+				}
+			}
+		},
+		
+		"polar_coords": {
+			"name": "Polar Coordinates",
+			"param": {
+				"polarToRect": {
+					"name": "Polar to Rectangle"
+				}
+			}
+		},
+		
+		"audio_scope": {
+			"name": "Audio Scope",
+			"param": {
+				"startPoint": {
+					"name": "Start Point"
+				},
+				
+				"endPoint": {
+					"name": "End Point"
+				},
+				
+				"millisOffset": {
+					"name": "Time Offset (ms)"
+				},
+				
+				"duration": {
+					"name": "Duration"
+				},
+				
+				"lineWidth": {
+					"name": "Line Width"
+				},
+				
+				"precision": {
+					"name": "Precision"
+				}
+			}
+		},
+		
+		"audio_spectrum": {
+			"name": "Audio Spectrum",
+			"param": {
+				"blendingMode": {
+					"name": "Blending Mode",
+					"option": {
+						"srcOver": "Source Over",
+						"dstOver": "Destination Over",
+						"srcIn": "Source In",
+						"dstIn": "Destination In",
+						"srcOut": "Source Out",
+						"dstOut": "Destination Out",
+						"srcAtop": "Source Atop",
+						"dstAtop": "Destination Atop",
+						"copy": "Copy",
+						"add": "Add",
+						"xor": "XOR"
+					}
+				},
+				
+				"mode": {
+					"name": "Mode",
+					"option": {
+						"outline": "Outline",
+						"lines": "Lines",
+						"fill": "Fill",
+						"dots": "Dots"
+					}
+				},
+				
+				"color": {
+					"name": "Color"
+				},
+				
+				"faceA": {
+					"name": "Face A"
+				},
+				
+				"faceB": {
+					"name": "Face B"
+				},
+				
+				"zeroLast": {
+					"name": "Zero Last"
+				},
+				
+				"polar": {
+					"name": "Polar"
+				},
+				
+				"startPoint": {
+					"name": "Start Point"
+				},
+				
+				"endPoint": {
+					"name": "End Point"
+				},
+				
+				"millisOffset": {
+					"name": "Time Offset (ms)"
+				},
+				
+				"duration": {
+					"name": "Duration"
+				},
+				
+				"minDecibel": {
+					"name": "Min Decibel"
+				},
+				
+				"maxDecibel": {
+					"name": "Max Decibel"
+				},
+				
+				"minFreq": {
+					"name": "Min Frequency (%)"
+				},
+				
+				"maxFreq": {
+					"name": "Max Frequency (%)"
+				},
+				
+				"height": {
+					"name": "Height"
+				},
+				
+				"minHeight": {
+					"name": "Min Height"
+				},
+				
+				"exponent": {
+					"name": "Exponent"
+				},
+				
+				"size": {
+					"name": "Size"
+				},
+				
+				"count": {
+					"name": "Count"
+				}
+			}
+		},
+		
+		"mirror": {
+				"name": "Mirror",
+				"param": {
+					"edge0": {
+						"name": "Edge 1"
+					},
+					
+					"edge1": {
+						"name": "Edge 2"
+					},
+					
+					"invert": {
+						"name": "Invert"
+					}
+				}
+			}
+	}
+}

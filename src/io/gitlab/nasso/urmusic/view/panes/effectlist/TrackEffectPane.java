@@ -41,6 +41,7 @@ import io.gitlab.nasso.urmusic.common.MathUtils;
 import io.gitlab.nasso.urmusic.common.event.EffectInstanceListener;
 import io.gitlab.nasso.urmusic.common.event.FocusListener;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
+import io.gitlab.nasso.urmusic.model.UrmusicModel;
 import io.gitlab.nasso.urmusic.model.project.Track;
 import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
@@ -225,7 +226,7 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 			this.fx.addEffectInstanceListener(this);
 			UrmusicController.addTrackEffectInstanceFocusListener(this);
 			
-			this.labelName.setText(UrmusicStrings.getString("effect." + this.fx.getEffectClass().getEffectClassID() + ".name"));
+			this.labelName.setText(UrmusicStrings.getString(UrmusicModel.getSourcePackage(this.fx.getEffectClass()), "effect." + this.fx.getEffectClass().getEffectClassID() + ".name"));
 			this.chbxEnabled.setSelected(this.fx.isEnabled());
 		}
 	}

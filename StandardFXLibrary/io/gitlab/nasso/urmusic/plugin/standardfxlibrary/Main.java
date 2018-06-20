@@ -41,7 +41,9 @@ public class Main implements UrmPlugin {
 		return EFFECTS;
 	}
 	
-	public String getName() {
-		return "StandardFXLibrary";
+	public void pluginInit() {
+	}
+	
+	public void pluginDispose() {
 	}
 }

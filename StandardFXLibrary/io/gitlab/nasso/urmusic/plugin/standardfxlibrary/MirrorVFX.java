@@ -98,6 +98,6 @@ public class MirrorVFX extends TrackEffect implements VideoEffect {
 	}
 	
 	public String getEffectClassID() {
-		return "urm.mirror";
+		return "mirror";
 	}
 }

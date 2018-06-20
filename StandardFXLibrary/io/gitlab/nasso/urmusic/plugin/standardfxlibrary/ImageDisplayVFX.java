@@ -193,6 +193,6 @@ public class ImageDisplayVFX extends TrackEffect implements VideoEffect {
 	}
 	
 	public String getEffectClassID() {
-		return "urm.image_display";
+		return "image_display";
 	}
 }

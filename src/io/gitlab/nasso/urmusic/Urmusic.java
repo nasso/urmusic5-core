@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.security.Policy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 
 import io.gitlab.nasso.urmusic.common.DataUtils;
@@ -36,11 +37,12 @@ import io.gitlab.nasso.urmusic.controller.UrmusicController;
 import io.gitlab.nasso.urmusic.model.UrmusicModel;
 import io.gitlab.nasso.urmusic.model.ffmpeg.FFmpeg;
 import io.gitlab.nasso.urmusic.plugin.UrmPlugin;
+import io.gitlab.nasso.urmusic.plugin.UrmPluginPackage;
 import io.gitlab.nasso.urmusic.plugin.UrmPluginPolicy;
 import io.gitlab.nasso.urmusic.view.UrmusicView;
 
 public class Urmusic {
-	private static UrmPlugin[] URM_PLUGINS;
+	private static UrmPluginPackage[] URM_PLUGINS;
 	private static File URM_PLUGIN_FOLDER;
 	private static File URM_STATIC_LIB_FOLDER;
 	private static File URM_HOME;
@@ -48,7 +50,7 @@ public class Urmusic {
 	private Urmusic() {
 	}
 	
-	public static final UrmPlugin[] getPlugins() {
+	public static final UrmPluginPackage[] getPlugins() {
 		return URM_PLUGINS;
 	}
 	
@@ -108,24 +110,25 @@ public class Urmusic {
 		Policy.setPolicy(new UrmPluginPolicy());
 		System.setSecurityManager(new SecurityManager());
 		
-		List<UrmPlugin> pluginList = new ArrayList<>();
+		List<UrmPluginPackage> pluginList = new ArrayList<>();
 		for(File f : URM_PLUGIN_FOLDER.listFiles()) {
 			try {
 				JarFile jar = new JarFile(f);
-				String mainClassName = jar.getManifest().getMainAttributes().getValue("Plugin-Main");
+				Attributes mainAttributes = jar.getManifest().getMainAttributes();
+				String mainClassName = mainAttributes.getValue("UrmPlugin-MainClass");
 				jar.close();
 				
-				if(mainClassName == null) return;
+				if(mainClassName == null) continue;
 				
 				URLClassLoader ld = URLClassLoader.newInstance(new URL[] { f.toURI().toURL() });
 				Class<?> mainClass = ld.loadClass(mainClassName);
 				
-				if(mainClass == null) return;
+				if(mainClass == null) continue;
 				
-				UrmPlugin plugin = (UrmPlugin) mainClass.newInstance();
-				pluginList.add(plugin);
-				
-				System.out.println("Found plugin: " + plugin.getName());
+				UrmPluginPackage upp = new UrmPluginPackage((UrmPlugin) mainClass.newInstance(), mainAttributes);
+				pluginList.add(upp);
+
+				System.out.println("Found plugin: " + f.getName() + " (" + upp.getPluginID() + ")");
 			} catch(MalformedURLException e) {
 				e.printStackTrace();
 			} catch(InstantiationException e) {
@@ -139,7 +142,7 @@ public class Urmusic {
 			}
 		}
 		
-		URM_PLUGINS = pluginList.toArray(new UrmPlugin[pluginList.size()]);
+		URM_PLUGINS = pluginList.toArray(new UrmPluginPackage[pluginList.size()]);
 	}
 	
 	public static void main(String[] args) {

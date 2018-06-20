@@ -39,7 +39,7 @@ import io.gitlab.nasso.urmusic.model.project.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.renderer.audio.AudioRenderer;
 import io.gitlab.nasso.urmusic.model.renderer.video.VideoRenderer;
 import io.gitlab.nasso.urmusic.model.scripting.ScriptManager;
-import io.gitlab.nasso.urmusic.plugin.UrmPlugin;
+import io.gitlab.nasso.urmusic.plugin.UrmPluginPackage;
 
 /**
  * Where stuff happens, rendering, exporting, importing...<br />
@@ -85,9 +85,9 @@ public class UrmusicModel {
 			e.printStackTrace();
 		}
 		
-		UrmPlugin[] plugins = Urmusic.getPlugins();
+		UrmPluginPackage[] plugins = Urmusic.getPlugins();
 		for(int i = 0; i < plugins.length; i++) {
-			TrackEffect[] pluginEffects = plugins[i].getEffects();
+			TrackEffect[] pluginEffects = plugins[i].getPlugin().getEffects();
 			
 			for(int j = 0; j < pluginEffects.length; j++) {
 				System.out.println("Loading effect: " + pluginEffects[j].getEffectClassID());
@@ -108,6 +108,19 @@ public class UrmusicModel {
 	
 	public static Exporter getExporter() {
 		return exporter;
+	}
+	
+	public static UrmPluginPackage getSourcePackage(TrackEffect fx) {
+		UrmPluginPackage[] plugins = Urmusic.getPlugins();
+		for(int i = 0; i < plugins.length; i++) {
+			TrackEffect[] pluginEffects = plugins[i].getPlugin().getEffects();
+			
+			for(int j = 0; j < pluginEffects.length; j++) {
+				if(pluginEffects[j] == fx) return plugins[i];
+			}
+		}
+		
+		return null;
 	}
 	
 	public static boolean isEffectLoaded(TrackEffect fx) {

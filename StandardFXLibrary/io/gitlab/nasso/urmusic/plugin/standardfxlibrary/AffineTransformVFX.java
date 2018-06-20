@@ -108,6 +108,6 @@ public class AffineTransformVFX extends TrackEffect implements VideoEffect {
 	}
 	
 	public String getEffectClassID() {
-		return "urm.affine_transform";
+		return "affine_transform";
 	}
 }

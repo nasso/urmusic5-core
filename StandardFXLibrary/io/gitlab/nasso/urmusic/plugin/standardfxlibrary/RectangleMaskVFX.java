@@ -124,6 +124,6 @@ public class RectangleMaskVFX extends TrackEffect implements VideoEffect {
 	}
 	
 	public String getEffectClassID() {
-		return "urm.rectangle_mask";
+		return "rectangle_mask";
 	}
 }

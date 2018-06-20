@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -31,7 +32,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import io.gitlab.nasso.urmusic.Urmusic;
 import io.gitlab.nasso.urmusic.common.DataUtils;
+import io.gitlab.nasso.urmusic.plugin.UrmPluginPackage;
 
 public class UrmusicStrings {
 	private static final Gson gson = new Gson();
@@ -51,11 +54,11 @@ public class UrmusicStrings {
 				
 				if(sub.has("")) {
 					JsonElement e = sub.get("");
-					if(e.isJsonPrimitive()) langmap.put(prefix + key, e.getAsString());
+					if(e.isJsonPrimitive()) langmap.putIfAbsent(prefix + key, e.getAsString());
 				}
 				
 				mapLocalTree(prefix + key + ".", sub);
-			} else if(v.isJsonPrimitive()) langmap.put(prefix + key, v.getAsString());
+			} else if(v.isJsonPrimitive()) langmap.putIfAbsent(prefix + key, v.getAsString());
 		}
 	}
 	
@@ -78,6 +81,34 @@ public class UrmusicStrings {
 		} catch(FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		
+		UrmPluginPackage[] plugins = Urmusic.getPlugins();
+		for(int i = 0; i < plugins.length; i++) {
+			UrmPluginPackage upp = plugins[i];
+			
+			Object folder = upp.getPluginLangFolder();
+			if(folder != null) {
+				String folderStr = folder.toString();
+				String jsonData = null;
+				
+				try {
+					// First choice is currentLangTag
+					jsonData = DataUtils.readFile((folderStr.endsWith("/") ? folderStr : folderStr + "/") + currentLangTag + ".json", upp.getPlugin().getClass().getClassLoader());
+
+					// If not found, default to english
+					if(jsonData == null)
+						jsonData = DataUtils.readFile((folderStr.endsWith("/") ? folderStr : folderStr + "/") + "en.json", upp.getPlugin().getClass().getClassLoader());
+				} catch(IOException e) {
+					// Do nothing
+				}
+
+				// If no english then... uh well fix your thing mate
+				if(jsonData != null) {
+					JsonObject pluginRoot = gson.fromJson(jsonData, JsonObject.class);
+					mapLocalTree("plugin." + upp.getPluginID() + ".", pluginRoot);
+				}
+			}
+		}
 	}
 	
 	public static final String getCurrentLanguageTag() {
@@ -90,6 +121,10 @@ public class UrmusicStrings {
 	
 	public static final String getString(String key) {
 		return langmap.getOrDefault(key, "[" + key + "]");
+	}
+	
+	public static final String getString(UrmPluginPackage upp, String key) {
+		return getString("plugin." + upp.getPluginID() + "." + key);
 	}
 	
 	private UrmusicStrings() { }

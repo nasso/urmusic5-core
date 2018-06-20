@@ -113,6 +113,6 @@ public class AudioScopeVFX extends TrackEffect implements VideoEffect {
 	}
 
 	public String getEffectClassID() {
-		return "urm.audio_scope";
+		return "audio_scope";
 	}
 }
