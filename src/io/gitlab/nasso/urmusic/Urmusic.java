@@ -21,22 +21,16 @@ package io.gitlab.nasso.urmusic;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.security.Policy;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
 
 import io.gitlab.nasso.urmusic.common.DataUtils;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
 import io.gitlab.nasso.urmusic.model.UrmusicModel;
 import io.gitlab.nasso.urmusic.model.ffmpeg.FFmpeg;
-import io.gitlab.nasso.urmusic.plugin.UrmPlugin;
 import io.gitlab.nasso.urmusic.plugin.UrmPluginPackage;
 import io.gitlab.nasso.urmusic.plugin.UrmPluginPolicy;
 import io.gitlab.nasso.urmusic.view.UrmusicView;
@@ -112,37 +106,23 @@ public class Urmusic {
 		
 		List<UrmPluginPackage> pluginList = new ArrayList<>();
 		for(File f : URM_PLUGIN_FOLDER.listFiles()) {
+			UrmPluginPackage upp = null;
 			try {
-				JarFile jar = new JarFile(f);
-				Attributes mainAttributes = jar.getManifest().getMainAttributes();
-				String mainClassName = mainAttributes.getValue("UrmPlugin-MainClass");
-				jar.close();
-				
-				if(mainClassName == null) continue;
-				
-				URLClassLoader ld = URLClassLoader.newInstance(new URL[] { f.toURI().toURL() });
-				Class<?> mainClass = ld.loadClass(mainClassName);
-				
-				if(mainClass == null) continue;
-				
-				UrmPluginPackage upp = new UrmPluginPackage((UrmPlugin) mainClass.newInstance(), mainAttributes);
-				pluginList.add(upp);
-
-				System.out.println("Found plugin: " + f.getName() + " (" + upp.getPluginID() + ")");
-			} catch(MalformedURLException e) {
-				e.printStackTrace();
-			} catch(InstantiationException e) {
-				e.printStackTrace();
-			} catch(IllegalAccessException e) {
-				e.printStackTrace();
-			} catch(ClassNotFoundException e) {
-				e.printStackTrace();
-			} catch(IOException e) {
+				upp = new UrmPluginPackage(f);
+			} catch(ClassNotFoundException | IOException | InstantiationException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
+			
+			if(upp != null)
+				pluginList.add(upp);
 		}
 		
 		URM_PLUGINS = pluginList.toArray(new UrmPluginPackage[pluginList.size()]);
+		
+		UrmusicModel.addExitHook(() -> {
+			for(int i = 0; i < URM_PLUGINS.length; i++)
+				URM_PLUGINS[i].getPlugin().pluginDispose();
+		});
 	}
 	
 	public static void main(String[] args) {
