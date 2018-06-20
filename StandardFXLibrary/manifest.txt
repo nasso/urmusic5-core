@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-UrmPlugin-Name: StandardFXLibrary
-UrmPlugin-ID: urmstdfx
-UrmPlugin-MainClass: io.gitlab.nasso.urmusic.plugin.standardfxlibrary.Main
-UrmPlugin-LangFolder: res/lang/
