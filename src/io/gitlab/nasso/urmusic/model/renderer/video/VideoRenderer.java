@@ -34,8 +34,8 @@ import io.gitlab.nasso.urmusic.common.event.VideoRendererListener;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
 import io.gitlab.nasso.urmusic.model.project.Composition;
 import io.gitlab.nasso.urmusic.model.project.Track;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 
 public class VideoRenderer implements Runnable {
 	private static final int RCMD_RENDER_FRAME = 0;
@@ -140,7 +140,7 @@ public class VideoRenderer implements Runnable {
 			}
 		}
 		
-		public void queueEffectLoad(TrackEffect fx) {
+		public void queueEffectLoad(VideoEffect fx) {
 			synchronized(this.commands) {
 				this.commands.add(VideoRenderer.RCMD_LOAD_EFFECT);
 				this.commands.add(fx);
@@ -149,7 +149,7 @@ public class VideoRenderer implements Runnable {
 			}
 		}
 		
-		public void queueEffectUnload(TrackEffect fx) {
+		public void queueEffectUnload(VideoEffect fx) {
 			synchronized(this.commands) {
 				this.commands.add(VideoRenderer.RCMD_UNLOAD_EFFECT);
 				this.commands.add(fx);
@@ -158,7 +158,7 @@ public class VideoRenderer implements Runnable {
 			}
 		}
 		
-		public void queueEffectInstanceUnload(TrackEffectInstance fx) {
+		public void queueEffectInstanceUnload(VideoEffectInstance fx) {
 			synchronized(this.commands) {
 				this.commands.add(VideoRenderer.RCMD_UNLOAD_EFFECT_INSTANCE);
 				this.commands.add(fx);
@@ -229,8 +229,8 @@ public class VideoRenderer implements Runnable {
 		int cmd = -1;
 		Composition comp = null;
 		int frame = -1;
-		TrackEffect fx = null;
-		TrackEffectInstance fxi = null;
+		VideoEffect fx = null;
+		VideoEffectInstance fxi = null;
 		Track track = null;
 		
 		// Wait for frames to render now
@@ -260,10 +260,10 @@ public class VideoRenderer implements Runnable {
 							break;
 						case RCMD_LOAD_EFFECT:
 						case RCMD_UNLOAD_EFFECT:
-							fx = (TrackEffect) this.renderQueue.pop();
+							fx = (VideoEffect) this.renderQueue.pop();
 							break;
 						case RCMD_UNLOAD_EFFECT_INSTANCE:
-							fxi = (TrackEffectInstance) this.renderQueue.pop();
+							fxi = (VideoEffectInstance) this.renderQueue.pop();
 							break;
 						case RCMD_UNLOAD_TRACK:
 							track = (Track) this.renderQueue.pop();
@@ -367,15 +367,15 @@ public class VideoRenderer implements Runnable {
 		return this.gpuCache[this.destCacheFrame];
 	}
 	
-	public void initEffect(TrackEffect fx) {
+	public void initEffect(VideoEffect fx) {
 		this.renderQueue.queueEffectLoad(fx);
 	}
 	
-	public void disposeEffect(TrackEffect vfx) {
+	public void disposeEffect(VideoEffect vfx) {
 		this.renderQueue.queueEffectUnload(vfx);
 	}
 	
-	public void disposeEffectInstance(TrackEffectInstance vfx) {
+	public void disposeEffectInstance(VideoEffectInstance vfx) {
 		this.renderQueue.queueEffectInstanceUnload(vfx);
 	}
 	
@@ -491,13 +491,13 @@ public class VideoRenderer implements Runnable {
 		}
 	}
 	
-	private void notifyEffectLoaded(TrackEffect fx) {
+	private void notifyEffectLoaded(VideoEffect fx) {
 		for(VideoRendererListener l : this.listeners) {
 			l.effectLoaded(fx);
 		}
 	}
 	
-	private void notifyEffectUnloaded(TrackEffect fx) {
+	private void notifyEffectUnloaded(VideoEffect fx) {
 		for(VideoRendererListener l : this.listeners) {
 			l.effectUnloaded(fx);
 		}

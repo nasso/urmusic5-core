@@ -20,11 +20,11 @@
 package io.gitlab.nasso.urmusic.common.event;
 
 import io.gitlab.nasso.urmusic.model.project.Composition;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect;
 
 public interface VideoRendererListener {
-	public void effectLoaded(TrackEffect fx);
-	public void effectUnloaded(TrackEffect fx);
+	public void effectLoaded(VideoEffect fx);
+	public void effectUnloaded(VideoEffect fx);
 	
 	public void frameRendered(Composition comp, float time);
 }

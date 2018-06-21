@@ -26,14 +26,14 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.OptionParam;
 import io.gitlab.nasso.urmusic.view.data.UrmusicStrings;
 
 public class OptionParamUI extends EffectParamUI<OptionParam> {
 	private JComboBox<String> combo;
 	
-	public OptionParamUI(TrackEffectInstance fx, OptionParam param) {
+	public OptionParamUI(VideoEffectInstance fx, OptionParam param) {
 		super(fx, param);
 	}
 

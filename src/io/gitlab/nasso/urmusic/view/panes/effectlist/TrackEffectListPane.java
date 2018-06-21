@@ -30,7 +30,7 @@ import io.gitlab.nasso.urmusic.common.MathUtils;
 import io.gitlab.nasso.urmusic.common.event.TrackListener;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
 import io.gitlab.nasso.urmusic.model.project.Track;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.view.layout.VListLayout;
 
 public class TrackEffectListPane extends JPanel implements TrackListener {
@@ -55,7 +55,7 @@ public class TrackEffectListPane extends JPanel implements TrackListener {
 		});
 	}
 
-	private void addEffectPane(TrackEffectInstance e, int pos) {
+	private void addEffectPane(VideoEffectInstance e, int pos) {
 		this.add(new TrackEffectPane(this.track, e), pos);
 		
 		this.revalidate();
@@ -112,19 +112,19 @@ public class TrackEffectListPane extends JPanel implements TrackListener {
 	public void rangesChanged(Track source) {
 	}
 
-	public void effectAdded(Track source, TrackEffectInstance e, int pos) {
+	public void effectAdded(Track source, VideoEffectInstance e, int pos) {
 		SwingUtilities.invokeLater(() -> {
 			this.addEffectPane(e, pos);
 		});
 	}
 
-	public void effectRemoved(Track source, TrackEffectInstance e, int pos) {
+	public void effectRemoved(Track source, VideoEffectInstance e, int pos) {
 		SwingUtilities.invokeLater(() -> {
 			this.removeEffectPane(pos);
 		});
 	}
 
-	public void effectMoved(Track source, TrackEffectInstance e, int oldPos, int newPos) {
+	public void effectMoved(Track source, VideoEffectInstance e, int oldPos, int newPos) {
 		SwingUtilities.invokeLater(() -> {
 			Component fx = this.getComponent(oldPos);
 			this.remove(fx);

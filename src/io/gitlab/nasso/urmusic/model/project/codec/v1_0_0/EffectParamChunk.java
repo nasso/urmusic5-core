@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
 
 class EffectParamChunk<T> implements Chunk {
@@ -70,7 +70,7 @@ class EffectParamChunk<T> implements Chunk {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void applyTo(TrackEffectInstance tei) {
+	public void applyTo(VideoEffectInstance tei) {
 		EffectParam<T> param = (EffectParam<T>) tei.getParamByID(this.id.build());
 		
 		if(param == null)

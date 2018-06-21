@@ -40,7 +40,7 @@ import io.gitlab.nasso.urmusic.common.event.KeyFrameListener;
 import io.gitlab.nasso.urmusic.common.event.MultiFocusListener;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
 import io.gitlab.nasso.urmusic.model.UrmusicModel;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
 import io.gitlab.nasso.urmusic.model.project.param.KeyFrame;
 import io.gitlab.nasso.urmusic.view.data.UrmusicStrings;
@@ -57,7 +57,7 @@ public class EffectParamPane extends JPanel implements FrameCursorListener, Effe
 	
 	private JLabel keyframeIconLabel, controlNameLabel;
 	
-	public EffectParamPane(TrackEffectInstance fx, EffectParam<?> param, int i) {
+	public EffectParamPane(VideoEffectInstance fx, EffectParam<?> param, int i) {
 		this.param = param;
 		
 		this.setBackground(UrmusicController.isFocused(param) ? EffectParamPane.PARAM_LINE_SELECTED_COLOR : EffectParamPane.PARAM_LINE_COLOR);

@@ -19,14 +19,14 @@
  ******************************************************************************/
 package io.gitlab.nasso.urmusic.common.event;
 
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
 
 public interface EffectInstanceListener {
-	public void enabledStateChanged(TrackEffectInstance source, boolean isEnabledNow);
+	public void enabledStateChanged(VideoEffectInstance source, boolean isEnabledNow);
 	
-	public void parameterAdded(TrackEffectInstance source, int i, EffectParam<?> ctrl);
-	public void parameterRemoved(TrackEffectInstance source, int i, EffectParam<?> ctrl);
+	public void parameterAdded(VideoEffectInstance source, int i, EffectParam<?> ctrl);
+	public void parameterRemoved(VideoEffectInstance source, int i, EffectParam<?> ctrl);
 	
 	public void effectInstanceDisposed();
 }

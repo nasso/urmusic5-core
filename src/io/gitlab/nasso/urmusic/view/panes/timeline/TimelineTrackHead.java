@@ -39,7 +39,7 @@ import io.gitlab.nasso.urmusic.common.event.TrackListener;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
 import io.gitlab.nasso.urmusic.model.project.Timeline;
 import io.gitlab.nasso.urmusic.model.project.Track;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.view.components.UrmEditableLabel;
 import io.gitlab.nasso.urmusic.view.components.UrmIconButton;
 import io.gitlab.nasso.urmusic.view.data.UrmusicStrings;
@@ -153,12 +153,12 @@ public class TimelineTrackHead extends JPanel implements TrackListener {
 	public void rangesChanged(Track source) {
 	}
 
-	public void effectAdded(Track source, TrackEffectInstance e, int pos) {
+	public void effectAdded(Track source, VideoEffectInstance e, int pos) {
 	}
 
-	public void effectRemoved(Track source, TrackEffectInstance e, int pos) {
+	public void effectRemoved(Track source, VideoEffectInstance e, int pos) {
 	}
 
-	public void effectMoved(Track source, TrackEffectInstance e, int oldPos, int newPos) {
+	public void effectMoved(Track source, VideoEffectInstance e, int oldPos, int newPos) {
 	}
 }

@@ -20,7 +20,7 @@
 package io.gitlab.nasso.urmusic.common.event;
 
 import io.gitlab.nasso.urmusic.model.project.Track;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 
 public interface TrackListener {
 	public void nameChanged(Track source, String newName);
@@ -28,7 +28,7 @@ public interface TrackListener {
 	
 	public void rangesChanged(Track source);
 
-	public void effectAdded(Track source, TrackEffectInstance e, int pos);
-	public void effectRemoved(Track source, TrackEffectInstance e, int pos);
-	public void effectMoved(Track source, TrackEffectInstance e, int oldPos, int newPos);
+	public void effectAdded(Track source, VideoEffectInstance e, int pos);
+	public void effectRemoved(Track source, VideoEffectInstance e, int pos);
+	public void effectMoved(Track source, VideoEffectInstance e, int oldPos, int newPos);
 }

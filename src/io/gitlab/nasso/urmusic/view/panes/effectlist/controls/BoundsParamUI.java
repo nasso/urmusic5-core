@@ -28,7 +28,7 @@ import org.joml.Vector4f;
 import org.joml.Vector4fc;
 
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.BoundsParam;
 import io.gitlab.nasso.urmusic.view.components.UrmEditableNumberField;
 
@@ -36,7 +36,7 @@ public class BoundsParamUI extends EffectParamUI<BoundsParam> {
 	private Vector4f _vec4 = new Vector4f();
 	private UrmEditableNumberField xField, wField, yField, hField;
 	
-	public BoundsParamUI(TrackEffectInstance fx, BoundsParam param) {
+	public BoundsParamUI(VideoEffectInstance fx, BoundsParam param) {
 		super(fx, param);
 	}
 

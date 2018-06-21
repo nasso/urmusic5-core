@@ -28,13 +28,13 @@ import javax.swing.JComponent;
 
 import io.gitlab.nasso.urmusic.common.BoolValue;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.BooleanParam;
 
 public class BooleanParamUI extends EffectParamUI<BooleanParam> {
 	private JCheckBox box;
 	
-	public BooleanParamUI(TrackEffectInstance fx, BooleanParam param) {
+	public BooleanParamUI(VideoEffectInstance fx, BooleanParam param) {
 		super(fx, param);
 		
 		this.setLayout(new BorderLayout());

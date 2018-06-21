@@ -41,7 +41,7 @@ import io.gitlab.nasso.urmusic.common.event.TrackListener;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
 import io.gitlab.nasso.urmusic.model.project.Track;
 import io.gitlab.nasso.urmusic.model.project.Track.TrackActivityRange;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 
 public class TimelineTrackRangesBar extends JPanel implements
 														TrackListener,
@@ -281,13 +281,13 @@ public class TimelineTrackRangesBar extends JPanel implements
 	public void keyReleased(KeyEvent e) {
 	}
 
-	public void effectAdded(Track source, TrackEffectInstance e, int pos) {
+	public void effectAdded(Track source, VideoEffectInstance e, int pos) {
 	}
 
-	public void effectRemoved(Track source, TrackEffectInstance e, int pos) {
+	public void effectRemoved(Track source, VideoEffectInstance e, int pos) {
 	}
 
-	public void effectMoved(Track source, TrackEffectInstance e, int oldPos, int newPos) {
+	public void effectMoved(Track source, VideoEffectInstance e, int oldPos, int newPos) {
 	}
 	
 	public void enabledStateChanged(Track source, boolean enabledNow) {

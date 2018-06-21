@@ -22,14 +22,14 @@ package io.gitlab.nasso.urmusic.view.panes.effectlist.controls;
 import javax.swing.JComponent;
 
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.IntParam;
 import io.gitlab.nasso.urmusic.view.components.UrmEditableIntegerField;
 
 public class IntParamUI extends EffectParamUI<IntParam> {
 	private UrmEditableIntegerField field;
 	
-	public IntParamUI(TrackEffectInstance fx, IntParam param) {
+	public IntParamUI(VideoEffectInstance fx, IntParam param) {
 		super(fx, param);
 	}
 	

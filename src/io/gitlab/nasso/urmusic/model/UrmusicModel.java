@@ -32,10 +32,8 @@ import io.gitlab.nasso.urmusic.model.exporter.Exporter;
 import io.gitlab.nasso.urmusic.model.project.Composition;
 import io.gitlab.nasso.urmusic.model.project.Project;
 import io.gitlab.nasso.urmusic.model.project.Track;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.VideoEffect;
-import io.gitlab.nasso.urmusic.model.project.VideoEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.renderer.audio.AudioRenderer;
 import io.gitlab.nasso.urmusic.model.renderer.video.VideoRenderer;
 import io.gitlab.nasso.urmusic.model.scripting.ScriptManager;
@@ -55,8 +53,8 @@ public class UrmusicModel {
 	private static AudioRenderer audioRenderer;
 	private static Exporter exporter = new Exporter();
 	
-	private static Map<String, TrackEffect> loadedEffects = new HashMap<>();
-	private static Map<String, TrackEffect> loadedEffectsUnmodifiable = Collections.unmodifiableMap(UrmusicModel.loadedEffects);
+	private static Map<String, VideoEffect> loadedEffects = new HashMap<>();
+	private static Map<String, VideoEffect> loadedEffectsUnmodifiable = Collections.unmodifiableMap(UrmusicModel.loadedEffects);
 	
 	public static void init() {
 		UrmusicModel.videoRenderer = new VideoRenderer(200);
@@ -66,13 +64,13 @@ public class UrmusicModel {
 			public void frameRendered(Composition comp, float time) {
 			}
 			
-			public void effectLoaded(TrackEffect fx) {
+			public void effectLoaded(VideoEffect fx) {
 				synchronized(UrmusicModel.loadedEffects) {
 					UrmusicModel.loadedEffects.put(fx.getEffectClassID(), fx);
 				}
 			}
 			
-			public void effectUnloaded(TrackEffect fx) {
+			public void effectUnloaded(VideoEffect fx) {
 				synchronized(UrmusicModel.loadedEffects) {
 					UrmusicModel.loadedEffects.remove(fx.getEffectClassID());
 				}
@@ -87,7 +85,7 @@ public class UrmusicModel {
 		
 		UrmPluginPackage[] plugins = Urmusic.getPlugins();
 		for(int i = 0; i < plugins.length; i++) {
-			TrackEffect[] pluginEffects = plugins[i].getPlugin().getEffects();
+			VideoEffect[] pluginEffects = plugins[i].getPlugin().getEffects();
 			
 			for(int j = 0; j < pluginEffects.length; j++) {
 				System.out.println("Loading effect: " + pluginEffects[j].getEffectClassID());
@@ -110,10 +108,10 @@ public class UrmusicModel {
 		return exporter;
 	}
 	
-	public static UrmPluginPackage getSourcePackage(TrackEffect fx) {
+	public static UrmPluginPackage getSourcePackage(VideoEffect fx) {
 		UrmPluginPackage[] plugins = Urmusic.getPlugins();
 		for(int i = 0; i < plugins.length; i++) {
-			TrackEffect[] pluginEffects = plugins[i].getPlugin().getEffects();
+			VideoEffect[] pluginEffects = plugins[i].getPlugin().getEffects();
 			
 			for(int j = 0; j < pluginEffects.length; j++) {
 				if(pluginEffects[j] == fx) return plugins[i];
@@ -123,13 +121,13 @@ public class UrmusicModel {
 		return null;
 	}
 	
-	public static boolean isEffectLoaded(TrackEffect fx) {
+	public static boolean isEffectLoaded(VideoEffect fx) {
 		synchronized(UrmusicModel.loadedEffects) {
 			return UrmusicModel.loadedEffects.containsKey(fx.getEffectClassID());
 		}
 	}
 	
-	public static void loadEffect(TrackEffect fx) {
+	public static void loadEffect(VideoEffect fx) {
 		if(UrmusicModel.isEffectLoaded(fx)) return;
 		
 		fx.effectMain();
@@ -138,7 +136,7 @@ public class UrmusicModel {
 		}
 	}
 	
-	public static void unloadEffect(TrackEffect fx) {
+	public static void unloadEffect(VideoEffect fx) {
 		if(!UrmusicModel.isEffectLoaded(fx)) return;
 
 		if(fx instanceof VideoEffect) {
@@ -146,11 +144,11 @@ public class UrmusicModel {
 		}
 	}
 	
-	public static Map<String, TrackEffect> getLoadedEffects() {
+	public static Map<String, VideoEffect> getLoadedEffects() {
 		return UrmusicModel.loadedEffectsUnmodifiable;
 	}
 	
-	public static TrackEffectInstance instanciateEffectById(String effectId) {
+	public static VideoEffectInstance instanciateEffectById(String effectId) {
 		if(!UrmusicModel.loadedEffects.containsKey(effectId))
 			return null;
 		
@@ -193,7 +191,7 @@ public class UrmusicModel {
 		UrmusicModel.videoRenderer.disposeTrack(track);
 	}
 	
-	public static void disposeEffect(TrackEffectInstance fx) {
+	public static void disposeEffect(VideoEffectInstance fx) {
 		if(fx instanceof VideoEffectInstance) {
 			UrmusicModel.videoRenderer.disposeEffectInstance(fx);
 		}

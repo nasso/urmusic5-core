@@ -25,7 +25,7 @@ import javax.swing.JComponent;
 
 import io.gitlab.nasso.urmusic.common.MutableRGBA32;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.RGBA32Param;
 import io.gitlab.nasso.urmusic.view.components.UrmColorButton;
 
@@ -33,7 +33,7 @@ public class RGBA32ParamUI extends EffectParamUI<RGBA32Param> {
 	private MutableRGBA32 _rgba32 = new MutableRGBA32();
 	private UrmColorButton colorButton;
 	
-	public RGBA32ParamUI(TrackEffectInstance fx, RGBA32Param param) {
+	public RGBA32ParamUI(VideoEffectInstance fx, RGBA32Param param) {
 		super(fx, param);
 	}
 

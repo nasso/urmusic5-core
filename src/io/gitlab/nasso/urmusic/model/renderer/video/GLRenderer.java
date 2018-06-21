@@ -38,11 +38,9 @@ import com.jogamp.opengl.GLProfile;
 import io.gitlab.nasso.urmusic.common.event.CompositionListener;
 import io.gitlab.nasso.urmusic.model.project.Composition;
 import io.gitlab.nasso.urmusic.model.project.Track;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect;
 import io.gitlab.nasso.urmusic.model.project.VideoEffect;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.VideoEffectArgs;
-import io.gitlab.nasso.urmusic.model.project.VideoEffectInstance;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
 
 /**
@@ -235,9 +233,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		return GLProfile.getGL2GL3();
 	}
 	
-	public void initEffect(TrackEffect fx) {
+	public void initEffect(VideoEffect fx) {
 		if(!(fx instanceof VideoEffect)) return;
-		VideoEffect vfx = (VideoEffect) fx;
+		VideoEffect vfx = fx;
 		
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
@@ -250,9 +248,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		this.loadedEffects.add(vfx);
 	}
 	
-	public void disposeEffect(TrackEffect fx) {
+	public void disposeEffect(VideoEffect fx) {
 		if(!(fx instanceof VideoEffect)) return;
-		VideoEffect vfx = (VideoEffect) fx;
+		VideoEffect vfx = fx;
 		
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
@@ -262,7 +260,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		for(int i = 0; i < this.loadedEffectInstances.size();) {
 			VideoEffectInstance inst = this.loadedEffectInstances.get(i);
 			
-			if(((TrackEffectInstance) inst).getEffectClass() == fx) {
+			if(inst.getEffectClass() == fx) {
 				inst.disposeVideo(this.gl);
 				this.loadedEffectInstances.remove(i);
 			} else i++;
@@ -281,10 +279,10 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		this.gl = ctx.getGL().getGL3();
 		
 		for(int i = 0; i < t.getEffectCount(); i++) {
-			TrackEffectInstance fx = t.getEffect(i);
+			VideoEffectInstance fx = t.getEffect(i);
 			
 			if(!(fx instanceof VideoEffectInstance)) continue;
-			VideoEffectInstance vfx = (VideoEffectInstance) fx;
+			VideoEffectInstance vfx = fx;
 			
 			vfx.disposeVideo(this.gl);
 			this.loadedEffectInstances.remove(vfx);
@@ -321,9 +319,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		return tex.update();
 	}
 	
-	public void disposeEffectInstance(TrackEffectInstance fx) {
+	public void disposeEffectInstance(VideoEffectInstance fx) {
 		if(!(fx instanceof VideoEffectInstance)) return;
-		VideoEffectInstance vfx = (VideoEffectInstance) fx;
+		VideoEffectInstance vfx = fx;
 		
 		GLContext ctx = this.mainRenderer.drawable.getContext();
 		ctx.makeCurrent();
@@ -414,7 +412,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			if(!t.isEnabled() || !t.isActiveAt(time) || t.getEffectCount() == 0) continue;
 			
 			for(int j = 0; j < t.getEffectCount(); j++) {
-				TrackEffectInstance fx = t.getEffect(j);
+				VideoEffectInstance fx = t.getEffect(j);
 				
 				if(fx instanceof VideoEffectInstance && fx.isEnabled()) {
 					this.trackRenderList.add(t);
@@ -434,11 +432,11 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		
 		// Apply the effects
 		for(int j = 0; j < t.getEffectCount(); j++) {
-			TrackEffectInstance fx = t.getEffect(j);
+			VideoEffectInstance fx = t.getEffect(j);
 			
 			// We only care about enabled video effects
 			if(!fx.isEnabled() || !(fx instanceof VideoEffectInstance)) continue;
-			VideoEffectInstance vfx = (VideoEffectInstance) fx;
+			VideoEffectInstance vfx = fx;
 			
 			// Init the effect first if it's not loaded already
 			if(!this.loadedEffectInstances.contains(vfx)) {
@@ -565,7 +563,7 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 			// Don't compose if there's no effect
 			boolean noEffect = true;
 			for(int j = 0; j < t.getEffectCount(); j++) {
-				TrackEffectInstance fx = t.getEffect(j);
+				VideoEffectInstance fx = t.getEffect(j);
 				
 				noEffect &= !(fx instanceof VideoEffectInstance) || !fx.isEnabled();
 				

@@ -28,7 +28,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2fc;
 
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.Vector2DParam;
 import io.gitlab.nasso.urmusic.view.components.UrmEditableNumberField;
 
@@ -36,7 +36,7 @@ public class Vector2DParamUI extends EffectParamUI<Vector2DParam> {
 	private Vector2f _vec2 = new Vector2f();
 	private UrmEditableNumberField xField, yField;
 	
-	public Vector2DParamUI(TrackEffectInstance fx, Vector2DParam param) {
+	public Vector2DParamUI(VideoEffectInstance fx, Vector2DParam param) {
 		super(fx, param);
 	}
 

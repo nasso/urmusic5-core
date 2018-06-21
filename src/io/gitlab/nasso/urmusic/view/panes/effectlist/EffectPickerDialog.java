@@ -47,11 +47,11 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
 import io.gitlab.nasso.urmusic.model.UrmusicModel;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect;
 import io.gitlab.nasso.urmusic.view.data.UrmusicStrings;
 
 public class EffectPickerDialog extends JDialog {
-	private static class TrackEffectListCellRenderer extends JLabel implements ListCellRenderer<TrackEffect> {
+	private static class TrackEffectListCellRenderer extends JLabel implements ListCellRenderer<VideoEffect> {
 		private static Color BACKGROUND_SELECTED = new Color(0x99b0d0f2, true);
 		private static Color BACKGROUND_SELECTED_FOCUSED = new Color(0xAAb0d0f2, true);
 		private static Border UNFOCUS_BORDER = BorderFactory.createEmptyBorder(3, 4, 3, 4);
@@ -63,7 +63,7 @@ public class EffectPickerDialog extends JDialog {
 		private TrackEffectListCellRenderer() {
 		}
 		
-		public Component getListCellRendererComponent(JList<? extends TrackEffect> list, TrackEffect value, int index, boolean isSelected, boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList<? extends VideoEffect> list, VideoEffect value, int index, boolean isSelected, boolean cellHasFocus) {
 			this.setText(UrmusicStrings.getString(UrmusicModel.getSourcePackage(value), "effect." + value.getEffectClassID() + ".name"));
 			
 			this.setOpaque(isSelected);
@@ -74,8 +74,8 @@ public class EffectPickerDialog extends JDialog {
 		}
 	}
 	
-	private static class TrackEffectListModel implements ListModel<TrackEffect> {
-		private List<TrackEffect> entries = new ArrayList<>();
+	private static class TrackEffectListModel implements ListModel<VideoEffect> {
+		private List<VideoEffect> entries = new ArrayList<>();
 		private List<ListDataListener> listeners = new ArrayList<>();
 		
 		public TrackEffectListModel() {
@@ -101,7 +101,7 @@ public class EffectPickerDialog extends JDialog {
 			return this.entries.size();
 		}
 
-		public TrackEffect getElementAt(int index) {
+		public VideoEffect getElementAt(int index) {
 			return this.entries.get(index);
 		}
 
@@ -114,14 +114,14 @@ public class EffectPickerDialog extends JDialog {
 		}
 	}
 	
-	private Consumer<List<TrackEffect>> onPick;
+	private Consumer<List<VideoEffect>> onPick;
 	
-	private JList<TrackEffect> selectionList;
+	private JList<VideoEffect> selectionList;
 	
 	private TrackEffectListCellRenderer listCellRenderer = new TrackEffectListCellRenderer();
 	private TrackEffectListModel listModel = new TrackEffectListModel();
 	
-	public EffectPickerDialog(String title, Consumer<List<TrackEffect>> onPick) {
+	public EffectPickerDialog(String title, Consumer<List<VideoEffect>> onPick) {
 		this.onPick = onPick;
 		
 		this.setTitle(title);

@@ -26,7 +26,7 @@ import java.util.List;
 import io.gitlab.nasso.urmusic.common.easing.EasingFunction;
 import io.gitlab.nasso.urmusic.common.event.EffectParamListener;
 import io.gitlab.nasso.urmusic.common.event.KeyFrameListener;
-import io.gitlab.nasso.urmusic.model.project.VideoEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 
 public abstract class EffectParam<T> implements KeyFrameListener<T> {
 	private List<EffectParamListener<T>> listeners = new ArrayList<>();

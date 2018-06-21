@@ -23,16 +23,14 @@ import org.joml.Vector2fc;
 
 import com.jogamp.opengl.GL3;
 
-import io.gitlab.nasso.urmusic.model.project.TrackEffect;
 import io.gitlab.nasso.urmusic.model.project.VideoEffect;
 import io.gitlab.nasso.urmusic.model.project.VideoEffectArgs;
-import io.gitlab.nasso.urmusic.model.project.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.Point2DParam;
 import io.gitlab.nasso.urmusic.model.renderer.video.glvg.GLVG;
 import io.gitlab.nasso.urmusic.model.renderer.video.glvg.VGLineCap;
 
-public class TestVFX extends TrackEffect implements VideoEffect {
-	private class TestVFXInstance extends TrackEffectInstance implements VideoEffectInstance {
+public class TestVFX extends VideoEffect {
+	private class TestVFXInstance extends VideoEffectInstance {
 		Vector2fc[] points;
 		private GLVG vg;
 		
@@ -91,7 +89,7 @@ public class TestVFX extends TrackEffect implements VideoEffect {
 	public void globalVideoDispose(GL3 gl) {
 	}
 
-	public TrackEffectInstance instance() {
+	public VideoEffectInstance instance() {
 		return new TestVFXInstance();
 	}
 

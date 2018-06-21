@@ -45,10 +45,10 @@ import io.gitlab.nasso.urmusic.model.project.Composition;
 import io.gitlab.nasso.urmusic.model.project.Project;
 import io.gitlab.nasso.urmusic.model.project.Timeline;
 import io.gitlab.nasso.urmusic.model.project.Track;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect;
 import io.gitlab.nasso.urmusic.model.project.Track.TrackActivityRange;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectScript;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.TrackEffectScript;
 import io.gitlab.nasso.urmusic.model.project.codec.ProjectCodec;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
 import io.gitlab.nasso.urmusic.model.project.param.KeyFrame;
@@ -104,8 +104,8 @@ public class UrmusicController {
 			}
 		});
 		
-		UrmusicController.addTrackEffectInstanceFocusListener(new FocusListener<TrackEffect.TrackEffectInstance>() {
-			public void focusChanged(TrackEffectInstance oldFocus, TrackEffectInstance newFocus) {
+		UrmusicController.addTrackEffectInstanceFocusListener(new FocusListener<VideoEffect.VideoEffectInstance>() {
+			public void focusChanged(VideoEffectInstance oldFocus, VideoEffectInstance newFocus) {
 				UrmusicController.toggleFocusEffectParameter(null, false);
 				
 				if(newFocus == null) return;
@@ -379,7 +379,7 @@ public class UrmusicController {
 		UrmusicController.markVideoDirty();
 	}
 	
-	public static void addEffect(TrackEffect e) {
+	public static void addEffect(VideoEffect e) {
 		if(e == null) return;
 		
 		Track t = UrmusicController.getFocusedTrack();
@@ -391,23 +391,23 @@ public class UrmusicController {
 		UrmusicController.markVideoDirty();
 	}
 	
-	public static void addEffects(List<TrackEffect> elist) {
+	public static void addEffects(List<VideoEffect> elist) {
 		if(elist == null || elist.isEmpty()) return;
 		
 		Track t = UrmusicController.getFocusedTrack();
 		if(t == null) return;
 		
-		for(TrackEffect e : elist)
+		for(VideoEffect e : elist)
 			t.addEffect(e.instance());
 
 		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
-	public static void duplicateTrackEffect(Track track, TrackEffectInstance fx) {
+	public static void duplicateTrackEffect(Track track, VideoEffectInstance fx) {
 		int i = track.getEffects().indexOf(fx) + 1;
 		
-		TrackEffectInstance copy = UrmusicModel.instanciateEffectById(fx.getEffectClass().getEffectClassID());
+		VideoEffectInstance copy = UrmusicModel.instanciateEffectById(fx.getEffectClass().getEffectClassID());
 		copy.getScript().setSource(copy.getScript().getSource());
 		
 		for(EffectParam<?> param : fx.getParameterListUnmodifiable()) {
@@ -425,22 +425,22 @@ public class UrmusicController {
 		UrmusicController.markVideoDirty();
 	}
 	
-	public static void moveEffect(Track track, TrackEffectInstance fx, int index) {
+	public static void moveEffect(Track track, VideoEffectInstance fx, int index) {
 		track.moveEffect(track.getEffects().indexOf(fx), index);
 		
 		UrmusicController.notifyProjectChanged();
 		UrmusicController.markVideoDirty();
 	}
 	
-	public static void moveEffectUp(Track track, TrackEffectInstance fx) {
+	public static void moveEffectUp(Track track, VideoEffectInstance fx) {
 		UrmusicController.moveEffect(track, fx, track.getEffects().indexOf(fx) - 1);
 	}
 	
-	public static void moveEffectDown(Track track, TrackEffectInstance fx) {
+	public static void moveEffectDown(Track track, VideoEffectInstance fx) {
 		UrmusicController.moveEffect(track, fx, track.getEffects().indexOf(fx) + 1);
 	}
 
-	public static void setEffectEnabled(TrackEffectInstance fx, boolean enabled) {
+	public static void setEffectEnabled(VideoEffectInstance fx, boolean enabled) {
 		if(fx.isEnabled() == enabled) return;
 
 		fx.setEnabled(enabled);
@@ -544,7 +544,7 @@ public class UrmusicController {
 		UrmusicController.markVideoDirty();
 	}
 	
-	public static void deleteTrackEffect(Track t, TrackEffectInstance fx) {
+	public static void deleteTrackEffect(Track t, VideoEffectInstance fx) {
 		for(int i = 0; i < fx.getParameterCount(); i++) {
 			EffectParam<?> param = fx.getParameter(i);
 			
@@ -679,29 +679,29 @@ public class UrmusicController {
 	}
 	
 	// Track Effect Instance
-	private static TrackEffectInstance focusedEffect = null;
-	private static List<FocusListener<TrackEffectInstance>> trackEffectFocusListeners = new ArrayList<>();
+	private static VideoEffectInstance focusedEffect = null;
+	private static List<FocusListener<VideoEffectInstance>> trackEffectFocusListeners = new ArrayList<>();
 	
-	public static void addTrackEffectInstanceFocusListener(FocusListener<TrackEffectInstance> l) {
+	public static void addTrackEffectInstanceFocusListener(FocusListener<VideoEffectInstance> l) {
 		UrmusicController.trackEffectFocusListeners.add(l);
 	}
 	
-	public static void removeTrackEffectInstanceFocusListener(FocusListener<TrackEffectInstance> l) {
+	public static void removeTrackEffectInstanceFocusListener(FocusListener<VideoEffectInstance> l) {
 		UrmusicController.trackEffectFocusListeners.remove(l);
 	}
 	
-	public static void focusTrackEffectInstance(TrackEffectInstance newFocus) {
+	public static void focusTrackEffectInstance(VideoEffectInstance newFocus) {
 		if(UrmusicController.focusedEffect == newFocus) return;
 		
-		TrackEffectInstance oldFocus = UrmusicController.focusedEffect;
+		VideoEffectInstance oldFocus = UrmusicController.focusedEffect;
 		UrmusicController.focusedEffect = newFocus;
 		
-		for(FocusListener<TrackEffectInstance> l : UrmusicController.trackEffectFocusListeners) {
+		for(FocusListener<VideoEffectInstance> l : UrmusicController.trackEffectFocusListeners) {
 			l.focusChanged(oldFocus, newFocus);
 		}
 	}
 	
-	public static TrackEffectInstance getFocusedTrackEffectInstance() {
+	public static VideoEffectInstance getFocusedTrackEffectInstance() {
 		return UrmusicController.focusedEffect;
 	}
 	

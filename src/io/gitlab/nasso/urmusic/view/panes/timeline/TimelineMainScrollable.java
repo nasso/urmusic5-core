@@ -46,7 +46,7 @@ import io.gitlab.nasso.urmusic.model.UrmusicModel;
 import io.gitlab.nasso.urmusic.model.project.Composition;
 import io.gitlab.nasso.urmusic.model.project.Timeline;
 import io.gitlab.nasso.urmusic.model.project.Track;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
 import io.gitlab.nasso.urmusic.view.layout.VListLayout;
 
@@ -235,10 +235,10 @@ public class TimelineMainScrollable extends JPanel implements MouseListener, Mou
 		SwingUtilities.invokeLater(this.timelineLayer::repaint);
 	}
 	
-	public void effectLoaded(TrackEffect fx) {
+	public void effectLoaded(VideoEffect fx) {
 	}
 	
-	public void effectUnloaded(TrackEffect fx) {
+	public void effectUnloaded(VideoEffect fx) {
 	}
 	
 	private int framesToPixels(int f) {

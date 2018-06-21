@@ -26,7 +26,7 @@ import java.util.List;
 import io.gitlab.nasso.urmusic.common.FloatRange;
 import io.gitlab.nasso.urmusic.common.MathUtils;
 import io.gitlab.nasso.urmusic.common.event.TrackListener;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 
 public class Track {
 	public static final class TrackActivityRange implements FloatRange {
@@ -105,8 +105,8 @@ public class Track {
 	private String name = "Unnamed";
 	private boolean enabled = true;
 	
-	private List<TrackEffectInstance> effects = new ArrayList<>();
-	private List<TrackEffectInstance> effectsUnmodifiable = Collections.unmodifiableList(this.effects);
+	private List<VideoEffectInstance> effects = new ArrayList<>();
+	private List<VideoEffectInstance> effectsUnmodifiable = Collections.unmodifiableList(this.effects);
 	
 	/**
 	 * @see Track#getActivityRanges()
@@ -150,32 +150,32 @@ public class Track {
 		return this.effects.size();
 	}
 	
-	public TrackEffectInstance getEffect(int i) {
+	public VideoEffectInstance getEffect(int i) {
 		return this.effects.get(i);
 	}
 	
-	public List<TrackEffectInstance> getEffects() {
+	public List<VideoEffectInstance> getEffects() {
 		return this.effectsUnmodifiable;
 	}
 	
-	public void addEffect(TrackEffectInstance e) {
+	public void addEffect(VideoEffectInstance e) {
 		this.addEffect(e, this.getEffectCount());
 	}
 	
-	public void addEffect(TrackEffectInstance e, int i) {
+	public void addEffect(VideoEffectInstance e, int i) {
 		this.effects.add(i, e);
 		
 		this.notifyEffectAdded(e, i);
 	}
 	
-	public TrackEffectInstance removeEffect(TrackEffectInstance e) {
+	public VideoEffectInstance removeEffect(VideoEffectInstance e) {
 		return this.removeEffect(this.effects.indexOf(e));
 	}
 	
-	public TrackEffectInstance removeEffect(int i) {
+	public VideoEffectInstance removeEffect(int i) {
 		if(!this.checkEffectIndex(i)) return null;
 		
-		TrackEffectInstance item = this.getEffect(i);
+		VideoEffectInstance item = this.getEffect(i);
 		this.effects.remove(i);
 		
 		this.notifyEffectRemoved(item, i);
@@ -186,7 +186,7 @@ public class Track {
 	public void moveEffect(int currPos, int newPos) {
 		if(!this.checkEffectIndex(currPos) || !this.checkEffectIndex(newPos)) return;
 		
-		TrackEffectInstance item = this.getEffect(currPos);
+		VideoEffectInstance item = this.getEffect(currPos);
 		this.effects.remove(currPos);
 		this.effects.add(newPos, item);
 		
@@ -279,19 +279,19 @@ public class Track {
 		}
 	}
 	
-	private void notifyEffectAdded(TrackEffectInstance e, int pos) {
+	private void notifyEffectAdded(VideoEffectInstance e, int pos) {
 		for(TrackListener l : this.listeners) {
 			l.effectAdded(this, e, pos);
 		}
 	}
 	
-	private void notifyEffectRemoved(TrackEffectInstance e, int pos) {
+	private void notifyEffectRemoved(VideoEffectInstance e, int pos) {
 		for(TrackListener l : this.listeners) {
 			l.effectRemoved(this, e, pos);
 		}
 	}
 	
-	private void notifyEffectMoved(TrackEffectInstance e, int oldPos, int newPos) {
+	private void notifyEffectMoved(VideoEffectInstance e, int oldPos, int newPos) {
 		for(TrackListener l : this.listeners) {
 			l.effectMoved(this, e, oldPos, newPos);
 		}

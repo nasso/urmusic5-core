@@ -42,7 +42,7 @@ import io.gitlab.nasso.urmusic.common.event.VideoRendererListener;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
 import io.gitlab.nasso.urmusic.model.UrmusicModel;
 import io.gitlab.nasso.urmusic.model.project.Composition;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
 import io.gitlab.nasso.urmusic.model.project.param.KeyFrame;
 import io.gitlab.nasso.urmusic.model.renderer.video.GLPreviewer;
@@ -131,10 +131,10 @@ public class PreviewView extends UrmViewPane implements
 		});
 	}
 
-	public void effectLoaded(TrackEffect fx) {
+	public void effectLoaded(VideoEffect fx) {
 	}
 
-	public void effectUnloaded(TrackEffect fx) {
+	public void effectUnloaded(VideoEffect fx) {
 	}
 
 	public void focused(EffectParam<?> o) {

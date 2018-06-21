@@ -25,7 +25,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.BooleanParam;
 import io.gitlab.nasso.urmusic.model.project.param.BoundsParam;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
@@ -38,9 +38,9 @@ import io.gitlab.nasso.urmusic.model.project.param.Vector2DParam;
 
 public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
 	private final T param;
-	private final TrackEffectInstance fx;
+	private final VideoEffectInstance fx;
 	
-	public EffectParamUI(TrackEffectInstance fx, T param) {
+	public EffectParamUI(VideoEffectInstance fx, T param) {
 		this.fx = fx;
 		this.param = param;
 		
@@ -58,7 +58,7 @@ public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
 		SwingUtilities.invokeLater(() -> this.updateControl());
 	}
 	
-	public TrackEffectInstance getEffectInstance() {
+	public VideoEffectInstance getEffectInstance() {
 		return this.fx;
 	}
 	
@@ -66,7 +66,7 @@ public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
 		return this.param;
 	}
 	
-	public static EffectParamUI<?> createParamUI(TrackEffectInstance fx, EffectParam<?> param) {
+	public static EffectParamUI<?> createParamUI(VideoEffectInstance fx, EffectParam<?> param) {
 		if(param instanceof FloatParam) {
 			return new FloatParamUI(fx, (FloatParam) param);
 		} else if(param instanceof IntParam) {

@@ -43,15 +43,15 @@ import io.gitlab.nasso.urmusic.common.event.FocusListener;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
 import io.gitlab.nasso.urmusic.model.UrmusicModel;
 import io.gitlab.nasso.urmusic.model.project.Track;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
 import io.gitlab.nasso.urmusic.view.data.UrmusicStrings;
 import io.gitlab.nasso.urmusic.view.data.UrmusicUIRes;
 import io.gitlab.nasso.urmusic.view.layout.VListLayout;
 
-public class TrackEffectPane extends JPanel implements EffectInstanceListener, FocusListener<TrackEffectInstance> {
+public class TrackEffectPane extends JPanel implements EffectInstanceListener, FocusListener<VideoEffectInstance> {
 	private Track track;
-	private TrackEffectInstance fx;
+	private VideoEffectInstance fx;
 	
 	private boolean expanded = false;
 	
@@ -66,7 +66,7 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 	
 	private JPanel contentPane;
 	
-	public TrackEffectPane(Track t, TrackEffectInstance fx) {
+	public TrackEffectPane(Track t, VideoEffectInstance fx) {
 		this.buildUI();
 		
 		this.track = t;
@@ -200,11 +200,11 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 		this.expanded = false;
 	}
 	
-	public TrackEffectInstance getEffectInstance() {
+	public VideoEffectInstance getEffectInstance() {
 		return this.fx;
 	}
 	
-	public void setEffectInstance(TrackEffectInstance newFx) {
+	public void setEffectInstance(VideoEffectInstance newFx) {
 		if(this.fx == newFx) return;
 		
 		if(this.fx != null) {
@@ -231,19 +231,19 @@ public class TrackEffectPane extends JPanel implements EffectInstanceListener, F
 		}
 	}
 	
-	public void enabledStateChanged(TrackEffectInstance source, boolean isEnabledNow) {
+	public void enabledStateChanged(VideoEffectInstance source, boolean isEnabledNow) {
 		this.chbxEnabled.setSelected(isEnabledNow);
 	}
 	
-	public void parameterAdded(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
+	public void parameterAdded(VideoEffectInstance source, int i, EffectParam<?> ctrl) {
 		SwingUtilities.invokeLater(() -> this.addParam(ctrl, i));
 	}
 	
-	public void parameterRemoved(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
+	public void parameterRemoved(VideoEffectInstance source, int i, EffectParam<?> ctrl) {
 		SwingUtilities.invokeLater(() -> this.removeParam(i));
 	}
 	
-	public void focusChanged(TrackEffectInstance oldFocus, TrackEffectInstance newFocus) {
+	public void focusChanged(VideoEffectInstance oldFocus, VideoEffectInstance newFocus) {
 		if(this.fx != newFocus && this.fx != oldFocus) return;
 		
 		SwingUtilities.invokeLater(() -> {

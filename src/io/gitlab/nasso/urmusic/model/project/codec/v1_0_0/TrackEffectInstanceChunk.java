@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import io.gitlab.nasso.urmusic.model.UrmusicModel;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 
 class TrackEffectInstanceChunk implements Chunk {
 	static final int ID = buildBigInt('V', 'F', 'X', '\0');
@@ -81,7 +81,7 @@ class TrackEffectInstanceChunk implements Chunk {
 		Chunk.assertZero(size);
 	}
 	
-	public static TrackEffectInstanceChunk from(TrackEffectInstance fx) {
+	public static TrackEffectInstanceChunk from(VideoEffectInstance fx) {
 		TrackEffectInstanceChunk ch = new TrackEffectInstanceChunk();
 		
 		ch.id = StringChunk.from(fx.getEffectClass().getEffectClassID());
@@ -95,8 +95,8 @@ class TrackEffectInstanceChunk implements Chunk {
 		return ch;
 	}
 
-	public TrackEffectInstance build() {
-		TrackEffectInstance tei = UrmusicModel.instanciateEffectById(this.id.build());
+	public VideoEffectInstance build() {
+		VideoEffectInstance tei = UrmusicModel.instanciateEffectById(this.id.build());
 		if(tei == null)
 			return null;
 		

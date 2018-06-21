@@ -40,17 +40,17 @@ import io.gitlab.nasso.urmusic.common.event.EffectInstanceListener;
 import io.gitlab.nasso.urmusic.common.event.FocusListener;
 import io.gitlab.nasso.urmusic.common.event.ScriptRuntimeErrorListener;
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
 import io.gitlab.nasso.urmusic.view.UrmusicView;
 import io.gitlab.nasso.urmusic.view.components.UrmViewPane;
 import io.gitlab.nasso.urmusic.view.data.UrmusicUIRes;
 
-public class ScriptEditorView extends UrmViewPane implements FocusListener<TrackEffectInstance>, ScriptRuntimeErrorListener, EffectInstanceListener {
+public class ScriptEditorView extends UrmViewPane implements FocusListener<VideoEffectInstance>, ScriptRuntimeErrorListener, EffectInstanceListener {
 	private static final Color ERROR_LINE_HIGHLIGHT_COLOR = new Color(0xffcccc);
 	public static final String VIEW_NAME = "scriptEditor";
 
-	private TrackEffectInstance fx;
+	private VideoEffectInstance fx;
 	
 	private RTextScrollPane scroller;
 	private RSyntaxTextArea editor;
@@ -146,7 +146,7 @@ public class ScriptEditorView extends UrmViewPane implements FocusListener<Track
 		this.editor.discardAllEdits();
 	}
 	
-	private void updateContent(TrackEffectInstance fx) {
+	private void updateContent(VideoEffectInstance fx) {
 		if(fx != null) {
 			if(this.fx != null) {
 				this.fx.getScript().removeErrorListener(this);
@@ -162,7 +162,7 @@ public class ScriptEditorView extends UrmViewPane implements FocusListener<Track
 		}
 	}
 
-	public void focusChanged(TrackEffectInstance oldFocus, TrackEffectInstance newFocus) {
+	public void focusChanged(VideoEffectInstance oldFocus, VideoEffectInstance newFocus) {
 		this.updateContent(newFocus);
 	}
 	
@@ -182,13 +182,13 @@ public class ScriptEditorView extends UrmViewPane implements FocusListener<Track
 		}
 	}
 
-	public void enabledStateChanged(TrackEffectInstance source, boolean isEnabledNow) {
+	public void enabledStateChanged(VideoEffectInstance source, boolean isEnabledNow) {
 	}
 
-	public void parameterAdded(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
+	public void parameterAdded(VideoEffectInstance source, int i, EffectParam<?> ctrl) {
 	}
 
-	public void parameterRemoved(TrackEffectInstance source, int i, EffectParam<?> ctrl) {
+	public void parameterRemoved(VideoEffectInstance source, int i, EffectParam<?> ctrl) {
 	}
 
 	public void effectInstanceDisposed() {

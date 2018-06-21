@@ -38,7 +38,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
-import io.gitlab.nasso.urmusic.model.project.TrackEffect.TrackEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.FileParam;
 import io.gitlab.nasso.urmusic.view.components.UrmEditableLabel;
 import io.gitlab.nasso.urmusic.view.data.UrmusicStrings;
@@ -48,7 +48,7 @@ public class FileParamUI extends EffectParamUI<FileParam> {
 	private UrmEditableLabel urlField;
 	private JButton browseButton;
 	
-	public FileParamUI(TrackEffectInstance fx, FileParam param) {
+	public FileParamUI(VideoEffectInstance fx, FileParam param) {
 		super(fx, param);
 	}
 	
