@@ -38,6 +38,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
+import io.gitlab.nasso.urmusic.model.UrmusicModel;
 import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.FileParam;
 import io.gitlab.nasso.urmusic.view.components.UrmEditableLabel;
@@ -100,7 +101,7 @@ public class FileParamUI extends EffectParamUI<FileParam> {
 		
 		this.urlField.setValue(
 			p == null ?
-				UrmusicStrings.getString(
+				UrmusicStrings.getString(UrmusicModel.getSourcePackage(this.getEffectInstance().getEffectClass()),
 					"effect." + this.getEffectInstance().getEffectClass().getEffectClassID() +
 					".param." + this.getParam().getID() +
 					".empty") :

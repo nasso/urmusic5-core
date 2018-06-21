@@ -26,6 +26,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 
 import io.gitlab.nasso.urmusic.controller.UrmusicController;
+import io.gitlab.nasso.urmusic.model.UrmusicModel;
 import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.param.OptionParam;
 import io.gitlab.nasso.urmusic.view.data.UrmusicStrings;
@@ -48,7 +49,7 @@ public class OptionParamUI extends EffectParamUI<OptionParam> {
 		OptionParam p = this.getParam();
 		for(int i = 0; i < p.getOptionCount(); i++)
 			this.combo.addItem(
-					UrmusicStrings.getString(
+					UrmusicStrings.getString(UrmusicModel.getSourcePackage(this.getEffectInstance().getEffectClass()),
 							"effect." + this.getEffectInstance().getEffectClass().getEffectClassID() +
 							".param." + p.getID() +
 							".option." + p.getOptionName(i)));
