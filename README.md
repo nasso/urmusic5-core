@@ -1,10 +1,10 @@
-# urmusic5-dev
+# urmusic5-core
 The indev repo for the upcoming next major release of urmusic.
+Only the source of the core is present on this repo. To see the source for the standard effects plugin, see [urmusic5-plugin-stdfx](https://gitlab.com/nasso/urmusic5-plugin-stdfx)
 
 This version isn't ready for production yet. It's licensed under the GNU General Public License Version 3.
 
 It's made in Java, and I use OpenGL (with JOGL) to render the video.
-Video exporting hasn't been implemented yet on this version.
 
 Libraries/framworks used:
 - [JOGL](http://jogamp.org/jogl/www) [2.3.2](http://jogamp.org/wiki/index.php/Release_2.3.2)
