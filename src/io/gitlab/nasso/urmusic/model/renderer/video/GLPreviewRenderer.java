@@ -64,7 +64,7 @@ public class GLPreviewRenderer implements GLEventListener {
 		
 		int tex = this.previewer.getPreviewTexture();
 		if(!gl.glIsTexture(tex)) return;
-
+		
 		float sw = drawable.getSurfaceWidth();
 		float sh = drawable.getSurfaceHeight();
 		

@@ -392,6 +392,9 @@ public class GLRenderer implements GLEventListener, CompositionListener {
 		
 		this.renderComposition(dest.comp, dest.frame_pos / dest.comp.getTimeline().getFramerate(), dest.index);
 		
+		// We gotta force the thing to render!
+		this.gl.glFinish();
+		
 		if(dest.destRGB != null) {
 			int tex = this.getTextureForCacheIndex(dest.comp, dest.index);
 			
