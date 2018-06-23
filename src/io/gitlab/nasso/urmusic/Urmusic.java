@@ -97,7 +97,13 @@ public class Urmusic {
 		
 		// Test stuff below this line!
 		
-//		UrmusicController.addEffect(new TestVFX());
+		/*
+		SwingUtilities.invokeLater(() -> {
+			UrmusicController.addTrack();
+			UrmusicController.focusTrackActivityRange(UrmusicController.getFocusedComposition().getTimeline().getTracks().get(0).getActivityRanges().get(0));
+			UrmusicController.addEffect(new TestVFX());
+		});
+		*/
 	}
 	
 	public static void loadPlugins() {

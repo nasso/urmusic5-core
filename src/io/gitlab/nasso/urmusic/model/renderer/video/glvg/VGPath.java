@@ -163,6 +163,7 @@ class VGPath implements Cloneable {
 							break;
 					}
 				} else {
+					// TODO joins
 					switch(joins) {
 						case BEVEL:
 							break;

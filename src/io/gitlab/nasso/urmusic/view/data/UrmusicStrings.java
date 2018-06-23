@@ -124,7 +124,7 @@ public class UrmusicStrings {
 	}
 	
 	public static final String getString(UrmPluginPackage upp, String key) {
-		return getString("plugin." + upp.getPluginID() + "." + key);
+		return upp == null ? getString(key) : getString("plugin." + upp.getPluginID() + "." + key);
 	}
 	
 	private UrmusicStrings() { }
