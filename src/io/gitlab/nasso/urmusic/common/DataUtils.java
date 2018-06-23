@@ -19,7 +19,6 @@
  ******************************************************************************/
 package io.gitlab.nasso.urmusic.common;
 
-import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -45,8 +44,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
-import javax.imageio.ImageIO;
-
 import io.gitlab.nasso.urmusic.Urmusic;
 
 /**
@@ -57,22 +54,6 @@ import io.gitlab.nasso.urmusic.Urmusic;
 public class DataUtils {
 	private DataUtils() { }
 
-	public static BufferedImage loadImage(String imagePath) {
-		BufferedImage img = null;
-		try {
-			img = ImageIO.read(new File(imagePath));
-		} catch(Exception e) {
-			e.printStackTrace();
-		}
-		
-		if(img == null) {
-			System.err.println("Couldn't load " + imagePath);
-			return null;
-		}
-		
-		return img;
-	}
-	
 	/**
 	 * Creates a local file, located in the {@link Urmusic#URM_HOME} folder.
 	 * @param path
