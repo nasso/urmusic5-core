@@ -81,13 +81,6 @@ urmusic = urm = {};
 		return _audio.peakAmp(n_time, n_duration);
 	};
 	
-	urm.audio.peakAmp = function(n_time, n_duration) {
-		if(typeof n_time !== "number") throw new Error("Invalid argument for 'n_time': expected number, got " + (typeof n_time));
-		if(typeof n_duration !== "number") throw new Error("Invalid argument for 'n_duration': expected number, got " + (typeof n_duration));
-		
-		return _audio.peakAmp(n_time, n_duration);
-	};
-	
 	var remote = Java.type("io.gitlab.nasso.urmusic.model.scripting.ScriptAPIUtils");
 	
 	urm.seedRandom = function(n_seed, n_time) {
