@@ -1,6 +1,7 @@
 bin/*
 .settings/*
 ignore/*
+plugins/*
 
 *.war
 *.ear
