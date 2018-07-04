@@ -26,6 +26,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.param.AngleParam;
 import io.gitlab.nasso.urmusic.model.project.param.BooleanParam;
 import io.gitlab.nasso.urmusic.model.project.param.BoundsParam;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
@@ -67,7 +68,9 @@ public abstract class EffectParamUI<T extends EffectParam<?>> extends JPanel {
 	}
 	
 	public static EffectParamUI<?> createParamUI(VideoEffectInstance fx, EffectParam<?> param) {
-		if(param instanceof FloatParam) {
+		if(param instanceof AngleParam) {
+			return new AngleParamUI(fx, (AngleParam) param);
+		} else if(param instanceof FloatParam) {
 			return new FloatParamUI(fx, (FloatParam) param);
 		} else if(param instanceof IntParam) {
 			return new IntParamUI(fx, (IntParam) param);

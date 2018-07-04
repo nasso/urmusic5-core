@@ -48,14 +48,16 @@ public class UrmEditableDurationPane extends JPanel {
 		
 		this.add(this.minField = new UrmEditableIntegerField(blockKeyEvents, this::onFieldChange, 1));
 		
+		final Color lblColor = new Color(0, 0, 0, 128);
+		
 		JLabel lbl = new JLabel(":");
-		lbl.setForeground(new Color(0, 0, 0, 128));
+		lbl.setForeground(lblColor);
 		this.add(lbl);
 		
 		this.add(this.secField = new UrmEditableIntegerField(blockKeyEvents, this::onFieldChange, 2));
 
 		lbl = new JLabel(".");
-		lbl.setForeground(new Color(0, 0, 0, 128));
+		lbl.setForeground(lblColor);
 		this.add(lbl);
 		
 		this.add(this.msField = new UrmEditableIntegerField(blockKeyEvents, this::onFieldChange, 3));
