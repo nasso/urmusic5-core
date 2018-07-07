@@ -22,7 +22,7 @@ Currently, I didn't really work on the UI, to focus on features and stability. H
   - Image display
   - Mirror effect
   - ...
-  - \+ your very own [plugin](https://gitlab.com/nasso/urmusic5-core/blob/master/CONTRIBUTING.md#plugins)?
+  - \+ your very own [plugin](https://gitlab.com/nasso/urmusic5-core/wikis/Making-a-plugin)?
 - Plugin system
 - Hardware acceleration
 - Key-frame based animations
