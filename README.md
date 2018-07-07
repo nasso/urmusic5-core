@@ -39,7 +39,7 @@ See the [sourceforge project page](https://sourceforge.net/projects/urmusic5/) t
 ## Building
 I'm providing the Eclipse project for those who wants it. Yes, I am using Eclipse, no I'm not planning to switch to `[insert your favorite IDE here]`. Yes, I'm using the libraries JAR files and dependencies, no, I'm not using any other particular build system.
 
-_Note:_ This repo only contains the source for the core, without any effect. The source for the standard effects plugin can be found on [this repo](https://gitlab.com/nasso/urmusic5-plugin-stdfx).
+_Note: This repo only contains the source for the core, without any effect. The source for the standard effects plugin can be found on [this repo](https://gitlab.com/nasso/urmusic5-plugin-stdfx)._
 
 ### Dependencies
 - [JOGL](http://jogamp.org/jogl/www) [2.3.2](http://jogamp.org/wiki/index.php/Release_2.3.2), to use OpenGL
