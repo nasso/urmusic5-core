@@ -42,13 +42,14 @@ import io.gitlab.nasso.urmusic.model.UrmusicModel;
 import io.gitlab.nasso.urmusic.model.exporter.ExportSettings;
 import io.gitlab.nasso.urmusic.model.exporter.Exporter.ExportJob;
 import io.gitlab.nasso.urmusic.model.project.Composition;
+import io.gitlab.nasso.urmusic.model.project.EmptyTrack;
 import io.gitlab.nasso.urmusic.model.project.Project;
 import io.gitlab.nasso.urmusic.model.project.Timeline;
 import io.gitlab.nasso.urmusic.model.project.Track;
-import io.gitlab.nasso.urmusic.model.project.VideoEffect;
 import io.gitlab.nasso.urmusic.model.project.Track.TrackActivityRange;
-import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect;
 import io.gitlab.nasso.urmusic.model.project.VideoEffect.TrackEffectScript;
+import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 import io.gitlab.nasso.urmusic.model.project.codec.ProjectCodec;
 import io.gitlab.nasso.urmusic.model.project.param.EffectParam;
 import io.gitlab.nasso.urmusic.model.project.param.KeyFrame;
@@ -449,11 +450,11 @@ public class UrmusicController {
 		UrmusicController.markVideoDirty();
 	}
 	
-	public static void addTrack() {
+	public static void addEmptyTrack() {
 		Composition comp = UrmusicController.getFocusedComposition();
 		if(comp == null) return;
 		
-		comp.getTimeline().addTrack(new Track(comp.getTimeline().getDuration()));
+		comp.getTimeline().addTrack(new EmptyTrack(comp.getTimeline().getDuration()));
 
 		UrmusicController.notifyProjectChanged();
 		// We technically don't have to render after adding an empty track

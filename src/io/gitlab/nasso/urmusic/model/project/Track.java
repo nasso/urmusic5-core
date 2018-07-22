@@ -28,7 +28,7 @@ import io.gitlab.nasso.urmusic.common.MathUtils;
 import io.gitlab.nasso.urmusic.common.event.TrackListener;
 import io.gitlab.nasso.urmusic.model.project.VideoEffect.VideoEffectInstance;
 
-public class Track {
+public abstract class Track {
 	public static final class TrackActivityRange implements FloatRange {
 		private Track track;
 		private float start, end;
@@ -122,6 +122,8 @@ public class Track {
 	
 	public Track() {
 	}
+	
+	public abstract VideoEffectInstance getRoot();
 	
 	public String getName() {
 		return this.name;

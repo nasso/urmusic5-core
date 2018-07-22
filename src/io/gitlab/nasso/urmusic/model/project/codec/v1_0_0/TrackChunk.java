@@ -25,11 +25,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import io.gitlab.nasso.urmusic.model.project.EmptyTrack;
 import io.gitlab.nasso.urmusic.model.project.Track;
 
 class TrackChunk implements Chunk {
 	static final int ID = buildBigInt('T', 'R', 'C', 'K');
 	
+	static final byte TYPE_EMPTY = 0;
+	
+	byte trackType;
 	StringChunk name;
 	boolean enabled;
 	TrackRangeListChunk ranges;
@@ -82,6 +86,8 @@ class TrackChunk implements Chunk {
 	static TrackChunk from(Track t) {
 		TrackChunk ch = new TrackChunk();
 		
+		if(t instanceof EmptyTrack) ch.trackType = TYPE_EMPTY;
+		
 		ch.name = StringChunk.from(t.getName());
 		ch.enabled = t.isEnabled();
 		ch.ranges = TrackRangeListChunk.from(t.getActivityRanges());
@@ -93,7 +99,14 @@ class TrackChunk implements Chunk {
 	}
 
 	public Track build() {
-		Track tr = new Track();
+		Track tr = null;
+		switch(this.trackType) {
+			case TYPE_EMPTY:
+				tr = new EmptyTrack();
+				break;
+			default:
+				return null;
+		}
 		
 		tr.setName(this.name.build());
 		tr.setEnabled(this.enabled);

@@ -149,7 +149,12 @@
 				"menu": {
 					"add": {
 						"": "Add",
-						"track": "Track"
+						"track": {
+							"empty": "Empty Track",
+							"solid": "Solid Track",
+							"effect": "Effect Track",
+							"media": "Media Track"
+						}
 					}
 				},
 				"track": {

@@ -50,9 +50,9 @@ public class TimelineView extends UrmViewPane {
 		// -- menu -- 
 		// Add
 		this.addMenu(new UrmMenu(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add"),
-			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add.track")) {
+			new JMenuItem(new AbstractAction(UrmusicStrings.getString("view." + VIEW_NAME + ".menu.add.track.empty")) {
 				public void actionPerformed(ActionEvent e) {
-					UrmusicController.addTrack();
+					UrmusicController.addEmptyTrack();
 				}
 			})
 		));
